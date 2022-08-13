@@ -71,11 +71,4 @@ class ModsDotGroovy implements Plugin<Project> {
             }
         }
     }
-
-    static void main(String[] args) {
-        final path = Path.of('C:\\Users\\rober\\Documents\\GitHub\\Groovylicious\\src\\main\\resources\\META-INF\\mods.toml')
-        Toml toml = new Toml().read(path.toFile())
-        final map = toml.toMap()
-        println map
-    }
 }
