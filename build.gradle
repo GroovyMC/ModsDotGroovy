@@ -1,0 +1,98 @@
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+
+buildscript {
+    dependencies {
+        classpath 'org.codehaus.groovy:groovy-all:3.0.9'
+    }
+}
+
+plugins {
+    id 'idea'
+    id 'maven-publish'
+    id 'groovy-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.18.0'
+    id 'org.cadixdev.licenser' version '0.6.1'
+}
+
+group = 'io.github.groovymc.modsdotgroovy'
+archivesBaseName = 'modsdotgroovy'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    lib
+}
+
+license {
+    header = project.file('LICENSE')
+}
+
+dependencies {
+    implementation gradleApi()
+    libCompileOnly "org.apache.groovy:groovy:4.0.4"
+    implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+}
+
+pluginBundle {
+    website = 'https://github.com/GroovyMC/ModsDotGroovy'
+    vcsUrl = 'https://github.com/BrassMC/ModsDotGroovy'
+}
+
+gradlePlugin {
+    plugins {
+        modsdotgroovy {
+            id = 'io.github.groovymc.modsdotgroovy'
+            displayName = 'ModsDotGroovy'
+            description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
+            implementationClass = 'io.github.groovymc.modsdotgroovy.ModsDotGroovy'
+        }
+    }
+}
+
+jar {
+    manifest.attributes makeAttributes()
+}
+
+Map<?, ?> makeAttributes() {
+    final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+    final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+    return [
+            'Specification-Title'     : archivesBaseName,
+            'Specification-Vendor'    : 'GroovyMC',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : archivesBaseName,
+            'Implementation-Version'  : "${project.version}",
+            'Implementation-Vendor'   : 'Matyrobbrt',
+            'Implementation-Timestamp': currentDateTime,
+            'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})"
+    ]
+}
+
+tasks.create('dslJar', Jar) {
+    group = 'build'
+    from sourceSets.lib.output
+    archiveFileName = "dsl-${project.dsl_version}.jar"
+    manifest.attributes makeAttributes() + ['Maven-Artifact' : "${project.group}:dsl:${project.version}"]
+}
+tasks.create('dslSources', Jar) {
+    from sourceSets.lib.allSource
+    archiveFileName = "dsl-${project.dsl_version}-sources.jar"
+    classifier 'sources'
+    manifest.attributes makeAttributes()
+}
+
+publishing {
+    publications {
+        mavenDsl(MavenPublication) {
+            groupId = 'io.github.groovymc.modsdotgroovy'
+            artifactId = 'dsl'
+            version = project.dsl_version
+
+            artifacts = [dslJar, dslSources]
+        }
+    }
+}
