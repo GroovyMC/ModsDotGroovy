@@ -29,7 +29,7 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.apache.groovy.lang.annotation.Incubating
 
-import static groovy.lang.Closure.DELEGATE_ONLY
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 @Incubating
 @CompileStatic
@@ -37,31 +37,31 @@ class DependenciesBuilder extends HashMap {
 
     private List<Dependency> dependencies = []
 
-    void mod(@DelegatesTo(value = Dependency, strategy = DELEGATE_ONLY)
+    void mod(@DelegatesTo(value = Dependency, strategy = DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'modsdotgroovy.Dependency') final Closure closure) {
         final dep = new Dependency()
         closure.delegate = dep
-        closure.resolveStrategy = DELEGATE_ONLY
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dep)
         dependencies << dep.copy()
     }
 
     void mod(final String modId,
-             @DelegatesTo(value = Dependency, strategy = DELEGATE_ONLY)
+             @DelegatesTo(value = Dependency, strategy = DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'modsdotgroovy.Dependency') final Closure closure) {
         final dep = new Dependency()
         dep.modId = modId
         closure.delegate = dep
-        closure.resolveStrategy = DELEGATE_ONLY
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dep)
         dependencies << dep.copy()
     }
 
-    void minecraft(@DelegatesTo(value = MinecraftDependency, strategy = DELEGATE_ONLY)
+    void minecraft(@DelegatesTo(value = MinecraftDependency, strategy = DELEGATE_FIRST)
                    @ClosureParams(value = SimpleType, options = 'modsdotgroovy.MinecraftDependency') final Closure closure) {
         final minecraftDependency = new MinecraftDependency()
         closure.delegate = minecraftDependency
-        closure.resolveStrategy = DELEGATE_ONLY
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.call(minecraftDependency)
         dependencies << minecraftDependency.copy()
     }
@@ -81,17 +81,14 @@ class DependenciesBuilder extends HashMap {
 
     // same as NumberRange but added this for better IDE support
     void setMinecraft(final List<BigDecimal> versionRange) {
-        final minecraftDependency = new MinecraftDependency()
-        final numRange = new NumberRange(versionRange[0], versionRange[1])
-        final String mavenVersionRange = "[${numRange.from},${numRange.to})"
-        dependencies << minecraftDependency.copy()
+        setMinecraft(new NumberRange(versionRange[0], versionRange[1]))
     }
 
-    void forge(@DelegatesTo(value = ForgeDependency, strategy = DELEGATE_ONLY)
+    void forge(@DelegatesTo(value = ForgeDependency, strategy = DELEGATE_FIRST)
                @ClosureParams(value = SimpleType, options = 'modsdotgroovy.ForgeDependency') final Closure closure) {
         final forgeDependency = new ForgeDependency()
         closure.delegate = forgeDependency
-        closure.resolveStrategy = DELEGATE_ONLY
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.call(forgeDependency)
         dependencies << forgeDependency.copy()
     }
@@ -103,7 +100,7 @@ class DependenciesBuilder extends HashMap {
     }
 
     void methodMissing(String name,
-                       @DelegatesTo(value = ForgeDependency, strategy = DELEGATE_ONLY)
+                       @DelegatesTo(value = ForgeDependency, strategy = DELEGATE_FIRST)
                        @ClosureParams(value = SimpleType, options = 'modsdotgroovy.Dependency') final Closure closure) {
         mod(name, closure)
     }
@@ -117,7 +114,7 @@ class DependenciesBuilder extends HashMap {
                 final closure = value as Closure
                 dependency.modId = key as String
                 closure.delegate = dependency
-                closure.resolveStrategy = DELEGATE_ONLY
+                closure.resolveStrategy = DELEGATE_FIRST
                 closure.call(dependency)
             } else {
                 // assume key and value are both strings
