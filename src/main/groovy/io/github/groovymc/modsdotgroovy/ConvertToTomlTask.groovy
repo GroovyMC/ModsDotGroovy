@@ -29,12 +29,10 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.RegularFile
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.*
 
 import java.nio.file.Files
 
@@ -49,13 +47,13 @@ abstract class ConvertToTomlTask extends DefaultTask {
     @InputFile
     abstract RegularFileProperty getDslLocation()
 
-    ConvertToTomlTask() {
-        getOutput().convention(new RegularFile() {
-            @Override
-            File getAsFile() {
-                return new File(project.buildDir, "${getName()}/mods.toml")
-            }
-        })
+    @Input
+    @Optional
+    abstract Property<Map> getArguments()
+
+    ConvertToTomlTask(ProjectLayout layout) {
+        output.convention(layout.buildDirectory.dir(name).map {it.file('mods.toml')})
+        arguments.convention([:])
     }
 
     @TaskAction
@@ -78,8 +76,11 @@ abstract class ConvertToTomlTask extends DefaultTask {
 
     @CompileDynamic
     Map from(File script) {
+        final bindings = new Binding([
+                'properties': project.properties
+        ] + arguments.get())
         final actualDsl = dslLocation.getOrNull()?.asFile ?: project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME).resolve().find()
-        final shell = new GroovyShell(getClass().classLoader, new DelegateConfig(CompilerConfiguration.DEFAULT) {
+        final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
             final List<String> classpath = List.of(actualDsl.toString())
             @Override
             List<String> getClasspath() {
