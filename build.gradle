@@ -91,6 +91,14 @@ tasks.withType(GroovyCompile).configureEach {
     groovyOptions.optimizationOptions.indy = true
 }
 
+tasks.create('publishPluginToInquisitionMaven') {
+    it.group = 'publishing'
+    it.dependsOn(
+            'publishModsdotgroovyPluginMarkerMavenPublicationToModdingInquisitionMavenRepoRepository',
+            'publishPluginMavenPublicationToModdingInquisitionMavenRepoRepository'
+    )
+}
+
 publishing {
     publications {
         mavenDsl(MavenPublication) {

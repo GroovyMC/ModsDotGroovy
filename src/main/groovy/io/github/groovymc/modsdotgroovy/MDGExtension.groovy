@@ -28,11 +28,11 @@ import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 
 @CompileStatic
-abstract class MDTExtension {
+abstract class MDGExtension {
     public static final String NAME = 'modsDotGroovy'
     abstract Property<String> getDslVersion()
 
-    String mdtDsl(String version = null) {
+    String mdgDsl(String version = null) {
         version = version ?: getDslVersion().get()
         return "io.github.groovymc.modsdotgroovy:dsl:$version"
     }

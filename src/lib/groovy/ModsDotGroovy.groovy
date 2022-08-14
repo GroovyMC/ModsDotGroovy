@@ -95,14 +95,14 @@ class ModsDotGroovy {
 
     protected void pushMod(ImmutableModInfo modInfo) {
         final mods = (data.computeIfAbsent('mods', {[]}) as List)
-        modInfo.dependencies.each {
+        modInfo.dependencies?.each {
             ((data.computeIfAbsent('dependencies', {[:]}) as Map)
                     .computeIfAbsent(modInfo.modId, {[]}) as List)
                     .push(it.asMap())
         }
-        if (!modInfo.customProperties.isEmpty())
-        (data.computeIfAbsent('modproperties', {[:]}) as Map)
-                .put(modInfo.modId, modInfo.customProperties)
+        if (modInfo.customProperties !== null && !modInfo.customProperties.isEmpty())
+            (data.computeIfAbsent('modproperties', {[:]}) as Map)
+                    .put(modInfo.modId, modInfo.customProperties)
 
         final modData = [:]
         modData['modId'] = modInfo.modId
