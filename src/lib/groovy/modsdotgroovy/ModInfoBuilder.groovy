@@ -90,6 +90,15 @@ class ModInfoBuilder {
      */
     List<Dependency> dependencies
 
+    /**
+     * The custom properties of the mod
+     */
+    Map<String, String> properties = [:]
+
+    void propertyMissing(String name, String value) {
+        properties[name] = value
+    }
+
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                       @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependenciesBuilder') final Closure closure) {
         final dependenciesBuilder = new DependenciesBuilder()
@@ -112,6 +121,6 @@ class ModInfoBuilder {
     }
 
     ImmutableModInfo build() {
-        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies)
+        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties)
     }
 }

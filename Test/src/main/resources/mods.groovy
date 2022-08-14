@@ -10,6 +10,8 @@ ModsDotGroovy.make {
 
         credits = "${buildProperties.someProperty}"
 
+        customProperty = 'hello'
+
         dependencies {
             minecraft {
                 versionRange = '[1.19,1.20)'
