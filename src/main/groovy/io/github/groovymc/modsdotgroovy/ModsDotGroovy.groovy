@@ -28,6 +28,7 @@ import com.moandjiezana.toml.Toml
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
@@ -44,6 +45,11 @@ class ModsDotGroovy implements Plugin<Project> {
         final configuration = project.configurations.create(CONFIGURATION_NAME)
         project.getPlugins().apply('java')
         project.afterEvaluate {
+            project.repositories.maven { MavenArtifactRepository repo ->
+                repo.name = 'Modding Inquisition Releases'
+                repo.url = 'https://maven.moddinginquisition.org/releases'
+            }
+
             configuration.dependencies.add(project.dependencies.create(ext.mdtDsl()))
             project.configurations.getByName(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME)
                 .extendsFrom(configuration)
