@@ -11,6 +11,8 @@ ModsDotGroovy.make {
         authors = ['Matyrobbrt', 'Paint_Ninja']
         credits = "${buildProperties.someProperty}"
 
+        customProperty = 'hello'
+
         dependencies {
             minecraft {
                 versionRange = '[1.19,1.20)'

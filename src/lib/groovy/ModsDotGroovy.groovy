@@ -25,7 +25,6 @@
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
-import modsdotgroovy.DependenciesBuilder
 import modsdotgroovy.ImmutableModInfo
 import modsdotgroovy.ModInfoBuilder
 import modsdotgroovy.ModsBuilder
@@ -101,8 +100,11 @@ class ModsDotGroovy {
                     .computeIfAbsent(modInfo.modId, {[]}) as List)
                     .push(it.asMap())
         }
-        final modData = [:]
+        if (!modInfo.customProperties.isEmpty())
+        (data.computeIfAbsent('modproperties', {[:]}) as Map)
+                .put(modInfo.modId, modInfo.customProperties)
 
+        final modData = [:]
         modData['modId'] = modInfo.modId
         modData['version'] = modInfo.version
         modData['displayName'] = modInfo.displayName
