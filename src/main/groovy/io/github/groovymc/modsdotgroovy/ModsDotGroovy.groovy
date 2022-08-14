@@ -55,9 +55,9 @@ class ModsDotGroovy implements Plugin<Project> {
                 project.getTasks().create('modsDotGroovyToToml', DefaultTask) // dummy task
             } else {
                 final modsToml = mainSrcSets
-                    .stream().map { new File(it, 'META-INF/mods.groovy') }
+                    .stream().map { new File(it, 'mods.groovy') }
                     .filter { it.exists() }.findFirst()
-                    .orElseGet(() -> new File(mainSrcSets.find(), 'META-INF/mods.groovy'))
+                    .orElseGet(() -> new File(mainSrcSets.find(), 'mods.groovy'))
                 final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
                     it.getInput().set(modsToml)
                 }

@@ -29,7 +29,6 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
@@ -51,8 +50,8 @@ abstract class ConvertToTomlTask extends DefaultTask {
     @Optional
     abstract Property<Map> getArguments()
 
-    ConvertToTomlTask(ProjectLayout layout) {
-        output.convention(layout.buildDirectory.dir(name).map {it.file('mods.toml')})
+    ConvertToTomlTask() {
+        output.convention(project.layout.buildDirectory.dir(name).map {it.file('mods.toml')})
         arguments.convention([:])
     }
 

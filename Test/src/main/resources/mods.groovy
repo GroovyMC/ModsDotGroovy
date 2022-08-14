@@ -1,4 +1,3 @@
-//file:noinspection GrPackage
 ModsDotGroovy.make {
     modLoader = 'gml'
     loaderVersion = '[1,'
