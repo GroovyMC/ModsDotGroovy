@@ -62,6 +62,14 @@ abstract class ConvertToTomlTask extends DefaultTask {
                 final version = mcDependency.version.split('-')
                 arg('minecraftVersion', version[0])
                 arg('forgeVersion', version[1])
+
+                final mcSplit = version[0].split('\\.')
+                if (mcSplit.length > 1) {
+                    try {
+                        final currentVersion = Integer.parseInt(mcSplit[1])
+                        arg('minecraftVersionRange', "[${version[0]},1.${currentVersion + 1}]")
+                    } catch (Exception ignored) {}
+                }
             }
         }
     }

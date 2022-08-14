@@ -25,9 +25,6 @@
 package modsdotgroovy
 
 import groovy.transform.CompileStatic
-import groovy.transform.NamedParam
-import groovy.transform.NamedParams
-import groovy.transform.NamedVariant
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.apache.groovy.lang.annotation.Incubating

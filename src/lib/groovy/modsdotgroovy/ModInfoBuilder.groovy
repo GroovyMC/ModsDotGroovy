@@ -31,7 +31,6 @@ import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import org.apache.groovy.lang.annotation.Incubating
 
 import static groovy.lang.Closure.DELEGATE_FIRST
-import static groovy.lang.Closure.DELEGATE_FIRST
 
 @Incubating
 @CompileStatic
