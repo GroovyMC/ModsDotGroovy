@@ -25,6 +25,9 @@
 package modsdotgroovy
 
 import groovy.transform.CompileStatic
+import groovy.transform.NamedParam
+import groovy.transform.NamedParams
+import groovy.transform.NamedVariant
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.apache.groovy.lang.annotation.Incubating
@@ -66,9 +69,24 @@ class DependenciesBuilder extends HashMap {
         dependencies << minecraftDependency.copy()
     }
 
-    void minecraft(final String versionRange) {
+    void setMinecraft(final String versionRange) {
         final minecraftDependency = new MinecraftDependency()
         minecraftDependency.versionRange = versionRange
+        dependencies << minecraftDependency.copy()
+    }
+
+    void setMinecraft(final NumberRange versionRange) {
+        final minecraftDependency = new MinecraftDependency()
+        final String mavenVersionRange = "[${versionRange.from},${versionRange.to})"
+        minecraftDependency.versionRange = mavenVersionRange
+        dependencies << minecraftDependency.copy()
+    }
+
+    // same as NumberRange but added this for better IDE support
+    void setMinecraft(final List<BigDecimal> versionRange) {
+        final minecraftDependency = new MinecraftDependency()
+        final numRange = new NumberRange(versionRange[0], versionRange[1])
+        final String mavenVersionRange = "[${numRange.from},${numRange.to})"
         dependencies << minecraftDependency.copy()
     }
 
@@ -81,7 +99,7 @@ class DependenciesBuilder extends HashMap {
         dependencies << forgeDependency.copy()
     }
 
-    void forge(final String versionRange) {
+    void setForge(final String versionRange) {
         final forgeDependency = new ForgeDependency()
         forgeDependency.versionRange = versionRange
         dependencies << forgeDependency.copy()
