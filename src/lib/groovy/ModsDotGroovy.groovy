@@ -111,7 +111,26 @@ class ModsDotGroovy {
         modData['credits'] = modInfo.credits
         modData['logoFile'] = modInfo.logoFile
         modData['description'] = modInfo.description
-        modData['authors'] = modInfo.authors
+
+        String authorsString = ''
+        switch (modInfo.authors.size()) {
+            case 0:
+                break
+            case 1:
+                authorsString = modInfo.authors[0]
+                break
+            case 2:
+                authorsString = modInfo.authors[0] + ' and ' + modInfo.authors[1]
+                break
+            default:
+                modInfo.authors.eachWithIndex { String entry, int i ->
+                    if (i == 0) authorsString = entry
+                    else if (i == modInfo.authors.size() - 1) authorsString += ' and ' + entry
+                    else authorsString += ', ' + entry
+                }
+                break
+        }
+        modData['authors'] = authorsString
 
         mods.add(modData)
     }

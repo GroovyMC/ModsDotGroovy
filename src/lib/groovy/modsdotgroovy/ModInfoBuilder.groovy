@@ -70,18 +70,25 @@ class ModInfoBuilder {
      */
     @Nullable String logoFile = null
 
+    /**
+     * People you give credits for the mod.
+     */
     @Nullable String credits = null
+
+    /**
+     * The authors of the mod. <br>
+     * MDT will automatically format them as 'x, y and z'.
+     */
     List<String> authors = []
 
     /**
      * Display Test controls the display for your mod in the server connection screen.<br>
      */
-    // only in 1.19+
+    // TODO make enum, and actually support
     //@Nullable String displayTest = null
 
     /**
-     * A multi-line description text for the mod, displayed in the in-game Mods screen.<br>
-     * Groovylicious will automatically strip the fixed length code indent for you.
+     * A multi-line description text for the mod, displayed in the in-game Mods screen. <br>
      */
     String description = ''
 

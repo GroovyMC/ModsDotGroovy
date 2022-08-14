@@ -8,6 +8,7 @@ ModsDotGroovy.make {
         modId = 'no'
         version = '1.190'
 
+        authors = ['Matyrobbrt', 'Paint_Ninja']
         credits = "${buildProperties.someProperty}"
 
         dependencies {
