@@ -53,8 +53,8 @@ gradlePlugin {
     }
 }
 
-jar {
-    manifest.attributes makeAttributes()
+tasks.named('jar', Jar) {
+    it.manifest.attributes makeAttributes()
 }
 
 Map<?, ?> makeAttributes() {
@@ -72,17 +72,23 @@ Map<?, ?> makeAttributes() {
     ]
 }
 
-tasks.create('dslJar', Jar) {
+tasks.register('dslJar', Jar) {
     group = 'build'
     from sourceSets.lib.output
     archiveFileName = "dsl-${project.dsl_version}.jar"
-    manifest.attributes makeAttributes() + ['Maven-Artifact' : "${project.group}:dsl:${project.version}"]
+    it.manifest.attributes makeAttributes() + ['Maven-Artifact' : "${project.group}:dsl:${project.version}"]
 }
-tasks.create('dslSources', Jar) {
+
+tasks.register('dslSources', Jar) {
     from sourceSets.lib.allSource
     archiveFileName = "dsl-${project.dsl_version}-sources.jar"
     classifier 'sources'
-    manifest.attributes makeAttributes()
+    it.manifest.attributes makeAttributes()
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.encoding = 'UTF-8'
+    groovyOptions.optimizationOptions.indy = true
 }
 
 publishing {
