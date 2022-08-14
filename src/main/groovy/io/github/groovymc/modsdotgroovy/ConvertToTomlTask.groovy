@@ -55,19 +55,20 @@ abstract class ConvertToTomlTask extends DefaultTask {
         arguments.convention(project.objects.mapProperty(String, Object))
         project.afterEvaluate {
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
+            arg('version', project.version)
 
             final mcDependency = project.configurations.findByName('minecraft')
                 ?.getDependencies()?.find()
             if (mcDependency !== null) {
                 final version = mcDependency.version.split('-')
                 arg('minecraftVersion', version[0])
-                arg('forgeVersion', version[1])
+                arg('forgeVersion', version[1].split('_mapped_')[0])
 
                 final mcSplit = version[0].split('\\.')
                 if (mcSplit.length > 1) {
                     try {
                         final currentVersion = Integer.parseInt(mcSplit[1])
-                        arg('minecraftVersionRange', "[${version[0]},1.${currentVersion + 1}]")
+                        arg('minecraftVersionRange', "[${version[0]},1.${currentVersion + 1})")
                     } catch (Exception ignored) {}
                 }
             }
