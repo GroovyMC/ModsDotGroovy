@@ -30,7 +30,7 @@ import groovy.transform.CompileStatic
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.*
 
 import java.nio.file.Files
@@ -48,11 +48,26 @@ abstract class ConvertToTomlTask extends DefaultTask {
 
     @Input
     @Optional
-    abstract Property<Map> getArguments()
+    abstract MapProperty<String, Object> getArguments()
 
     ConvertToTomlTask() {
         output.convention(project.layout.buildDirectory.dir(name).map {it.file('mods.toml')})
-        arguments.convention([:])
+        arguments.convention(project.objects.mapProperty(String, Object))
+        project.afterEvaluate {
+            arguments.put('buildProperties', project.extensions.extraProperties.properties)
+
+            final mcDependency = project.configurations.findByName('minecraft')
+                ?.getDependencies()?.find()
+            if (mcDependency !== null) {
+                final version = mcDependency.version.split('-')
+                arg('minecraftVersion', version[0])
+                arg('forgeVersion', version[1])
+            }
+        }
+    }
+
+    void arg(String name, Object arg) {
+        arguments[name] = arg
     }
 
     @TaskAction
@@ -75,9 +90,7 @@ abstract class ConvertToTomlTask extends DefaultTask {
 
     @CompileDynamic
     Map from(File script) {
-        final bindings = new Binding([
-                'properties': project.properties
-        ] + arguments.get())
+        final bindings = new Binding(arguments.get())
         final actualDsl = dslLocation.getOrNull()?.asFile ?: project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME).resolve().find()
         final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
             final List<String> classpath = List.of(actualDsl.toString())

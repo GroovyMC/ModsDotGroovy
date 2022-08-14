@@ -7,6 +7,9 @@ ModsDotGroovy.make {
     mod {
         modId = 'no'
         version = '1.190'
+
+        credits = "${buildProperties.someProperty}"
+
         dependencies {
             minecraft {
                 versionRange = '[1.19,1.20)'
