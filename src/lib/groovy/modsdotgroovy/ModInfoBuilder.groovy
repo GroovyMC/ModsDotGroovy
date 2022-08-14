@@ -93,9 +93,9 @@ class ModInfoBuilder {
     /**
      * The custom properties of the mod
      */
-    Map<String, String> properties = [:]
+    Map properties = [:]
 
-    void propertyMissing(String name, String value) {
+    void propertyMissing(String name, Object value) {
         properties[name] = value
     }
 

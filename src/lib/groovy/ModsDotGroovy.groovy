@@ -100,8 +100,9 @@ class ModsDotGroovy {
                     .computeIfAbsent(modInfo.modId, {[]}) as List)
                     .push(it.asMap())
         }
-
-        put('modproperties', ["${modInfo.modId}": modInfo.customProperties])
+        if (!modInfo.customProperties.isEmpty())
+        (data.computeIfAbsent('modproperties', {[:]}) as Map)
+                .put(modInfo.modId, modInfo.customProperties)
 
         final modData = [:]
         modData['modId'] = modInfo.modId

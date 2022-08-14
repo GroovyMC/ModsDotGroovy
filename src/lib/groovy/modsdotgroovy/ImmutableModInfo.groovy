@@ -46,5 +46,5 @@ class ImmutableModInfo {
     String description
 
     List<Dependency> dependencies
-    Map<String, String> customProperties
+    Map customProperties
 }
