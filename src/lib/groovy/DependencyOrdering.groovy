@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-package modsdotgroovy
+
 
 import groovy.transform.CompileStatic
 
 @CompileStatic
-enum DependencySide {
-    CLIENT, SERVER, BOTH
+enum DependencyOrdering {
+    BEFORE, AFTER, NONE
 }

@@ -1,7 +1,7 @@
 //file:noinspection GrPackage
 ModsDotGroovy.make {
     modLoader = 'gml'
-    loaderVersion = '[1.0,'
+    loaderVersion = '[1,'
 
     license = 'MIT'
 
@@ -19,8 +19,8 @@ ModsDotGroovy.make {
             mod {
                 modId = 'patchouli'
                 versionRange = '[1.1,)'
-                ordering = modsdotgroovy.DependencyOrdering.AFTER
-                side = modsdotgroovy.DependencySide.BOTH
+                ordering = DependencyOrdering.AFTER
+                side = DependencySide.BOTH
             }
         }
     }
