@@ -59,7 +59,7 @@ class ModsDotGroovy implements Plugin<Project> {
             final main = srcSets.named('main').get()
 
             final modsToml = browse(srcSets)
-                    {new File(it, 'mods.groovy') }
+                    { new File(it, 'mods.groovy') }
                     .orElseGet(() -> new FileWithSourceSet(main, new File(main.resources.srcDirs.find(), 'mods.groovy')))
             final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
                 it.getInput().set(modsToml.file)
@@ -79,7 +79,13 @@ class ModsDotGroovy implements Plugin<Project> {
     }
 
     static Optional<FileWithSourceSet> browse(final Collection<SourceSet> sourceSet, @ClosureParams(value = SimpleType, options = 'java.io.File') Closure<File> finder) {
-        sourceSet.stream().map {it -> new FileWithSourceSet(it, browse(it, finder)) }
+        sourceSet.stream()
+                .sorted { SourceSet it1, SourceSet it2 ->
+                    if (it1.name == 'main') return 1
+                    if (it2.name == 'main') return -1
+                    return Comparator.<String>naturalOrder().compare(it1.name, it2.name)
+                }
+                .map {it -> new FileWithSourceSet(it, browse(it, finder)) }
                 .filter { it.file !== null }
                 .findFirst()
     }

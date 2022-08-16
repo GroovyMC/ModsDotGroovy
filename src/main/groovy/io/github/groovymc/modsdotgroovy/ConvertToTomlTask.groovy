@@ -32,6 +32,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.*
+import org.gradle.language.jvm.tasks.ProcessResources
 
 import java.nio.file.Files
 
@@ -109,6 +110,24 @@ abstract class ConvertToTomlTask extends DefaultTask {
             }
         })
         return shell.evaluate(script).data as Map
+    }
+
+    @SuppressWarnings('unused')
+    void configureForSourceSet(SourceSet sourceSet, String fileName = 'mods.groovy') {
+        final modsToml = ModsDotGroovy.browse(sourceSet)
+                { new File(it, fileName) }
+        if (modsToml === null) throw new IllegalArgumentException("Cannot find '$fileName' file in source set $sourceSet")
+        input.set(modsToml)
+        project.configurations.getByName(sourceSet.compileOnlyConfigurationName)
+                .extendsFrom(project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME))
+
+        project.tasks.named(sourceSet.processResourcesTaskName, ProcessResources).configure {
+            it.exclude(fileName)
+            it.dependsOn(this)
+            it.from(output.get().asFile) {
+                into 'META-INF'
+            }
+        }
     }
 
     @CompileStatic
