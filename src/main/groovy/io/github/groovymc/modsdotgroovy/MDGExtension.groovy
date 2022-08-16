@@ -33,6 +33,10 @@ abstract class MDGExtension {
     abstract Property<String> getDslVersion()
     abstract Property<Boolean> getAutomaticConfiguration()
 
+    MDGExtension() {
+        automaticConfiguration.set(true)
+    }
+
     String mdgDsl(String version = null) {
         version = version ?: getDslVersion().get()
         return "io.github.groovymc.modsdotgroovy:dsl:$version"
