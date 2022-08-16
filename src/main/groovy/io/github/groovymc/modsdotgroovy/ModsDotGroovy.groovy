@@ -55,24 +55,26 @@ class ModsDotGroovy implements Plugin<Project> {
 
             configuration.dependencies.add(project.dependencies.create(ext.mdgDsl()))
 
-            final srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
-            final main = srcSets.named('main').get()
+            if (ext.automaticConfiguration.get()) {
+                final srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
+                final main = srcSets.named('main').get()
 
-            final modsToml = browse(srcSets)
-                    { new File(it, 'mods.groovy') }
-                    .orElseGet(() -> new FileWithSourceSet(main, new File(main.resources.srcDirs.find(), 'mods.groovy')))
-            final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
-                it.getInput().set(modsToml.file)
-            }
+                final modsToml = browse(srcSets)
+                { new File(it, 'mods.groovy') }
+                        .orElseGet(() -> new FileWithSourceSet(main, new File(main.resources.srcDirs.find(), 'mods.groovy')))
+                final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
+                    it.getInput().set(modsToml.file)
+                }
 
-            project.configurations.getByName(modsToml.sourceSet.compileOnlyConfigurationName)
-                    .extendsFrom(configuration)
+                project.configurations.getByName(modsToml.sourceSet.compileOnlyConfigurationName)
+                        .extendsFrom(configuration)
 
-            project.tasks.named(modsToml.sourceSet.processResourcesTaskName, ProcessResources).configure {
-                exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-                dependsOn(convertTask)
-                from(convertTask.output.get().asFile) {
-                    into 'META-INF'
+                project.tasks.named(modsToml.sourceSet.processResourcesTaskName, ProcessResources).configure {
+                    exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+                    dependsOn(convertTask)
+                    from(convertTask.output.get().asFile) {
+                        into 'META-INF'
+                    }
                 }
             }
         }

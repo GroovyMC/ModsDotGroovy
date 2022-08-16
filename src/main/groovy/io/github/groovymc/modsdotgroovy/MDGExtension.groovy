@@ -31,6 +31,7 @@ import org.gradle.api.provider.Property
 abstract class MDGExtension {
     public static final String NAME = 'modsDotGroovy'
     abstract Property<String> getDslVersion()
+    abstract Property<Boolean> getAutomaticConfiguration()
 
     String mdgDsl(String version = null) {
         version = version ?: getDslVersion().get()
