@@ -94,8 +94,8 @@ tasks.withType(GroovyCompile).configureEach {
 tasks.create('publishPluginToInquisitionMaven') {
     it.group = 'publishing'
     it.dependsOn(
-            'publishModsdotgroovyPluginMarkerMavenPublicationToModdingInquisitionMavenRepoRepository',
-            'publishPluginMavenPublicationToModdingInquisitionMavenRepoRepository'
+            'publishPluginMavenPublicationToModdingInquisitionMavenRepoRepository',
+            'publishModsdotgroovyPluginMarkerMavenPublicationToModdingInquisitionMavenRepoRepository'
     )
 }
 

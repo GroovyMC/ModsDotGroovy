@@ -29,6 +29,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.*
@@ -124,8 +125,8 @@ abstract class ConvertToTomlTask extends DefaultTask {
         project.tasks.named(sourceSet.processResourcesTaskName, ProcessResources).configure {
             it.exclude(fileName)
             it.dependsOn(this)
-            it.from(output.get().asFile) {
-                into 'META-INF'
+            it.from(output.get().asFile) { CopySpec spec ->
+                spec.into 'META-INF'
             }
         }
     }
