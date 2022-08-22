@@ -156,7 +156,7 @@ class ModInfoBuilder {
     }
 
     void entrypoints(@DelegatesTo(value = EntrypointsBuilder, strategy = DELEGATE_FIRST)
-                     @ClosureParams(value = SimpleType, options = 'modsdorgroovy.EntrypointsBuilder') final Closure closure) {
+                     @ClosureParams(value = SimpleType, options = 'modsdotgroovy.EntrypointsBuilder') final Closure closure) {
         final entrypointsBuilder = new EntrypointsBuilder()
         closure.delegate = entrypointsBuilder
         closure.resolveStrategy = DELEGATE_FIRST

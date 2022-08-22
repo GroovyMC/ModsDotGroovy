@@ -111,32 +111,40 @@ class DependenciesBuilder extends HashMap {
 
     void forge(@DelegatesTo(value = ForgeDependency, strategy = DELEGATE_FIRST)
                @ClosureParams(value = SimpleType, options = 'modsdotgroovy.ForgeDependency') final Closure closure) {
-        final forgeDependency = new ForgeDependency()
-        closure.delegate = forgeDependency
-        closure.resolveStrategy = DELEGATE_FIRST
-        closure.call(forgeDependency)
-        dependencies << forgeDependency.copy()
+        if (platform == Platform.FORGE) {
+            final forgeDependency = new ForgeDependency()
+            closure.delegate = forgeDependency
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call(forgeDependency)
+            dependencies << forgeDependency.copy()
+        }
     }
 
     void setForge(final String versionRange) {
-        final forgeDependency = new ForgeDependency()
-        forgeDependency.versionRange = versionRange
-        dependencies << forgeDependency.copy()
+        if (platform == Platform.FORGE) {
+            final forgeDependency = new ForgeDependency()
+            forgeDependency.versionRange = versionRange
+            dependencies << forgeDependency.copy()
+        }
     }
 
     void quiltLoader(@DelegatesTo(value = QuiltLoaderDependency, strategy = DELEGATE_FIRST)
                @ClosureParams(value = SimpleType, options = 'modsdotgroovy.QuiltLoaderDependency') final Closure closure) {
-        final quiltLoaderDependency = new QuiltLoaderDependency()
-        closure.delegate = quiltLoaderDependency
-        closure.resolveStrategy = DELEGATE_FIRST
-        closure.call(quiltLoaderDependency)
-        dependencies << quiltLoaderDependency.copy()
+        if (platform == Platform.QUILT) {
+            final quiltLoaderDependency = new QuiltLoaderDependency()
+            closure.delegate = quiltLoaderDependency
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call(quiltLoaderDependency)
+            dependencies << quiltLoaderDependency.copy()
+        }
     }
 
     void setQuiltLoader(final String versionRange) {
-        final quiltLoaderDependency = new QuiltLoaderDependency()
-        quiltLoaderDependency.versionRange = versionRange
-        dependencies << quiltLoaderDependency.copy()
+        if (platform == Platform.QUILT) {
+            final quiltLoaderDependency = new QuiltLoaderDependency()
+            quiltLoaderDependency.versionRange = versionRange
+            dependencies << quiltLoaderDependency.copy()
+        }
     }
 
     void methodMissing(String name,
