@@ -1,27 +1,8 @@
 package io.github.groovymc.modsdotgroovy
 
 import com.google.gson.GsonBuilder
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.MapProperty
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
 
 abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
-    @InputFile
-    abstract RegularFileProperty getInput()
-    @Optional
-    @OutputFile
-    abstract RegularFileProperty getOutput()
-    @Optional
-    @InputFile
-    abstract RegularFileProperty getDslLocation()
-
-    @Input
-    @Optional
-    abstract MapProperty<String, Object> getArguments()
-
     @Override
     protected String getOutputName() {
         return 'quilt.mod.json'
@@ -41,6 +22,11 @@ abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
                     arg('minecraftVersionRange', "[${mcDependency.version},1.${currentVersion + 1})")
                 } catch (Exception ignored) {}
             }
+        }
+        final quiltLoaderDependency = project.configurations.findByName('compileClasspath').dependencies
+                .find {it.name == "quilt-loader" && it.group == "org.quiltmc"}
+        if (quiltLoaderDependency !== null) {
+            arg('quiltLoaderVersion', mcDependency.version)
         }
     }
 

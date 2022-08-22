@@ -26,28 +26,9 @@ package io.github.groovymc.modsdotgroovy
 
 import com.moandjiezana.toml.TomlWriter
 import groovy.transform.CompileStatic
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.MapProperty
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
 
 @CompileStatic
 abstract class ConvertToTomlTask extends AbstractConvertTask {
-    @InputFile
-    abstract RegularFileProperty getInput()
-    @Optional
-    @OutputFile
-    abstract RegularFileProperty getOutput()
-    @Optional
-    @InputFile
-    abstract RegularFileProperty getDslLocation()
-
-    @Input
-    @Optional
-    abstract MapProperty<String, Object> getArguments()
-
     @Override
     protected String getOutputName() {
         return 'mods.toml'

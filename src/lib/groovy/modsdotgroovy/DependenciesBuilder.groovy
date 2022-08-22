@@ -124,8 +124,23 @@ class DependenciesBuilder extends HashMap {
         dependencies << forgeDependency.copy()
     }
 
+    void quiltLoader(@DelegatesTo(value = QuiltLoaderDependency, strategy = DELEGATE_FIRST)
+               @ClosureParams(value = SimpleType, options = 'modsdotgroovy.QuiltLoaderDependency') final Closure closure) {
+        final quiltLoaderDependency = new QuiltLoaderDependency()
+        closure.delegate = quiltLoaderDependency
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(quiltLoaderDependency)
+        dependencies << quiltLoaderDependency.copy()
+    }
+
+    void setQuiltLoader(final String versionRange) {
+        final quiltLoaderDependency = new QuiltLoaderDependency()
+        quiltLoaderDependency.versionRange = versionRange
+        dependencies << quiltLoaderDependency.copy()
+    }
+
     void methodMissing(String name,
-                       @DelegatesTo(value = ForgeDependency, strategy = DELEGATE_FIRST)
+                       @DelegatesTo(value = Dependency, strategy = DELEGATE_FIRST)
                        @ClosureParams(value = SimpleType, options = 'modsdotgroovy.Dependency') final Closure closure) {
         mod(name, closure)
     }
