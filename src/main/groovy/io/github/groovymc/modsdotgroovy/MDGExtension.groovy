@@ -53,7 +53,7 @@ abstract class MDGExtension {
                 this.type.set(Type.FORGE)
                 break
             default:
-                throw new IllegalArgumentException("Unknown project type " + type)
+                throw new IllegalArgumentException("Unknown project type :$type")
         }
     }
 
