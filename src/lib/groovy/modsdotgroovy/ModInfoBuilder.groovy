@@ -101,6 +101,11 @@ class ModInfoBuilder {
      */
     Map properties = [:]
 
+    /**
+     * The quilt entrypoints of the mod
+     */
+    Map entrypoints = [:]
+
     private Platform platform
 
     ModInfoBuilder(Platform platform) {
@@ -135,8 +140,7 @@ class ModInfoBuilder {
         closure.delegate = dependenciesBuilder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dependenciesBuilder)
-        List<Dependency> dependencies = dependenciesBuilder.build()
-        this.dependencies = dependencies
+        this.dependencies = dependenciesBuilder.build()
     }
 
     void setDescription(final String description) {
@@ -151,7 +155,16 @@ class ModInfoBuilder {
         this.authors << author
     }
 
+    void entrypoints(@DelegatesTo(value = EntrypointsBuilder, strategy = DELEGATE_FIRST)
+                     @ClosureParams(value = SimpleType, options = 'modsdorgroovy.EntrypointsBuilder') final Closure closure) {
+        final entrypointsBuilder = new EntrypointsBuilder()
+        closure.delegate = entrypointsBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(entrypointsBuilder)
+        this.entrypoints = entrypointsBuilder.entrypoints
+    }
+
     ImmutableModInfo build() {
-        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties)
+        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties, this.entrypoints)
     }
 }

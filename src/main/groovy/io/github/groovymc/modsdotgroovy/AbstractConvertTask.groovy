@@ -52,7 +52,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         project.afterEvaluate {
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
             arg('version', project.version)
-
+            arg('platform', getPlatform())
             setupPlatformSpecificArguments()
         }
     }

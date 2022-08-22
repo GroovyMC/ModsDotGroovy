@@ -221,6 +221,7 @@ class ModsDotGroovy {
                 quiltMetadata['contact'] = ["homepage":modInfo.displayUrl]
                 quiltMetadata['icon'] = modInfo.logoFile
                 quiltMetadata['description'] = modInfo.description
+                quiltModData['entrypoints'] = modInfo.entrypoints
 
                 Map quiltContributors = [:]
                 modInfo.authors.each {
