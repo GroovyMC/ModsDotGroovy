@@ -41,7 +41,7 @@ class Dependency {
     /**
      * A maven version range of the versions of the mod you're compatible with.
      */
-    String versionRange
+    VersionRange versionRange
 
     /**
      * An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
@@ -53,15 +53,45 @@ class Dependency {
      */
     DependencySide side = DependencySide.BOTH
 
-    Map asMap() {
+    Map asForgeMap() {
         final map = [:]
         map['mandatory'] = mandatory
-        map['versionRange'] = versionRange
+        map['versionRange'] = versionRange.toForge()
         if (ordering !== null)
             map['ordering'] = ordering
         if (side !== null)
             map['side'] = side
         map['modId'] = modId
+        return map
+    }
+
+    void setVersionRange(VersionRange range) {
+        this.versionRange = range
+    }
+
+    void setVersionRange(String range) {
+        versionRange = VersionRange.of(range)
+    }
+
+    VersionRange getVersionRange() {
+        return versionRange
+    }
+
+    Map asQuiltMap() {
+        final map = [:]
+        map['id'] = modId
+        map['optional'] = !mandatory
+        map['versions'] = versionRange.toQuilt()
+        switch (side) {
+            case DependencySide.BOTH:
+                break
+            case DependencySide.CLIENT:
+                map['environment'] = 'client'
+                break
+            case DependencySide.SERVER:
+                map['environment'] = 'dedicated_server'
+                break
+        }
         return map
     }
 

@@ -1,29 +1,7 @@
-/*
- * MIT License
- *
- * Copyright (c) 2022 GroovyMC
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package io.github.groovymc.modsdotgroovy
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.moandjiezana.toml.TomlWriter
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
@@ -32,13 +10,17 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.TaskAction
 import org.gradle.language.jvm.tasks.ProcessResources
 
 import java.nio.file.Files
 
-@CompileStatic
-abstract class ConvertToTomlTask extends DefaultTask {
+abstract class ConvertToQuiltJsonTask extends DefaultTask {
     @InputFile
     abstract RegularFileProperty getInput()
     @Optional
@@ -52,19 +34,20 @@ abstract class ConvertToTomlTask extends DefaultTask {
     @Optional
     abstract MapProperty<String, Object> getArguments()
 
-    ConvertToTomlTask() {
-        output.convention(project.layout.buildDirectory.dir(name).map {it.file('mods.toml')})
+    ConvertToQuiltJsonTask() {
+        output.convention(project.layout.buildDirectory.dir(name).map {it.file('quilt.mod.json')})
         arguments.convention(project.objects.mapProperty(String, Object))
         project.afterEvaluate {
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
             arg('version', project.version)
 
             final mcDependency = project.configurations.findByName('minecraft')
-                ?.getDependencies()?.find()
+                    ?.getDependencies()?.find()
             if (mcDependency !== null) {
                 final version = mcDependency.version.split('-')
                 arg('minecraftVersion', version[0])
-                arg('forgeVersion', version[1].split('_mapped_')[0])
+                // No forge version
+                //arg('forgeVersion', version[1].split('_mapped_')[0])
 
                 final mcSplit = version[0].split('\\.')
                 if (mcSplit.length > 1) {
@@ -92,11 +75,10 @@ abstract class ConvertToTomlTask extends DefaultTask {
         final outPath = getOutput().get().asFile.toPath()
         if (outPath.parent !== null && !Files.exists(outPath.parent)) Files.createDirectories(outPath.parent)
         Files.deleteIfExists(outPath)
-        final tomlWriter = new TomlWriter.Builder()
-                .indentValuesBy(2)
-                .indentTablesBy(4)
-                .build()
-        Files.writeString(outPath, tomlWriter.write(data))
+        final gsonWriter = new GsonBuilder()
+                .setPrettyPrinting()
+                .create()
+        Files.writeString(outPath, gsonWriter.toJson(data))
     }
 
     @CompileDynamic
@@ -110,15 +92,15 @@ abstract class ConvertToTomlTask extends DefaultTask {
                 return classpath
             }
         })
-        return shell.evaluate(script).forgeData as Map
+        return shell.evaluate(script).quiltData
     }
 
     @SuppressWarnings('unused')
     void configureForSourceSet(SourceSet sourceSet, String fileName = 'mods.groovy') {
-        final modsToml = ModsDotGroovy.browse(sourceSet)
+        final modsJson = ModsDotGroovy.browse(sourceSet)
                 { new File(it, fileName) }
-        if (modsToml === null) throw new IllegalArgumentException("Cannot find '$fileName' file in source set $sourceSet")
-        input.set(modsToml)
+        if (modsJson === null) throw new IllegalArgumentException("Cannot find '$fileName' file in source set $sourceSet")
+        input.set(modsJson)
         project.configurations.getByName(sourceSet.compileOnlyConfigurationName)
                 .extendsFrom(project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME))
 
@@ -126,7 +108,7 @@ abstract class ConvertToTomlTask extends DefaultTask {
             it.exclude(fileName)
             it.dependsOn(this)
             it.from(output.get().asFile) { CopySpec spec ->
-                spec.into 'META-INF'
+                spec.into ''
             }
         }
     }

@@ -15,7 +15,9 @@ ModsDotGroovy.make {
 
         dependencies {
             minecraft = 1.19..1.20 // equivalent to `minecraft = '[1.19,1.20)'`
-            forge = '[43.0.0,)' // equivalent to `forge { versionRange = '[43.0.0,)' }`
+            onForge {
+                forge = '[43.0.0,)' // equivalent to `forge { versionRange = '[43.0.0,)' }`
+            }
 
             mod {
                 modId = 'patchouli'

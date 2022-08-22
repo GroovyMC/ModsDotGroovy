@@ -45,6 +45,7 @@ class ImmutableModInfo {
     List<String> authors
     String description
 
-    List<Dependency> dependencies
+    List<Dependency> forgeDependencies
+    List<Dependency> quiltDependencies
     Map customProperties
 }

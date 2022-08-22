@@ -94,7 +94,8 @@ class ModInfoBuilder {
     /**
      * The dependencies of the mod
      */
-    List<Dependency> dependencies
+    List<Dependency> forgeDependencies
+    List<Dependency> quiltDependencies
 
     /**
      * The custom properties of the mod
@@ -111,7 +112,9 @@ class ModInfoBuilder {
         closure.delegate = dependenciesBuilder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dependenciesBuilder)
-        dependencies = dependenciesBuilder.build()
+        DependenciesBuilder.Dependencies dependencies = dependenciesBuilder.build()
+        forgeDependencies = dependencies.forge
+        quiltDependencies = dependencies.quilt
     }
 
     void setDescription(final String description) {
@@ -127,6 +130,6 @@ class ModInfoBuilder {
     }
 
     ImmutableModInfo build() {
-        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties)
+        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.forgeDependencies, this.quiltDependencies, this.properties)
     }
 }

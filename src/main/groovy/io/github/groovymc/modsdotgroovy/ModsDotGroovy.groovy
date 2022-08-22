@@ -56,25 +56,39 @@ class ModsDotGroovy implements Plugin<Project> {
             configuration.dependencies.add(project.dependencies.create(ext.mdgDsl()))
 
             if (ext.automaticConfiguration.get()) {
-                final srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
-                final main = srcSets.named('main').get()
+                final srcSets = project.extensions.getByType ( JavaPluginExtension ) .sourceSets
+                final main = srcSets.named ( 'main' ).get ( )
 
-                final modsToml = browse(srcSets)
-                { new File(it, 'mods.groovy') }
+                final modsGroovy = browse ( srcSets ) { new File ( it, 'mods.groovy')}
                         .orElseGet(() -> new FileWithSourceSet(main, new File(main.resources.srcDirs.find(), 'mods.groovy')))
-                final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
-                    it.getInput().set(modsToml.file)
-                }
 
-                project.configurations.getByName(modsToml.sourceSet.compileOnlyConfigurationName)
+                project.configurations.getByName(modsGroovy.sourceSet.compileOnlyConfigurationName)
                         .extendsFrom(configuration)
 
-                project.tasks.named(modsToml.sourceSet.processResourcesTaskName, ProcessResources).configure {
-                    exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-                    dependsOn(convertTask)
-                    from(convertTask.output.get().asFile) {
-                        into 'META-INF'
-                    }
+                switch(ext.type.get()) {
+                    case MDGExtension.Type.FORGE:
+                        final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
+                            it.getInput().set(modsGroovy.file)
+                        }
+                        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+                            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+                            dependsOn(convertTask)
+                            from(convertTask.output.get().asFile) {
+                                into 'META-INF'
+                            }
+                        }
+                        break
+                    case MDGExtension.Type.QUILT:
+                        final convertTask = project.getTasks().create('modsDotGroovyToQuiltJson', ConvertToQuiltJsonTask) {
+                            it.getInput().set(modsGroovy.file)
+                        }
+                        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+                            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+                            dependsOn(convertTask)
+                            from(convertTask.output.get().asFile) {
+                                into ''
+                            }
+                        }
                 }
             }
         }

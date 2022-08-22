@@ -32,13 +32,43 @@ abstract class MDGExtension {
     public static final String NAME = 'modsDotGroovy'
     abstract Property<String> getDslVersion()
     abstract Property<Boolean> getAutomaticConfiguration()
+    abstract Property<Type> getType()
 
     MDGExtension() {
         automaticConfiguration.set(true)
+        type.set(Type.FORGE)
     }
 
     String mdgDsl(String version = null) {
         version = version ?: getDslVersion().get()
         return "io.github.groovymc.modsdotgroovy:dsl:$version"
+    }
+
+    void type(String type) {
+        switch (type.toLowerCase(Locale.ROOT)) {
+            case 'quilt':
+                this.type.set(Type.QUILT)
+                break
+            case 'forge':
+                this.type.set(Type.FORGE)
+                break
+            default:
+                throw new IllegalArgumentException("Unknown project type " + type)
+        }
+    }
+
+    enum Type {
+        QUILT {
+            @Override
+            String toString() {
+                return "quilt"
+            }
+        },
+        FORGE {
+            @Override
+            String toString() {
+                return "forge"
+            }
+        }
     }
 }
