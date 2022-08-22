@@ -82,6 +82,11 @@ class Dependency {
         map['id'] = modId
         map['optional'] = !mandatory
         map['versions'] = versionRange.toQuilt()
+        /*
+        TODO: Last checked (20220821), the spec for side-specific dependencies on Quilt is up in the air. Once Quilt
+        settles on something and implements it, this can be implemented correctly.
+         */
+        /*
         switch (side) {
             case DependencySide.BOTH:
                 break
@@ -91,7 +96,7 @@ class Dependency {
             case DependencySide.SERVER:
                 map['environment'] = 'dedicated_server'
                 break
-        }
+        }*/
         return map
     }
 
