@@ -24,9 +24,8 @@
 
 package modsdotgroovy
 
-import groovy.transform.AutoFinal
+
 import groovy.transform.CompileStatic
-import groovy.transform.Immutable
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.apache.groovy.lang.annotation.Incubating
@@ -37,25 +36,30 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @CompileStatic
 class DependenciesBuilder extends HashMap {
 
-    private List<Dependency> forgeDependencies = []
-    private List<Dependency> quiltDependencies = []
+    private List<Dependency> dependencies = []
+
+    private Platform platform
+
+    DependenciesBuilder(Platform platform) {
+        this.platform = platform
+    }
 
     void onQuilt(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                @ClosureParams(value = SimpleType, options = "modsdotgroovy.DependenciesBuilder") final Closure closure) {
-        final builder = new DependenciesBuilder()
-        closure.delegate = builder
-        closure.resolveStrategy = DELEGATE_FIRST
-        closure.call(builder)
-        quiltDependencies.addAll(builder.build().quilt)
+        if (platform == Platform.QUILT) {
+            closure.delegate = this
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call(this)
+        }
     }
 
     void onForge(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                @ClosureParams(value = SimpleType, options = "modsdotgroovy.DependenciesBuilder") final Closure closure) {
-        final builder = new DependenciesBuilder()
-        closure.delegate = builder
-        closure.resolveStrategy = DELEGATE_FIRST
-        closure.call(builder)
-        forgeDependencies.addAll(builder.build().forge)
+        if (platform == Platform.FORGE) {
+            closure.delegate = this
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call(this)
+        }
     }
 
     void mod(@DelegatesTo(value = Dependency, strategy = DELEGATE_FIRST)
@@ -64,8 +68,7 @@ class DependenciesBuilder extends HashMap {
         closure.delegate = dep
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dep)
-        forgeDependencies << dep.copy()
-        quiltDependencies << dep.copy()
+        dependencies << dep.copy()
     }
 
     void mod(final String modId,
@@ -76,8 +79,7 @@ class DependenciesBuilder extends HashMap {
         closure.delegate = dep
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dep)
-        forgeDependencies << dep.copy()
-        quiltDependencies << dep.copy()
+        dependencies << dep.copy()
     }
 
     void minecraft(@DelegatesTo(value = MinecraftDependency, strategy = DELEGATE_FIRST)
@@ -86,23 +88,20 @@ class DependenciesBuilder extends HashMap {
         closure.delegate = minecraftDependency
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(minecraftDependency)
-        forgeDependencies << minecraftDependency.copy()
-        quiltDependencies << minecraftDependency.copy()
+        dependencies << minecraftDependency.copy()
     }
 
     void setMinecraft(final String versionRange) {
         final minecraftDependency = new MinecraftDependency()
         minecraftDependency.versionRange = versionRange
-        forgeDependencies << minecraftDependency.copy()
-        quiltDependencies << minecraftDependency.copy()
+        dependencies << minecraftDependency.copy()
     }
 
     void setMinecraft(final NumberRange versionRange) {
         final minecraftDependency = new MinecraftDependency()
         final String mavenVersionRange = "[${versionRange.from},${versionRange.to})"
         minecraftDependency.versionRange = mavenVersionRange
-        forgeDependencies << minecraftDependency.copy()
-        quiltDependencies << minecraftDependency.copy()
+        dependencies << minecraftDependency.copy()
     }
 
     // same as NumberRange but added this for better IDE support
@@ -116,13 +115,13 @@ class DependenciesBuilder extends HashMap {
         closure.delegate = forgeDependency
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(forgeDependency)
-        forgeDependencies << forgeDependency.copy()
+        dependencies << forgeDependency.copy()
     }
 
     void setForge(final String versionRange) {
         final forgeDependency = new ForgeDependency()
         forgeDependency.versionRange = versionRange
-        forgeDependencies << forgeDependency.copy()
+        dependencies << forgeDependency.copy()
     }
 
     void methodMissing(String name,
@@ -131,7 +130,7 @@ class DependenciesBuilder extends HashMap {
         mod(name, closure)
     }
 
-    Dependencies build() {
+    List<Dependency> build() {
         this.each { key, value ->
             key = key as String
 
@@ -147,16 +146,8 @@ class DependenciesBuilder extends HashMap {
                 dependency.modId = key as String
                 dependency.versionRange = value as String
             }
-            forgeDependencies << dependency.copy()
-            quiltDependencies << dependency.copy()
+            dependencies << dependency.copy()
         }
-        return new Dependencies(forgeDependencies, quiltDependencies)
-    }
-
-    @AutoFinal
-    @Immutable
-    static class Dependencies {
-        List<Dependency> forge
-        List<Dependency> quilt
+        return dependencies
     }
 }

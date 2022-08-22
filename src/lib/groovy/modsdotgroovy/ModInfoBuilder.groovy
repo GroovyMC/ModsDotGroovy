@@ -94,27 +94,49 @@ class ModInfoBuilder {
     /**
      * The dependencies of the mod
      */
-    List<Dependency> forgeDependencies
-    List<Dependency> quiltDependencies
+    List<Dependency> dependencies
 
     /**
      * The custom properties of the mod
      */
     Map properties = [:]
 
+    private Platform platform
+
+    ModInfoBuilder(Platform platform) {
+        this.platform = platform
+    }
+
     void propertyMissing(String name, Object value) {
         properties[name] = value
     }
 
+    void onQuilt(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
+                 @ClosureParams(value = SimpleType, options = "modsdotgroovy.ModInfoBuilder") final Closure closure) {
+        if (platform == Platform.QUILT) {
+            closure.delegate = this
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call(this)
+        }
+    }
+
+    void onForge(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
+                 @ClosureParams(value = SimpleType, options = "modsdotgroovy.ModInfoBuilder") final Closure closure) {
+        if (platform == Platform.FORGE) {
+            closure.delegate = this
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call(this)
+        }
+    }
+
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                       @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependenciesBuilder') final Closure closure) {
-        final dependenciesBuilder = new DependenciesBuilder()
+        final dependenciesBuilder = new DependenciesBuilder(platform)
         closure.delegate = dependenciesBuilder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dependenciesBuilder)
-        DependenciesBuilder.Dependencies dependencies = dependenciesBuilder.build()
-        forgeDependencies = dependencies.forge
-        quiltDependencies = dependencies.quilt
+        List<Dependency> dependencies = dependenciesBuilder.build()
+        this.dependencies = dependencies
     }
 
     void setDescription(final String description) {
@@ -130,6 +152,6 @@ class ModInfoBuilder {
     }
 
     ImmutableModInfo build() {
-        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.forgeDependencies, this.quiltDependencies, this.properties)
+        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties)
     }
 }

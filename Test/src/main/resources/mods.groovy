@@ -11,7 +11,9 @@ ModsDotGroovy.make {
         authors = ['Matyrobbrt', 'Paint_Ninja']
         credits = "${buildProperties.someProperty}"
 
-        customProperty = 'hello'
+        onForge {
+            customProperty = 'hello'
+        }
 
         dependencies {
             minecraft = 1.19..1.20 // equivalent to `minecraft = '[1.19,1.20)'`
@@ -26,5 +28,9 @@ ModsDotGroovy.make {
                 side = DependencySide.BOTH
             }
         }
+    }
+
+    onQuilt {
+        mixin = "no.mixin.json"
     }
 }
