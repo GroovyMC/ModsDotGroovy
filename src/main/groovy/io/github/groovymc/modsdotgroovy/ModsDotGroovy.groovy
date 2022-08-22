@@ -32,7 +32,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.FileTreeElement
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.language.jvm.tasks.ProcessResources
@@ -56,10 +55,10 @@ class ModsDotGroovy implements Plugin<Project> {
             configuration.dependencies.add(project.dependencies.create(ext.mdgDsl()))
 
             if (ext.automaticConfiguration.get()) {
-                final srcSets = project.extensions.getByType ( JavaPluginExtension ) .sourceSets
-                final main = srcSets.named ( 'main' ).get ( )
+                final srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
+                final main = srcSets.named('main').get()
 
-                final modsGroovy = browse ( srcSets ) { new File ( it, 'mods.groovy')}
+                final modsGroovy = browse(srcSets) { new File(it, 'mods.groovy')}
                         .orElseGet(() -> new FileWithSourceSet(main, new File(main.resources.srcDirs.find(), 'mods.groovy')))
 
                 project.configurations.getByName(modsGroovy.sourceSet.compileOnlyConfigurationName)
