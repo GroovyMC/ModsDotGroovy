@@ -20,18 +20,22 @@ ModsDotGroovy.make {
             forge = '>=43.0.0' // equivalent to `forge { versionRange = '[43.0.0,)' }`
             quiltLoader = '>=0.17.3'
 
-            mod {
-                modId = 'dynamic_asset_generator'
-                versionRange = versionRange {
-                    lower '1.0.1'
+            onForge {
+                mod {
+                    modId = 'dynamic_asset_generator'
+                    versionRange = versionRange {
+                        lower '1.0.1'
+                    }
+                    side = DependencySide.CLIENT
                 }
-                side = DependencySide.CLIENT
             }
 
-            mod {
-                modId = 'roughlyenoughitems'
-                versionRange = '9.0.0 - 9.1'
-                mandatory = false
+            onQuilt {
+                mod {
+                    modId = 'roughlyenoughitems'
+                    versionRange = '9.0.0 - 9.1'
+                    mandatory = false
+                }
             }
 
             mod {

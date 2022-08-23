@@ -64,12 +64,14 @@ class ModsDotGroovy {
 
     void onForge(Closure closure) {
         if (platform == Platform.FORGE) {
+            closure.resolveStrategy = DELEGATE_FIRST
             closure.call()
         }
     }
 
     void onQuilt(Closure closure) {
         if (platform == Platform.QUILT) {
+            closure.resolveStrategy = DELEGATE_FIRST
             closure.call()
         }
     }
