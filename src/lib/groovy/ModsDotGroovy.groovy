@@ -62,21 +62,15 @@ class ModsDotGroovy {
         data[name] = value
     }
 
-    void onForge(@DelegatesTo(value = ModsDotGroovy, strategy = DELEGATE_FIRST)
-               @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') Closure closure) {
+    void onForge(Closure closure) {
         if (platform == Platform.FORGE) {
-            closure.delegate = this
-            closure.resolveStrategy = DELEGATE_FIRST
-            closure.call(this)
+            closure.call()
         }
     }
 
-    void onQuilt(@DelegatesTo(value = ModsDotGroovy, strategy = DELEGATE_FIRST)
-               @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') Closure closure) {
+    void onQuilt(Closure closure) {
         if (platform == Platform.QUILT) {
-            closure.delegate = this
-            closure.resolveStrategy = DELEGATE_FIRST
-            closure.call(this)
+            closure.call()
         }
     }
 

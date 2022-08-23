@@ -116,24 +116,6 @@ class ModInfoBuilder {
         properties[name] = value
     }
 
-    void onQuilt(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = "modsdotgroovy.ModInfoBuilder") final Closure closure) {
-        if (platform == Platform.QUILT) {
-            closure.delegate = this
-            closure.resolveStrategy = DELEGATE_FIRST
-            closure.call(this)
-        }
-    }
-
-    void onForge(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = "modsdotgroovy.ModInfoBuilder") final Closure closure) {
-        if (platform == Platform.FORGE) {
-            closure.delegate = this
-            closure.resolveStrategy = DELEGATE_FIRST
-            closure.call(this)
-        }
-    }
-
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                       @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependenciesBuilder') final Closure closure) {
         final dependenciesBuilder = new DependenciesBuilder(platform)

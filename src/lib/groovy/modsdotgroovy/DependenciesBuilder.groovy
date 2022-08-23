@@ -44,24 +44,6 @@ class DependenciesBuilder extends HashMap {
         this.platform = platform
     }
 
-    void onQuilt(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = "modsdotgroovy.DependenciesBuilder") final Closure closure) {
-        if (platform == Platform.QUILT) {
-            closure.delegate = this
-            closure.resolveStrategy = DELEGATE_FIRST
-            closure.call(this)
-        }
-    }
-
-    void onForge(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = "modsdotgroovy.DependenciesBuilder") final Closure closure) {
-        if (platform == Platform.FORGE) {
-            closure.delegate = this
-            closure.resolveStrategy = DELEGATE_FIRST
-            closure.call(this)
-        }
-    }
-
     void mod(@DelegatesTo(value = Dependency, strategy = DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'modsdotgroovy.Dependency') final Closure closure) {
         final dep = new Dependency()
