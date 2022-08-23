@@ -85,7 +85,7 @@ class VersionRange {
 
         for (String part : quiltVersion.split(/\|\|/)) {
             part = part.trim()
-            String[] ss = part.split(/(?<!( -))( +)(?!(- )| )/)
+            String[] ss = part.split(/(?<!( -)| )( +)(?!(- )| )/)
             if (ss.every {it == '*' || it == 'x'}) {
                 data.versions.add(new SingleVersionData())
             }
