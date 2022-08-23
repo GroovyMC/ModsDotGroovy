@@ -196,7 +196,7 @@ class VersionRange {
                 }
                 matcher = SEMVER_DASH_RANGE.matcher(s)
                 if (matcher.find()) {
-                    String[] ends = s.split(' - ')
+                    String[] ends = s.split(' +- +')
                     String low = ends[0]
                     String high = ends[1]
                     Matcher highMatch = SEMVER_ALL_OPTIONAL.matcher(high)
