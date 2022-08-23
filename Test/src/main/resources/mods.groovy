@@ -22,11 +22,16 @@ ModsDotGroovy.make {
 
             mod {
                 modId = 'dynamic_asset_generator'
-                versionRange = version {
+                versionRange = versionRange {
                     lower '1.0.1'
                 }
-                ordering = DependencyOrdering.AFTER
                 side = DependencySide.CLIENT
+            }
+
+            mod {
+                modId = 'roughlyenoughitems'
+                versionRange = '9.0.0 - 9.1'
+                mandatory = false
             }
 
             mod {

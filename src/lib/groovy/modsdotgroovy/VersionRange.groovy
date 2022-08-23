@@ -77,13 +77,15 @@ class VersionRange {
             ~/^(?<major>[0-9]+)(\.(?<minor>[0-9]+|[x*]))?(\.(?<patch>[0-9]+|[x*]))?(?:-(?<pre>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+(?<meta>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/
     private static final Pattern SEMVER_PATCH_OPTIONAL =
             ~/^(?<major>[0-9]+)\.(?<minor>[0-9]+)(\.(?<patch>[0-9]+))?(?:-(?<pre>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+(?<meta>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/
+    private static final Pattern SEMVER_DASH_RANGE =
+            ~/[0-9]+(\.[0-9]+)?(\.[0-9]+)?(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)? - [0-9]+(\.[0-9]+)?(\.[0-9]+)?(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?/
 
     static VersionRange ofSemVer(String quiltVersion) {
         final VersionRange data = new VersionRange()
 
         for (String part : quiltVersion.split('\\|\\|')) {
             part = part.trim()
-            String[] ss = part.split(' ')
+            String[] ss = part.split(/(?<!( -)) (?!(- ))/)
             if (ss.every {it == '*' || it == 'x'}) {
                 data.versions.add(new SingleVersionData())
             }
@@ -187,8 +189,30 @@ class VersionRange {
                         working.lower = "${semVer.major}.${semVer.minor}.0"
                         working.upper = "${semVer.major}.${semVer.minor+1}.0"
                     } else {
-                        working.lower = semVer.toString()
-                        working.upper = semVer.toString()
+                        working.lower = s
+                        working.upper = s
+                    }
+                    continue
+                }
+                matcher = SEMVER_DASH_RANGE.matcher(s)
+                if (matcher.find()) {
+                    String[] ends = s.split(' - ')
+                    String low = ends[0]
+                    String high = ends[1]
+                    Matcher highMatch = SEMVER_ALL_OPTIONAL.matcher(high)
+                    highMatch.find()
+                    MatchedSemVer highVer = MatchedSemVer.ofWildcardMissing(highMatch)
+                    working.includeLower = true
+                    working.lower = low
+                    if (highVer.patch == -1) {
+                        working.includeUpper = false
+                        working.upper = "${highVer.major}.${highVer.minor+1}.0"
+                    } else if (highVer.minor == -1) {
+                        working.includeUpper = false
+                        working.upper = "${highVer.major+1}.0.0"
+                    } else {
+                        working.includeUpper = true
+                        working.upper = high
                     }
                     continue
                 }
@@ -270,9 +294,29 @@ class VersionRange {
             String pre = matcher.group("pre")
             String meta = matcher.group("meta")
 
-            if (major==null | major.isEmpty()) major = '0'
-            if (minor==null | minor.isEmpty()) minor = '0'
-            if (patch==null | patch.isEmpty()) patch = '0'
+            if (major==null || major.isEmpty()) major = '0'
+            if (minor==null || minor.isEmpty()) minor = '0'
+            if (patch==null || patch.isEmpty()) patch = '0'
+
+            if (minor=='x' || minor=='*') minor = '-1'
+            if (patch=='x' || patch=='*') patch = '-1'
+
+            if (pre!==null && pre.isEmpty()) pre = null
+            if (meta!==null && meta.isEmpty()) meta = null
+
+            return new MatchedSemVer(Integer.valueOf(major), Integer.valueOf(minor), Integer.valueOf(patch), pre, meta)
+        }
+
+        static MatchedSemVer ofWildcardMissing(Matcher matcher) {
+            String major = matcher.group("major")
+            String minor = matcher.group("minor")
+            String patch = matcher.group("patch")
+            String pre = matcher.group("pre")
+            String meta = matcher.group("meta")
+
+            if (major==null || major.isEmpty()) major = '-1'
+            if (minor==null || minor.isEmpty()) minor = '-1'
+            if (patch==null || patch.isEmpty()) patch = '-1'
 
             if (minor=='x' || minor=='*') minor = '-1'
             if (patch=='x' || patch=='*') patch = '-1'
