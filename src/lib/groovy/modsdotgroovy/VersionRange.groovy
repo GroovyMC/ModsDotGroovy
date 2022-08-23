@@ -78,14 +78,14 @@ class VersionRange {
     private static final Pattern SEMVER_PATCH_OPTIONAL =
             ~/^(?<major>[0-9]+)\.(?<minor>[0-9]+)(\.(?<patch>[0-9]+))?(?:-(?<pre>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+(?<meta>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/
     private static final Pattern SEMVER_DASH_RANGE =
-            ~/[0-9]+(\.[0-9]+)?(\.[0-9]+)?(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)? - [0-9]+(\.[0-9]+)?(\.[0-9]+)?(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?/
+            ~/[0-9]+(\.[0-9]+)?(\.[0-9]+)?(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)? +- +[0-9]+(\.[0-9]+)?(\.[0-9]+)?(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?/
 
     static VersionRange ofSemVer(String quiltVersion) {
         final VersionRange data = new VersionRange()
 
-        for (String part : quiltVersion.split('\\|\\|')) {
+        for (String part : quiltVersion.split(/\|\|/)) {
             part = part.trim()
-            String[] ss = part.split(/(?<!( -)) (?!(- ))/)
+            String[] ss = part.split(/(?<!( -))( +)(?!(- )| )/)
             if (ss.every {it == '*' || it == 'x'}) {
                 data.versions.add(new SingleVersionData())
             }
