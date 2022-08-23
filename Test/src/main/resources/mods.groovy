@@ -17,8 +17,17 @@ ModsDotGroovy.make {
 
         dependencies {
             minecraft = 1.19..1.20 // equivalent to `minecraft = '[1.19,1.20)'`
-            forge = '[43.0.0,)' // equivalent to `forge { versionRange = '[43.0.0,)' }`
-            quiltLoader = '[0.17.0-,)'
+            forge = '>=43.0.0' // equivalent to `forge { versionRange = '[43.0.0,)' }`
+            quiltLoader = '>=0.17.3'
+
+            mod {
+                modId = 'dynamic_asset_generator'
+                versionRange = version {
+                    lower '1.0.1'
+                }
+                ordering = DependencyOrdering.AFTER
+                side = DependencySide.CLIENT
+            }
 
             mod {
                 modId = 'patchouli'

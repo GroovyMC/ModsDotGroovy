@@ -13,6 +13,10 @@ class EntrypointsBuilder {
         }
     }
 
+    void propertyMissing(String name, value) {
+        methodMissing(name, [value])
+    }
+
     void entrypoint(String name, args) {
         methodMissing(name, args)
     }

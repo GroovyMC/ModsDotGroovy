@@ -39,7 +39,7 @@ class Dependency {
     boolean mandatory = true
 
     /**
-     * A maven version range of the versions of the mod you're compatible with.
+     * A version range of the versions of the mod you're compatible with.
      */
     VersionRange versionRange
 
@@ -70,7 +70,12 @@ class Dependency {
     }
 
     void setVersionRange(String range) {
-        versionRange = VersionRange.of(range)
+        this.versionRange = VersionRange.of(range)
+    }
+
+    void setVersionRange(List range) {
+        this.versionRange = new VersionRange()
+        this.versionRange.versions = range.collectMany {VersionRange.of(it as String).versions}
     }
 
     VersionRange getVersionRange() {
@@ -102,7 +107,7 @@ class Dependency {
 
     Dependency copy() {
         if (!modId) throw new IllegalArgumentException("Missing modId for dependency")
-        if (!versionRange) throw new IllegalArgumentException("Missing versionRange for dependency")
+        if (!versionRange) throw new IllegalArgumentException("Missing versionRange for dependency $modId")
         final dep = new Dependency()
         dep.modId = modId
         dep.mandatory = mandatory

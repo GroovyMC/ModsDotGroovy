@@ -45,7 +45,7 @@ class DependenciesBuilder extends HashMap {
     }
 
     void onQuilt(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
-               @ClosureParams(value = SimpleType, options = "modsdotgroovy.DependenciesBuilder") final Closure closure) {
+                 @ClosureParams(value = SimpleType, options = "modsdotgroovy.DependenciesBuilder") final Closure closure) {
         if (platform == Platform.QUILT) {
             closure.delegate = this
             closure.resolveStrategy = DELEGATE_FIRST
@@ -54,7 +54,7 @@ class DependenciesBuilder extends HashMap {
     }
 
     void onForge(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
-               @ClosureParams(value = SimpleType, options = "modsdotgroovy.DependenciesBuilder") final Closure closure) {
+                 @ClosureParams(value = SimpleType, options = "modsdotgroovy.DependenciesBuilder") final Closure closure) {
         if (platform == Platform.FORGE) {
             closure.delegate = this
             closure.resolveStrategy = DELEGATE_FIRST
@@ -151,6 +151,26 @@ class DependenciesBuilder extends HashMap {
                        @DelegatesTo(value = Dependency, strategy = DELEGATE_FIRST)
                        @ClosureParams(value = SimpleType, options = 'modsdotgroovy.Dependency') final Closure closure) {
         mod(name, closure)
+    }
+
+    VersionRange versionRange(@DelegatesTo(value = VersionRange.SingleVersionData, strategy = DELEGATE_FIRST)
+                 @ClosureParams(value = SimpleType, options = 'modsdotgroovy.VersionRange$SingleVersionData') final Closure closure) {
+        VersionRange.SingleVersionData version = new VersionRange.SingleVersionData()
+        closure.delegate = version
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(version)
+        VersionRange range = new VersionRange()
+        range.versions.add(version)
+        return range
+    }
+
+    VersionRange versions(@DelegatesTo(value = VersionsBuilder, strategy = DELEGATE_FIRST)
+                  @ClosureParams(value = SimpleType, options = 'modsdotgroovy.VersionsBuilder') final Closure closure) {
+        VersionsBuilder builder = new VersionsBuilder()
+        closure.delegate = builder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(builder)
+        return builder.build()
     }
 
     List<Dependency> build() {
