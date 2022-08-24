@@ -22,6 +22,7 @@ Add the following line in your `build.gradle`, to do so:
 ```gradle
 modsDotGroovy {
     dslVersion = '1.0.1' // Can be replaced with any existing DSL version
+    platform 'forge'
 }
 ```
 ## Usage

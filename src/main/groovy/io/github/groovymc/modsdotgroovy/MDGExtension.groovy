@@ -58,7 +58,7 @@ abstract class MDGExtension {
         this.platforms.set([Platform.byName(name)])
     }
 
-    void platform(List<String> platforms) {
+    void platforms(List<String> platforms) {
         this.platforms.set(platforms.collect {Platform.byName(it)})
     }
 
