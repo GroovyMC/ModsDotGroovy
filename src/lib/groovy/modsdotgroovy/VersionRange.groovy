@@ -32,10 +32,10 @@ import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-@CompileStatic
 /**
  * Represents a range of versions for a dependency. A range is made up of a list of {@link SingleVersionRange}.
  */
+@CompileStatic
 class VersionRange {
     List<SingleVersionRange> versions = []
 
