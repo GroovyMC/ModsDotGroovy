@@ -30,6 +30,7 @@ import groovy.transform.stc.SimpleType
 import modsdotgroovy.ImmutableModInfo
 import modsdotgroovy.ModInfoBuilder
 import modsdotgroovy.ModsBuilder
+import modsdotgroovy.VersionRange
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
@@ -121,12 +122,16 @@ class ModsDotGroovy {
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
     void setLoaderVersion(String loaderVersion) {
-        switch (platform) {
-            case Platform.FORGE:
-                put 'loaderVersion', loaderVersion
-                break
-            case Platform.QUILT:
-                break        }
+        if (platform == Platform.FORGE)
+            put 'loaderVersion', VersionRange.of(loaderVersion).toForge()
+    }
+
+    void setLoaderVersion(List<String> loaderVersion) {
+        if (platform == Platform.FORGE) {
+            final VersionRange range = new VersionRange()
+            range.versions = loaderVersion.collectMany {VersionRange.of(it).versions}
+            put 'loaderVersion', range.toForge()
+        }
     }
 
     void mod(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
