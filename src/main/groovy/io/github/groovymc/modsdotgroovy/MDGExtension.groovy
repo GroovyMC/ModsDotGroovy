@@ -46,7 +46,7 @@ abstract class MDGExtension {
     MDGExtension(final Project project) {
         this.project = project
         automaticConfiguration.set(true)
-        platforms.set([])
+        platforms.set([Platform.FORGE])
     }
 
     String mdgDsl(String version = null) {
