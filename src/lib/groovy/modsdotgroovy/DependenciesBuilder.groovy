@@ -111,7 +111,7 @@ class DependenciesBuilder extends HashMap {
     }
 
     void quiltLoader(@DelegatesTo(value = QuiltLoaderDependency, strategy = DELEGATE_FIRST)
-               @ClosureParams(value = SimpleType, options = 'modsdotgroovy.QuiltLoaderDependency') final Closure closure) {
+                     @ClosureParams(value = SimpleType, options = 'modsdotgroovy.QuiltLoaderDependency') final Closure closure) {
         if (platform == Platform.QUILT) {
             final quiltLoaderDependency = new QuiltLoaderDependency()
             closure.delegate = quiltLoaderDependency

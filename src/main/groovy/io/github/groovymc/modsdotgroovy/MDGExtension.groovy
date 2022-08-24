@@ -25,18 +25,25 @@
 package io.github.groovymc.modsdotgroovy
 
 import groovy.transform.CompileStatic
+import org.gradle.api.Project
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.SourceSet
 
 @CompileStatic
 abstract class MDGExtension {
     public static final String NAME = 'modsDotGroovy'
     abstract Property<String> getDslVersion()
     abstract Property<Boolean> getAutomaticConfiguration()
-    abstract Property<Type> getType()
+    abstract ListProperty<Platform> getPlatforms()
+    abstract Property<SourceSet> getSource()
 
-    MDGExtension() {
+    protected final Project project
+
+    MDGExtension(final Project project) {
+        this.project = project
         automaticConfiguration.set(true)
-        type.set(Type.FORGE)
+        platforms.set([])
     }
 
     String mdgDsl(String version = null) {
@@ -44,30 +51,44 @@ abstract class MDGExtension {
         return "io.github.groovymc.modsdotgroovy:dsl:$version"
     }
 
-    void type(String type) {
-        switch (type.toLowerCase(Locale.ROOT)) {
-            case 'quilt':
-                this.type.set(Type.QUILT)
-                break
-            case 'forge':
-                this.type.set(Type.FORGE)
-                break
-            default:
-                throw new IllegalArgumentException("Unknown project type :$type")
-        }
+    void platform(String name) {
+        this.platforms.set([Platform.byName(name)])
     }
 
-    enum Type {
+    void platform(List<String> platforms) {
+        this.platforms.set(platforms.collect {Platform.byName(it)})
+    }
+
+    enum Platform {
         QUILT {
             @Override
             String toString() {
-                return "quilt"
+                return 'quilt'
             }
         },
         FORGE {
             @Override
             String toString() {
-                return "forge"
+                return 'forge'
+            }
+        },
+        MULTILOADER {
+            @Override
+            String toString() {
+                return 'multiloader'
+            }
+        }
+
+        static Platform byName(String name) {
+            switch (name.toLowerCase(Locale.ROOT)) {
+                case 'quilt':
+                    return QUILT
+                case 'forge':
+                    return FORGE
+                case 'multiloader':
+                    return MULTILOADER
+                default:
+                    throw new IllegalArgumentException("Unknown project platform :$name")
             }
         }
     }

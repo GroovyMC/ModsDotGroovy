@@ -4,9 +4,11 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.language.jvm.tasks.ProcessResources
 
@@ -21,6 +23,9 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Optional
     @InputFile
     abstract RegularFileProperty getDslLocation()
+    @Optional
+    @Input
+    abstract Property<Configuration> getDslConfiguration()
 
     @Input
     @Optional
@@ -53,6 +58,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
             arg('version', project.version)
             arg('platform', getPlatform())
+            arg('group', project.group)
             setupPlatformSpecificArguments()
         }
     }
@@ -78,7 +84,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     @CompileDynamic
     Map from(File script) {
         final bindings = new Binding(arguments.get())
-        final actualDsl = dslLocation.getOrNull()?.asFile ?: project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME).resolve().find()
+        final actualDsl = dslLocation.getOrNull()?.asFile ?: (dslConfiguration.getOrNull()?:project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME)).resolve().find()
         final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
             final List<String> classpath = List.of(actualDsl.toString())
             @Override

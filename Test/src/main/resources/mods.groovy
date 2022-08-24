@@ -45,6 +45,10 @@ ModsDotGroovy.make {
                 side = DependencySide.BOTH
             }
         }
+
+        onQuilt {
+            intermediate_mappings = "net.fabricmc:intermediary"
+        }
     }
 
     onQuilt {

@@ -241,6 +241,8 @@ class ModsDotGroovy {
                 value.removeIf { it === null }
             } else if (value instanceof Map) {
                 sanitizeMap(value)
+            } else if (value instanceof GString) {
+                data[key] = value.toString()
             }
         }
     }

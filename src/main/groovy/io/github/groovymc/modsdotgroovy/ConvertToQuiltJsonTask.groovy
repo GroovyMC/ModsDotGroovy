@@ -23,10 +23,10 @@ abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
                 } catch (Exception ignored) {}
             }
         }
-        final quiltLoaderDependency = project.configurations.findByName('compileClasspath').dependencies
+        final quiltLoaderDependency = project.configurations.findByName('modImplementation').dependencies
                 .find {it.name == "quilt-loader" && it.group == "org.quiltmc"}
         if (quiltLoaderDependency !== null) {
-            arg('quiltLoaderVersion', mcDependency.version)
+            arg('quiltLoaderVersion', quiltLoaderDependency.version)
         }
     }
 
