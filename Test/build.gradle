@@ -7,7 +7,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 modsDotGroovy {
     dslVersion = '1.0.2'
-    platform "forge"
+    platform(['forge', 'quilt'])
 }
 
 repositories {

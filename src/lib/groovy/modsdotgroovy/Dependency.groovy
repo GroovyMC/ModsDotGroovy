@@ -69,6 +69,10 @@ class Dependency {
         this.versionRange = range
     }
 
+    /**
+     * Set the version range using a string. The range provided can either be in the maven format ({@code "[1.0.0,)"}),
+     * or in the SemVer format ({@code ">=1.0.0"}).
+     */
     void setVersionRange(String range) {
         this.versionRange = VersionRange.of(range)
     }

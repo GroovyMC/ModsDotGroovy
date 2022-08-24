@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-
-
 import groovy.transform.CompileStatic
 
 @CompileStatic

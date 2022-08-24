@@ -54,6 +54,7 @@ ModsDotGroovy.make {
         
         dependencies {
             // The `forgeVersion` and `minecraftVersion` properties are computed from the `minecraft` dependency in the `build.gradle` file
+            // Alternatively, versions can be specified in the SemVer style: ">=${this.forgeVersion}"
             forge = "[${this.forgeVersion},)" // The Forge version range the mod is compatible with
             // The automatically generated `minecraftVersionRange` property is computed as: [1.$minecraftMajorVersion,1.${minecraftMajorVersion + 1})
             // Example: for a Minecraft version of 1.19, the computed `minecraftVersionRange` is [1.19,1.20)
@@ -70,3 +71,36 @@ ModsDotGroovy.make {
 }
 ```
 The DSL is documented with JavaDocs which should be browsable in your IDE.
+
+## Loader Support
+The plugin can additionally be used to configure the `quilt.mod.json` file in a Quilt project, or both files in a multiloader
+project. To configure the plugin for Quilt, add the following to your `build.gradle`:
+```gradle
+modsDotGroovy {
+    ...
+    platform 'quilt'
+}
+```
+Certain quilt-specific DSL elements exist; the `this.quiltLoaderVersion` property can be used to get the version of quilt loader
+present in the project. To configure the plugin for a multiloader project instead, insert the following into your root project's
+`build.gradle`:
+```gradle
+modsDotGroovy {
+    ...
+    platform 'multiloader'
+}
+```
+The plugin assumes that your subprojects for Quilt, Forge, and common code are called `Quilt`, `Forge`, and `Common` respectively.
+If this is not the case, it can be configured as follows:
+```gradle
+modsDotGroovy {
+    ...
+    platform 'multiloader'
+    multiloader {
+        common = project(':common')
+        quilt = [project(':quilt')]
+        forge = [project(':forge')]
+    }
+}
+```
+The common project provides the `mods.groovy` file, which is then used to generate both a `mods.toml` and `quilt.mod.json` file.

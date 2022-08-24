@@ -24,10 +24,23 @@
 
 package modsdotgroovy
 
-class QuiltLoaderDependency extends Dependency {
-    {
-        modId = 'quilt_loader'
-        mandatory = true
-        ordering = DependencyOrdering.NONE
+import groovy.transform.CompileStatic
+
+@CompileStatic
+class AdaptedBuilder {
+    /**
+     * Points towards the implementation of the entrypoint, to be loaded by the adapter.
+     */
+    String value
+
+    /**
+     * The adapter to use when loading the entrypoint value.
+     */
+    String adapter = 'default'
+
+    Map build() {
+        if (value===null)
+            throw new IllegalArgumentException("A value must be provided for an entrypoint with an adapter.")
+        return ['adapter':adapter,'value':value]
     }
 }

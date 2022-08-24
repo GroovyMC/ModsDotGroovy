@@ -135,9 +135,9 @@ class DependenciesBuilder extends HashMap {
         mod(name, closure)
     }
 
-    VersionRange versionRange(@DelegatesTo(value = VersionRange.SingleVersionData, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = 'modsdotgroovy.VersionRange$SingleVersionData') final Closure closure) {
-        VersionRange.SingleVersionData version = new VersionRange.SingleVersionData()
+    VersionRange versionRange(@DelegatesTo(value = VersionRange.SingleVersionRange, strategy = DELEGATE_FIRST)
+                 @ClosureParams(value = SimpleType, options = 'modsdotgroovy.VersionRange$SingleVersionRange') final Closure closure) {
+        VersionRange.SingleVersionRange version = new VersionRange.SingleVersionRange()
         closure.delegate = version
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(version)

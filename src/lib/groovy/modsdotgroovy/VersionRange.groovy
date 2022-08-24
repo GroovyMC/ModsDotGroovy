@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 GroovyMC
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package modsdotgroovy
 
 import groovy.transform.AutoFinal
@@ -9,13 +33,34 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @CompileStatic
+/**
+ * Represents a range of versions for a dependency. A range is made up of a list of {@link SingleVersionRange}.
+ */
 class VersionRange {
-    List<SingleVersionData> versions = []
+    List<SingleVersionRange> versions = []
 
-    static class SingleVersionData {
+    /**
+     * A single, bounded version range.
+     */
+    static class SingleVersionRange {
+        /**
+         * The lower bound of the version range. The empty string represents an unbounded range.
+         */
         String lower = ''
+
+        /**
+         * The upper bound of the version range. The empty string represents an unbounded range.
+         */
         String upper = ''
+
+        /**
+         * Whether the lower bound is considered a part of the version range.
+         */
         boolean includeLower = true
+
+        /**
+         * Whether the upper bound is considered a part of the version range.
+         */
         boolean includeUpper = false
 
         void lower(String lower) {
@@ -87,9 +132,9 @@ class VersionRange {
             part = part.trim()
             String[] ss = part.split(/(?<!( -)| )( +)(?!(- )| )/)
             if (ss.every {it == '*' || it == 'x'}) {
-                data.versions.add(new SingleVersionData())
+                data.versions.add(new SingleVersionRange())
             }
-            SingleVersionData working = new SingleVersionData()
+            SingleVersionRange working = new SingleVersionRange()
             for (String sOrig : ss) {
                 String s = sOrig
                 s = s.trim()
@@ -226,7 +271,7 @@ class VersionRange {
 
     static VersionRange ofMaven(String forgeVersion) {
         final VersionRange data = new VersionRange()
-        SingleVersionData present = new SingleVersionData()
+        SingleVersionRange present = new SingleVersionRange()
         data.versions.add(present)
         boolean buildingUpper = false
         boolean startingSingleVersion = false
@@ -247,14 +292,14 @@ class VersionRange {
                     if (insideSingleVersion)
                         buildingUpper = true
                     else if (!startingSingleVersion) {
-                        present = new SingleVersionData()
+                        present = new SingleVersionRange()
                         data.versions.add(present)
                         startingSingleVersion = true
                     }
                     break
                 case ' ':
                     if (!insideSingleVersion && !startingSingleVersion) {
-                        present = new SingleVersionData()
+                        present = new SingleVersionRange()
                         data.versions.add(present)
                         startingSingleVersion = true
                     }

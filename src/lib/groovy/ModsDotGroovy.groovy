@@ -22,9 +22,7 @@
  * SOFTWARE.
  */
 
-
 import groovy.transform.CompileStatic
-import groovy.transform.Internal
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import modsdotgroovy.ImmutableModInfo
@@ -49,9 +47,9 @@ class ModsDotGroovy {
         }
     }
 
-    static Platform platform
+    protected static Platform platform
 
-    static void setPlatform(String name) {
+    protected static void setPlatform(String name) {
         platform = Platform.valueOf(name.toUpperCase(Locale.ROOT))
     }
 
@@ -63,6 +61,9 @@ class ModsDotGroovy {
         data[name] = value
     }
 
+    /**
+     * Run a given block only if the plugin is configuring the mods.toml file for forge.
+     */
     void onForge(Closure closure) {
         if (platform == Platform.FORGE) {
             closure.resolveStrategy = DELEGATE_FIRST
@@ -70,6 +71,9 @@ class ModsDotGroovy {
         }
     }
 
+    /**
+     * Run a given block only if the plugin is configuring the quilt.mod.json file for quilt.
+     */
     void onQuilt(Closure closure) {
         if (platform == Platform.QUILT) {
             closure.resolveStrategy = DELEGATE_FIRST
@@ -126,6 +130,9 @@ class ModsDotGroovy {
             put 'loaderVersion', VersionRange.of(loaderVersion).toForge()
     }
 
+    /**
+     * A version range to match for the {@link #setModLoader(java.lang.String)}.
+     */
     void setLoaderVersion(List<String> loaderVersion) {
         if (platform == Platform.FORGE) {
             final VersionRange range = new VersionRange()
