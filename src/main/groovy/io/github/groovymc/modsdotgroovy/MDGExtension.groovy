@@ -62,6 +62,10 @@ abstract class MDGExtension {
         this.platforms.set(platforms.collect {Platform.byName(it)})
     }
 
+    void platforms(String[] platforms) {
+        this.platforms(Arrays.asList(platforms))
+    }
+
     void multiloader(@DelegatesTo(value = MultiloaderConfiguration, strategy = Closure.DELEGATE_FIRST)
                      @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.MDGExtension$MultiloaderConfiguration') final Closure closure) {
         final conf = new MultiloaderConfiguration()
