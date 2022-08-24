@@ -79,13 +79,13 @@ class ModsDotGroovy implements Plugin<Project> {
                                 makeAndAppendQuiltTask(modsGroovy, project)
                         }
                     } else {
-                        final common = project.subprojects.find { it.name == 'Common' }
-                        final quilt = project.subprojects.find { it.name == 'Quilt' }
-                        final forge = project.subprojects.find { it.name == 'Forge' }
+                        final common = ext.multiloader.getOrNull()?.common?:project.subprojects.find { it.name == 'Common' }
+                        final quilt = ext.multiloader.isPresent()?ext.multiloader.get().quilt:[project.subprojects.find { it.name == 'Quilt' }]
+                        final forge = ext.multiloader.isPresent()?ext.multiloader.get().forge:[project.subprojects.find { it.name == 'Forge' }]
 
-                        if (common === null || quilt === null || forge === null)
+                        if (common === null)
                             throw new IllegalArgumentException(
-                                    "Specified platform 'multiloader' but missing subproject '${common === null ? 'Common' : (quilt === null ? 'Quilt' : 'Forge')}'")
+                                    "Specified platform 'multiloader' but missing common subproject")
                         final commonSrcSets = common.extensions.getByType(JavaPluginExtension).sourceSets
                         final commonSrcSet = ext.source.isPresent() ? ext.source.get() : browse(commonSrcSets) { new File(it, 'mods.groovy') }
                                 .map { it.sourceSet }
@@ -101,8 +101,12 @@ class ModsDotGroovy implements Plugin<Project> {
                                 .extendsFrom(commonConfiguration)
 
 
-                        makeAndAppendForgeTask(modsGroovy, forge).dslConfiguration.set(commonConfiguration)
-                        makeAndAppendQuiltTask(modsGroovy, quilt).dslConfiguration.set(commonConfiguration)
+                        forge.each {
+                            makeAndAppendForgeTask(modsGroovy, it).dslConfiguration.set(commonConfiguration)
+                        }
+                        quilt.each {
+                            makeAndAppendQuiltTask(modsGroovy, it).dslConfiguration.set(commonConfiguration)
+                        }
                     }
                 }
             }

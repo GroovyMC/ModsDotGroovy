@@ -25,6 +25,8 @@
 package io.github.groovymc.modsdotgroovy
 
 import groovy.transform.CompileStatic
+import groovy.transform.stc.ClosureParams
+import groovy.transform.stc.SimpleType
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -37,6 +39,7 @@ abstract class MDGExtension {
     abstract Property<Boolean> getAutomaticConfiguration()
     abstract ListProperty<Platform> getPlatforms()
     abstract Property<SourceSet> getSource()
+    abstract Property<MultiloaderConfiguration> getMultiloader()
 
     protected final Project project
 
@@ -57,6 +60,15 @@ abstract class MDGExtension {
 
     void platform(List<String> platforms) {
         this.platforms.set(platforms.collect {Platform.byName(it)})
+    }
+
+    void multiloader(@DelegatesTo(value = MultiloaderConfiguration, strategy = Closure.DELEGATE_FIRST)
+                     @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.MDGExtension$MultiloaderConfiguration') final Closure closure) {
+        final conf = new MultiloaderConfiguration()
+        closure.delegate = conf
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.call(conf)
+        multiloader.set(conf)
     }
 
     enum Platform {
@@ -91,5 +103,11 @@ abstract class MDGExtension {
                     throw new IllegalArgumentException("Unknown project platform :$name")
             }
         }
+    }
+
+    static class MultiloaderConfiguration {
+        Project common
+        List<Project> forge = []
+        List<Project> quilt = []
     }
 }
