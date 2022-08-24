@@ -79,9 +79,9 @@ class ModsDotGroovy implements Plugin<Project> {
                                 makeAndAppendQuiltTask(modsGroovy, project)
                         }
                     } else {
-                        final common = ext.multiloader.getOrNull()?.common?:project.subprojects.find { it.name == 'Common' }
-                        final quilt = ext.multiloader.isPresent()?ext.multiloader.get().quilt:[project.subprojects.find { it.name == 'Quilt' }]
-                        final forge = ext.multiloader.isPresent()?ext.multiloader.get().forge:[project.subprojects.find { it.name == 'Forge' }]
+                        final common = ext.multiloader.getOrNull()?.common?:project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
+                        final quilt = ext.multiloader.isPresent()?ext.multiloader.get().quilt:[project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'quilt' }]
+                        final forge = ext.multiloader.isPresent()?ext.multiloader.get().forge:[project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'forge' }]
 
                         if (common === null)
                             throw new IllegalArgumentException(
