@@ -1,4 +1,7 @@
 # ModsDotGroovy
+[![Plugin Version](https://img.shields.io/badge/dynamic/xml?style=for-the-badge&color=blue&label=Latest%20Plugin%20Version&prefix=v&query=metadata%2F%2Flatest&url=https%3A%2F%2Fmaven.moddinginquisition.org%2Freleases%2Fio%2Fgithub%2Fgroovymc%2Fmodsdotgroovy%2FModsDotGroovy%2Fmaven-metadata.xml)](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/ModsDotGroovy)
+[![DSL Version](https://img.shields.io/badge/dynamic/xml?style=for-the-badge&color=blue&label=Latest%20DSL%20Version&prefix=v&query=metadata%2F%2Flatest&url=https%3A%2F%2Fmaven.moddinginquisition.org%2Freleases%2Fio%2Fgithub%2Fgroovymc%2Fmodsdotgroovy%2Fdsl%2Fmaven-metadata.xml)](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/dsl)
+
 ModsDotGroovy is a Gradle plugin which allows writing the Forge `mods.toml` in a Groovy script, which will be compiled down to a `mods.toml` when the mod is built.
 ## Installation
 In order to install the plugin, we first add the Modding Inquisition repository to the `settings.gradle` file:
