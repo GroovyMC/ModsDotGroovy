@@ -79,7 +79,7 @@ class ModsDotGroovy implements Plugin<Project> {
                         }
                     } else {
                         final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
-                        final quilt = ext.multiloader.isPresent()?ext.multiloader.get().quilt:[project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'quilt' }]
+                        final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'quilt' }]
                         final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'forge' }]
 
                         if (common === null)
