@@ -1,4 +1,7 @@
 # ModsDotGroovy
+[![Plugin Version](https://img.shields.io/badge/dynamic/xml?style=for-the-badge&color=blue&label=Latest%20Plugin%20Version&prefix=v&query=metadata%2F%2Flatest&url=https%3A%2F%2Fmaven.moddinginquisition.org%2Freleases%2Fio%2Fgithub%2Fgroovymc%2Fmodsdotgroovy%2FModsDotGroovy%2Fmaven-metadata.xml)](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/ModsDotGroovy)
+[![DSL Version](https://img.shields.io/badge/dynamic/xml?style=for-the-badge&color=blue&label=Latest%20DSL%20Version&prefix=v&query=metadata%2F%2Flatest&url=https%3A%2F%2Fmaven.moddinginquisition.org%2Freleases%2Fio%2Fgithub%2Fgroovymc%2Fmodsdotgroovy%2Fdsl%2Fmaven-metadata.xml)](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/dsl)
+
 ModsDotGroovy is a Gradle plugin which allows writing the Forge `mods.toml` in a Groovy script, which will be compiled down to a `mods.toml` when the mod is built.
 ## Installation
 In order to install the plugin, we first add the Modding Inquisition repository to the `settings.gradle` file:
@@ -22,6 +25,7 @@ Add the following line in your `build.gradle`, to do so:
 ```gradle
 modsDotGroovy {
     dslVersion = '1.0.1' // Can be replaced with any existing DSL version
+    platform 'forge'
 }
 ```
 ## Usage
@@ -54,6 +58,7 @@ ModsDotGroovy.make {
         
         dependencies {
             // The `forgeVersion` and `minecraftVersion` properties are computed from the `minecraft` dependency in the `build.gradle` file
+            // Alternatively, versions can be specified in the SemVer style: ">=${this.forgeVersion}"
             forge = "[${this.forgeVersion},)" // The Forge version range the mod is compatible with
             // The automatically generated `minecraftVersionRange` property is computed as: [1.$minecraftMajorVersion,1.${minecraftMajorVersion + 1})
             // Example: for a Minecraft version of 1.19, the computed `minecraftVersionRange` is [1.19,1.20)
@@ -70,3 +75,36 @@ ModsDotGroovy.make {
 }
 ```
 The DSL is documented with JavaDocs which should be browsable in your IDE.
+
+## Loader Support
+The plugin can additionally be used to configure the `quilt.mod.json` file in a Quilt project, or both files in a multiloader
+project. To configure the plugin for Quilt, add the following to your `build.gradle`:
+```gradle
+modsDotGroovy {
+    ...
+    platform 'quilt'
+}
+```
+Certain quilt-specific DSL elements exist; the `this.quiltLoaderVersion` property can be used to get the version of quilt loader
+present in the project. To configure the plugin for a multiloader project instead, insert the following into your root project's
+`build.gradle`:
+```gradle
+modsDotGroovy {
+    ...
+    platform 'multiloader'
+}
+```
+The plugin assumes that your subprojects for Quilt, Forge, and common code are called `Quilt`, `Forge`, and `Common` respectively.
+If this is not the case, it can be configured as follows:
+```gradle
+modsDotGroovy {
+    ...
+    platform 'multiloader'
+    multiloader {
+        common = project(':common')
+        quilt = [project(':quilt')]
+        forge = [project(':forge')]
+    }
+}
+```
+The common project provides the `mods.groovy` file, which is then used to generate both a `mods.toml` and `quilt.mod.json` file.

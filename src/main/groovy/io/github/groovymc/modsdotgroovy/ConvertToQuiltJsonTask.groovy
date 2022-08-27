@@ -24,14 +24,12 @@
 
 package io.github.groovymc.modsdotgroovy
 
-import com.moandjiezana.toml.TomlWriter
-import groovy.transform.CompileStatic
+import com.google.gson.GsonBuilder
 
-@CompileStatic
-abstract class ConvertToTomlTask extends AbstractConvertTask {
+abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
     @Override
     protected String getOutputName() {
-        return 'mods.toml'
+        return 'quilt.mod.json'
     }
 
     @Override
@@ -39,36 +37,38 @@ abstract class ConvertToTomlTask extends AbstractConvertTask {
         final mcDependency = project.configurations.findByName('minecraft')
                 ?.getDependencies()?.find()
         if (mcDependency !== null) {
-            final version = mcDependency.version.split('-')
-            arg('minecraftVersion', version[0])
-            arg('forgeVersion', version[1].split('_mapped_')[0])
+            arg('minecraftVersion', mcDependency.version)
 
-            final mcSplit = version[0].split('\\.')
+            final mcSplit = mcDependency.version.split('\\.')
             if (mcSplit.length > 1) {
                 try {
                     final currentVersion = Integer.parseInt(mcSplit[1])
-                    arg('minecraftVersionRange', "[${version[0]},1.${currentVersion + 1})")
+                    arg('minecraftVersionRange', "[${mcDependency.version},1.${currentVersion + 1})")
                 } catch (Exception ignored) {}
             }
+        }
+        final quiltLoaderDependency = project.configurations.findByName('modImplementation')?.dependencies
+                ?.find {it.name == 'quilt-loader' && it.group == 'org.quiltmc'}
+        if (quiltLoaderDependency !== null) {
+            arg('quiltLoaderVersion', quiltLoaderDependency.version)
         }
     }
 
     @Override
     protected String writeData(Map data) {
-        final tomlWriter = new TomlWriter.Builder()
-                .indentValuesBy(2)
-                .indentTablesBy(4)
-                .build()
-        return tomlWriter.write(data)
+        final gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create()
+        return gson.toJson(data)
     }
 
     @Override
     protected String getOutputDir() {
-        return 'META-INF'
+        return ''
     }
 
     @Override
     protected String getPlatform() {
-        return 'forge'
+        return 'quilt'
     }
 }

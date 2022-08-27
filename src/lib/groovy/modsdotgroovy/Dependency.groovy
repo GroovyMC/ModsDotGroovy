@@ -39,9 +39,9 @@ class Dependency {
     boolean mandatory = true
 
     /**
-     * A maven version range of the versions of the mod you're compatible with.
+     * A version range of the versions of the mod you're compatible with.
      */
-    String versionRange
+    VersionRange versionRange
 
     /**
      * An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
@@ -53,10 +53,10 @@ class Dependency {
      */
     DependencySide side = DependencySide.BOTH
 
-    Map asMap() {
+    Map asForgeMap() {
         final map = [:]
         map['mandatory'] = mandatory
-        map['versionRange'] = versionRange
+        map['versionRange'] = versionRange.toForge()
         if (ordering !== null)
             map['ordering'] = ordering
         if (side !== null)
@@ -65,9 +65,53 @@ class Dependency {
         return map
     }
 
+    void setVersionRange(VersionRange range) {
+        this.versionRange = range
+    }
+
+    /**
+     * Set the version range using a string. The range provided can either be in the maven format ({@code "[1.0.0,)"}),
+     * or in the SemVer format ({@code ">=1.0.0"}).
+     */
+    void setVersionRange(String range) {
+        this.versionRange = VersionRange.of(range)
+    }
+
+    void setVersionRange(List range) {
+        this.versionRange = new VersionRange()
+        this.versionRange.versions = range.collectMany {VersionRange.of(it as String).versions}
+    }
+
+    VersionRange getVersionRange() {
+        return versionRange
+    }
+
+    Map asQuiltMap() {
+        final map = [:]
+        map['id'] = modId
+        map['optional'] = !mandatory
+        map['versions'] = versionRange.toQuilt()
+        /*
+        TODO: Last checked (20220821), the spec for side-specific dependencies on Quilt is up in the air. Once Quilt
+        settles on something and implements it, this can be implemented correctly.
+         */
+        /*
+        switch (side) {
+            case DependencySide.BOTH:
+                break
+            case DependencySide.CLIENT:
+                map['environment'] = 'client'
+                break
+            case DependencySide.SERVER:
+                map['environment'] = 'dedicated_server'
+                break
+        }*/
+        return map
+    }
+
     Dependency copy() {
         if (!modId) throw new IllegalArgumentException("Missing modId for dependency")
-        if (!versionRange) throw new IllegalArgumentException("Missing versionRange for dependency")
+        if (!versionRange) throw new IllegalArgumentException("Missing versionRange for dependency $modId")
         final dep = new Dependency()
         dep.modId = modId
         dep.mandatory = mandatory

@@ -32,7 +32,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.FileTreeElement
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.language.jvm.tasks.ProcessResources
@@ -46,7 +45,9 @@ class ModsDotGroovy implements Plugin<Project> {
     void apply(Project project) {
         final ext = project.extensions.create(MDGExtension.NAME, MDGExtension)
         final configuration = project.configurations.create(CONFIGURATION_NAME)
+
         project.getPlugins().apply('java')
+
         project.afterEvaluate {
             project.repositories.maven { MavenArtifactRepository repo ->
                 repo.name = 'Modding Inquisition Releases'
@@ -56,28 +57,87 @@ class ModsDotGroovy implements Plugin<Project> {
             configuration.dependencies.add(project.dependencies.create(ext.mdgDsl()))
 
             if (ext.automaticConfiguration.get()) {
-                final srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
-                final main = srcSets.named('main').get()
+                final List<MDGExtension.Platform> platforms = ext.platforms.get()
+                for (MDGExtension.Platform platform : platforms.unique(false)) {
+                    if (platform != MDGExtension.Platform.MULTILOADER) {
+                        final srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
+                        final srcSet = ext.source.isPresent()?ext.source.get():browse(srcSets) { new File(it, 'mods.groovy')}
+                                .map {it.sourceSet}
+                                .orElseGet(() -> srcSets.named('main').get())
 
-                final modsToml = browse(srcSets)
-                { new File(it, 'mods.groovy') }
-                        .orElseGet(() -> new FileWithSourceSet(main, new File(main.resources.srcDirs.find(), 'mods.groovy')))
-                final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
-                    it.getInput().set(modsToml.file)
-                }
+                        final modsGroovy = new FileWithSourceSet(srcSet, new File(srcSet.resources.srcDirs.find(), 'mods.groovy'))
 
-                project.configurations.getByName(modsToml.sourceSet.compileOnlyConfigurationName)
-                        .extendsFrom(configuration)
+                        project.configurations.getByName(modsGroovy.sourceSet.compileOnlyConfigurationName)
+                                .extendsFrom(configuration)
 
-                project.tasks.named(modsToml.sourceSet.processResourcesTaskName, ProcessResources).configure {
-                    exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-                    dependsOn(convertTask)
-                    from(convertTask.output.get().asFile) {
-                        into 'META-INF'
+                        switch (platform) {
+                            case MDGExtension.Platform.FORGE:
+                                makeAndAppendForgeTask(modsGroovy, project)
+                                break
+                            case MDGExtension.Platform.QUILT:
+                                makeAndAppendQuiltTask(modsGroovy, project)
+                        }
+                    } else {
+                        final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
+                        final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'quilt' }]
+                        final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'forge' }]
+
+                        if (common === null)
+                            throw new IllegalArgumentException(
+                                    "Specified platform 'multiloader' but missing common subproject")
+                        final commonSrcSets = common.extensions.getByType(JavaPluginExtension).sourceSets
+                        final commonSrcSet = ext.source.isPresent() ? ext.source.get() : browse(commonSrcSets) { new File(it, 'mods.groovy') }
+                                .map { it.sourceSet }
+                                .orElseGet(() -> commonSrcSets.named('main').get())
+
+                        final modsGroovy = new FileWithSourceSet(commonSrcSet, new File(commonSrcSet.resources.srcDirs.find(), 'mods.groovy'))
+
+                        final commonConfiguration = common.configurations.findByName(CONFIGURATION_NAME)?:common.configurations.create(CONFIGURATION_NAME)
+                        commonConfiguration.dependencies.add(common.dependencies.create(ext.mdgDsl()))
+                        common.configurations.getByName(modsGroovy.sourceSet.compileOnlyConfigurationName)
+                                .extendsFrom(configuration)
+                        common.configurations.getByName(modsGroovy.sourceSet.compileOnlyConfigurationName)
+                                .extendsFrom(commonConfiguration)
+
+
+                        forge.each {
+                            makeAndAppendForgeTask(modsGroovy, it).dslConfiguration.set(commonConfiguration)
+                        }
+                        quilt.each {
+                            makeAndAppendQuiltTask(modsGroovy, it).dslConfiguration.set(commonConfiguration)
+                        }
                     }
                 }
             }
         }
+    }
+
+    static ConvertToTomlTask makeAndAppendForgeTask(FileWithSourceSet modsGroovy, Project project) {
+        final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
+            it.getInput().set(modsGroovy.file)
+        }
+        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+            dependsOn(convertTask)
+            from(convertTask.output.get().asFile) {
+                into 'META-INF'
+            }
+        }
+        return convertTask
+    }
+
+    static ConvertToQuiltJsonTask makeAndAppendQuiltTask(FileWithSourceSet modsGroovy, Project project) {
+        final convertTask = project.getTasks().create('modsDotGroovyToQuiltJson', ConvertToQuiltJsonTask) {
+            it.getInput().set(modsGroovy.file)
+        }
+        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+            dependsOn(convertTask)
+            from(convertTask.output.get().asFile) {
+                into ''
+            }
+        }
+        return convertTask
     }
 
     static Optional<FileWithSourceSet> browse(final Collection<SourceSet> sourceSet, @ClosureParams(value = SimpleType, options = 'java.io.File') Closure<File> finder) {

@@ -101,17 +101,28 @@ class ModInfoBuilder {
      */
     Map properties = [:]
 
+    /**
+     * The quilt entrypoints of the mod
+     */
+    Map entrypoints = [:]
+
+    private Platform platform
+
+    ModInfoBuilder(Platform platform) {
+        this.platform = platform
+    }
+
     void propertyMissing(String name, Object value) {
         properties[name] = value
     }
 
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                       @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependenciesBuilder') final Closure closure) {
-        final dependenciesBuilder = new DependenciesBuilder()
+        final dependenciesBuilder = new DependenciesBuilder(platform)
         closure.delegate = dependenciesBuilder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dependenciesBuilder)
-        dependencies = dependenciesBuilder.build()
+        this.dependencies = dependenciesBuilder.build()
     }
 
     void setDescription(final String description) {
@@ -126,7 +137,16 @@ class ModInfoBuilder {
         this.authors << author
     }
 
+    void entrypoints(@DelegatesTo(value = EntrypointsBuilder, strategy = DELEGATE_FIRST)
+                     @ClosureParams(value = SimpleType, options = 'modsdotgroovy.EntrypointsBuilder') final Closure closure) {
+        final entrypointsBuilder = new EntrypointsBuilder()
+        closure.delegate = entrypointsBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(entrypointsBuilder)
+        this.entrypoints = entrypointsBuilder.entrypoints
+    }
+
     ImmutableModInfo build() {
-        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties)
+        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties, this.entrypoints)
     }
 }

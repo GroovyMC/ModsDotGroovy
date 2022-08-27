@@ -35,6 +35,11 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @CompileStatic
 class ModsBuilder {
     private List<ImmutableModInfo> mods = []
+    private Platform platform
+
+    ModsBuilder(Platform platform) {
+        this.platform = platform
+    }
 
     List<ImmutableModInfo> getMods() {
         return mods
@@ -42,7 +47,7 @@ class ModsBuilder {
 
     void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'modsdotgroovy.ModInfoBuilder') final Closure closure) {
-        final modInfoBuilder = new ModInfoBuilder()
+        final modInfoBuilder = new ModInfoBuilder(platform)
         closure.delegate = modInfoBuilder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(modInfoBuilder)

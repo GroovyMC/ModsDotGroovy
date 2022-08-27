@@ -22,9 +22,12 @@
  * SOFTWARE.
  */
 
-import groovy.transform.CompileStatic
+package modsdotgroovy
 
-@CompileStatic
-enum DependencySide {
-    CLIENT, SERVER, BOTH
+class QuiltLoaderDependency extends Dependency {
+    {
+        modId = 'quilt_loader'
+        mandatory = true
+        ordering = DependencyOrdering.NONE
+    }
 }
