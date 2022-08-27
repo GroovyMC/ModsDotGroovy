@@ -44,6 +44,7 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Optional
     @OutputFile
     abstract RegularFileProperty getOutput()
+    @Deprecated(forRemoval = true)
     @Optional
     @InputFile
     abstract RegularFileProperty getDslLocation()
@@ -105,6 +106,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         Files.writeString(outPath, writeData(data))
     }
 
+    @SuppressWarnings('GrDeprecatedAPIUsage')
     @CompileDynamic
     Map from(File script) {
         final bindings = new Binding(arguments.get())
