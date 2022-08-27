@@ -91,7 +91,7 @@ class VersionRange {
         String toQuilt() {
             final List versionList = []
             if (lower != '') {
-                versionList.add((includeLower?">":">=")+lower)
+                versionList.add((includeLower?">=":">")+lower)
             }
             if (upper != '') {
                 versionList.add((includeUpper?"<=":"<")+upper)
