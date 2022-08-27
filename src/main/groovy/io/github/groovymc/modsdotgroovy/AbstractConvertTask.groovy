@@ -58,9 +58,7 @@ abstract class AbstractConvertTask extends DefaultTask {
 
     @Internal
     protected abstract String getOutputName()
-    @Internal
     protected abstract void setupPlatformSpecificArguments()
-    @Internal
     protected abstract String writeData(Map data)
     @Internal
     protected abstract String getOutputDir()
