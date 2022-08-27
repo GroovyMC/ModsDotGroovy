@@ -256,7 +256,7 @@ class ModsDotGroovy {
 
     private static Map merge(Map left, Map right) {
         if (left === null) return right
-        if (right === null) return right
+        if (right === null) return left
         return right.inject(new LinkedHashMap(left)) { map, entry ->
             if (map[entry.key] instanceof Map && entry.value instanceof Map) {
                 map[entry.key] = merge(map[entry.key] as Map, entry.value as Map)
