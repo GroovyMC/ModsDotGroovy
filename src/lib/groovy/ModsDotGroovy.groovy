@@ -113,13 +113,8 @@ class ModsDotGroovy {
      * For GroovyModLoader @GMod mods it should be {@code gml}.
      */
     void setModLoader(String modLoader) {
-        switch (platform) {
-            case Platform.FORGE:
-                put 'modLoader', modLoader
-                break
-            case Platform.QUILT:
-                break
-        }
+       if (platform == Platform.FORGE)
+            put 'modLoader', modLoader
     }
 
     /**

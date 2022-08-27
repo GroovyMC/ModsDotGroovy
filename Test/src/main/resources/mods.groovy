@@ -46,10 +46,12 @@ ModsDotGroovy.make {
             }
         }
 
+        // Configure quilt-specific data
         onQuilt {
             intermediate_mappings = "net.fabricmc:intermediary"
         }
 
+        // Quilt entrypoints
         entrypoints {
             init = adapted {
                 value = 'test.no.No'

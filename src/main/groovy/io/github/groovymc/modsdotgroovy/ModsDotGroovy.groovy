@@ -65,7 +65,6 @@ class ModsDotGroovy implements Plugin<Project> {
                                 .map {it.sourceSet}
                                 .orElseGet(() -> srcSets.named('main').get())
 
-
                         final modsGroovy = new FileWithSourceSet(srcSet, new File(srcSet.resources.srcDirs.find(), 'mods.groovy'))
 
                         project.configurations.getByName(modsGroovy.sourceSet.compileOnlyConfigurationName)
@@ -79,9 +78,9 @@ class ModsDotGroovy implements Plugin<Project> {
                                 makeAndAppendQuiltTask(modsGroovy, project)
                         }
                     } else {
-                        final common = ext.multiloader.getOrNull()?.common?:project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
+                        final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
                         final quilt = ext.multiloader.isPresent()?ext.multiloader.get().quilt:[project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'quilt' }]
-                        final forge = ext.multiloader.isPresent()?ext.multiloader.get().forge:[project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'forge' }]
+                        final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'forge' }]
 
                         if (common === null)
                             throw new IllegalArgumentException(
