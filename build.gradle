@@ -10,6 +10,7 @@ buildscript {
 
 plugins {
     id 'idea'
+    id 'groovy'
     id 'maven-publish'
     id 'groovy-gradle-plugin'
     id 'com.gradle.plugin-publish' version '0.18.0'
@@ -85,6 +86,20 @@ tasks.register('dslSources', Jar) {
     classifier 'sources'
     it.manifest.attributes makeAttributes()
 }
+groovydoc {
+    use = true
+    setSource(sourceSets.lib.allSource)
+
+    docTitle = "ModsDotGroovy v${version} - DSL"
+}
+
+tasks.create('groovydocJar', Jar) {
+    classifier 'javadoc'
+    from groovydoc.destinationDir
+    dependsOn(groovydoc)
+    archiveFileName = "dsl-${project.dsl_version}-javadoc.jar"
+    classifier 'javadoc'
+}
 
 tasks.withType(GroovyCompile).configureEach {
     groovyOptions.encoding = 'UTF-8'
@@ -106,7 +121,7 @@ publishing {
             artifactId = 'dsl'
             version = project.dsl_version
 
-            artifacts = [dslJar, dslSources]
+            artifacts = [dslJar, dslSources, groovydocJar]
         }
     }
     repositories {

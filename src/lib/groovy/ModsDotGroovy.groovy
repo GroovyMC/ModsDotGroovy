@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+//file:noinspection GrMethodMayBeStatic
 
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
@@ -83,7 +84,8 @@ class ModsDotGroovy {
 
     /**
      * The license for your mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.<br>
-     * Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
+     * Review your options at <a href="https://choosealicense.com/">https://choosealicense.com/</a>. <br>
+     * All rights reserved is the default copyright stance, and is thus the default here.
      */
     void setLicense(String license) {
         switch (platform) {
