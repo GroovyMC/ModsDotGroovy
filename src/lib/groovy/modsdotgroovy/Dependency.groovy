@@ -31,7 +31,7 @@ class Dependency {
     /**
      * The ID of the mod this dependency is depending on.
      */
-    String modId
+    String modId = null
 
     /**
      * Does this dependency have to exist? If not, ordering must also be specified.
@@ -41,7 +41,7 @@ class Dependency {
     /**
      * A version range of the versions of the mod you're compatible with.
      */
-    VersionRange versionRange
+    VersionRange versionRange = null
 
     /**
      * An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
@@ -110,15 +110,10 @@ class Dependency {
     }
 
     Dependency copy() {
-        if (!modId) throw new IllegalArgumentException("Missing modId for dependency")
-        if (!versionRange) throw new IllegalArgumentException("Missing versionRange for dependency $modId")
-        final dep = new Dependency()
-        dep.modId = modId
-        dep.mandatory = mandatory
-        dep.versionRange = versionRange
-        dep.ordering = ordering
-        dep.side = side
-        return dep
+        Objects.requireNonNull(modId, 'Missing modId for dependency')
+        Objects.requireNonNull(versionRange, "Missing versionRange for dependency $modId")
+
+        return new Dependency(modId: modId, mandatory: mandatory, versionRange: versionRange, ordering: ordering, side: side)
     }
 
 }

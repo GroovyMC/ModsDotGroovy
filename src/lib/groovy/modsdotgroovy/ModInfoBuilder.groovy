@@ -38,7 +38,7 @@ class ModInfoBuilder {
     /**
      * The modId of the mod. This should match the value of your mod's {@literal @}GMod/{@literal @}Mod annotated main class.
      */
-    String modId = 'unknown'
+    String modId = null
 
     /**
      * The friendly name of the mod. This is the name that will be displayed in the in-game Mods screen.<br>
@@ -51,7 +51,7 @@ class ModInfoBuilder {
      * ${file.jarVersion} will substitute the value of the Implementation-Version as read from the mod's JAR file metadata.<br>
      * See the associated build.gradle script for how to populate this completely automatically during a build.
      */
-    String version = 'unknown'
+    String version = null
 
     /**
      * A URL to query for updates for this mod.<br>
@@ -148,6 +148,9 @@ class ModInfoBuilder {
     }
 
     ImmutableModInfo build() {
+        Objects.requireNonNull(this.modId, 'Missing modId for ModInfo')
+        Objects.requireNonNull(this.version, "Missing version for ModInfo with modId \"${this.modId}\"")
+
         return new ImmutableModInfo(this.modId, this.displayName ?: this.modId.capitalize(), this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties, this.entrypoints)
     }
 }

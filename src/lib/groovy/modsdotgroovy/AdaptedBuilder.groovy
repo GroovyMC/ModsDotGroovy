@@ -31,7 +31,7 @@ class AdaptedBuilder {
     /**
      * Points towards the implementation of the entrypoint, to be loaded by the adapter.
      */
-    String value
+    String value = null
 
     /**
      * The adapter to use when loading the entrypoint value.
@@ -39,8 +39,8 @@ class AdaptedBuilder {
     String adapter = 'default'
 
     Map build() {
-        if (!value)
-            throw new IllegalArgumentException("A value must be provided for an entrypoint with an adapter.")
-        return ['adapter':adapter,'value':value]
+        Objects.requireNonNull(value, 'A value must be provided for an entrypoint with an adapter.')
+
+        return ['adapter': adapter, 'value': value]
     }
 }
