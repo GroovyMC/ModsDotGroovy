@@ -41,9 +41,10 @@ class ModInfoBuilder {
     String modId = 'unknown'
 
     /**
-     * The friendly name of the mod. This is the name that will be displayed in the in-game Mods screen.
+     * The friendly name of the mod. This is the name that will be displayed in the in-game Mods screen.<br>
+     * Defaults to a capitalized version of the modId if omitted/null.
      */
-    String displayName = modId.capitalize()
+    @Nullable String displayName = null
 
     /**
      * The version number of the mod - there's a few well known ${} variables usable here or just hardcode it.<br>
@@ -147,6 +148,6 @@ class ModInfoBuilder {
     }
 
     ImmutableModInfo build() {
-        return new ImmutableModInfo(this.modId, this.displayName, this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties, this.entrypoints)
+        return new ImmutableModInfo(this.modId, this.displayName ?: this.modId.capitalize(), this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties, this.entrypoints)
     }
 }
