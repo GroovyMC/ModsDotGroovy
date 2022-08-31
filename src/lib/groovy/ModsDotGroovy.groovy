@@ -203,8 +203,31 @@ class ModsDotGroovy {
                 break
             case Platform.QUILT:
                 modInfo.dependencies?.each {
+                    Map map = it.asQuiltMap()
+                    /*
+                    This whole chunk is a temporary fix for Quilt's lack of full representation of possible version
+                    ranges. See: https://github.com/QuiltMC/quilt-loader/issues/110
+
+                    TODO: Remove this code once Quilt Loader implements a version range spec that can represent any range.
+                    (The current spec can only represent unions of certain types of ranges; for instance, the range
+                    ">=1.0.0 <1.2.3 || >=2.0.0 <2.5.4" (or anything of a similar form) cannot be represented, and will
+                    generate a quilt.mod.json that cannot be read)
+                     */
+                    if ((map.versions as List).size() == 1) {
+                        final versionString = ((map.versions as List)[0] as String)
+                        if (versionString.contains(' ')) {
+                            String[] parts = versionString.split(' ',2)
+                            ((this.data.computeIfAbsent('quilt_loader',{[:]}) as Map).computeIfAbsent('depends',{[]}) as List)
+                                    .add(new HashMap(map).tap { it.versions = parts[0]})
+                            ((this.data.computeIfAbsent('quilt_loader',{[:]}) as Map).computeIfAbsent('depends',{[]}) as List)
+                                    .add(new HashMap(map).tap { it.versions = parts[1]})
+                            return
+                        }
+                    }
+
+
                     ((this.data.computeIfAbsent('quilt_loader',{[:]}) as Map).computeIfAbsent('depends',{[]}) as List)
-                            .add(it.asQuiltMap())
+                            .add(map)
                 }
 
                 if (modInfo.customProperties !== null && !modInfo.customProperties.isEmpty())
