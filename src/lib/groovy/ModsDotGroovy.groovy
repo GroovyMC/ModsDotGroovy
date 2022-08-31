@@ -39,12 +39,9 @@ class ModsDotGroovy {
     protected Map data
 
     protected ModsDotGroovy() {
-        switch (platform) {
-            case Platform.QUILT:
-                this.data = ["schema_version":1, "quilt_loader":[:]]
-                break
-            case Platform.FORGE:
-                this.data = [:]
+        this.data = switch (platform) {
+            case Platform.QUILT -> ["schema_version": 1, "quilt_loader": [:]]
+            case Platform.FORGE -> [:]
         }
     }
 
@@ -93,7 +90,7 @@ class ModsDotGroovy {
                 put 'license', license
                 break
             case Platform.QUILT:
-                this.data = merge(this.data, ["quilt_loader":["metadata":["license":license]]])
+                this.data = merge(this.data, ["quilt_loader": ["metadata": ["license": license]]])
         }
     }
 
@@ -106,7 +103,7 @@ class ModsDotGroovy {
                 put 'issueTrackerURL', issueTrackerUrl
                 break
             case Platform.QUILT:
-                this.data = merge(this.data, ["quilt_loader":["metadata":["contact":["issues":issueTrackerUrl]]]])
+                this.data = merge(this.data, ["quilt_loader": ["metadata": ["contact": ["issues": issueTrackerUrl]]]])
         }
     }
 
@@ -231,7 +228,7 @@ class ModsDotGroovy {
                 }
 
                 if (modInfo.customProperties !== null && !modInfo.customProperties.isEmpty())
-                    this.data = merge(this.data, ['quilt_loader':modInfo.customProperties])
+                    this.data = merge(this.data, ['quilt_loader': modInfo.customProperties])
 
                 boolean otherQuiltModsExist = (this.data?.quilt_loader as Map)?.id !== null
 
@@ -243,7 +240,7 @@ class ModsDotGroovy {
                 } else {
                     quiltModData.computeIfAbsent('provides', {[]})
                     List provides = quiltModData['provides'] as List
-                    provides.add(['id':modInfo.modId,'version':modInfo.version])
+                    provides.add(['id': modInfo.modId, 'version': modInfo.version])
                 }
                 quiltMetadata['name'] = modInfo.displayName
                 quiltMetadata['contact'] = ["homepage":modInfo.displayUrl]
@@ -257,7 +254,7 @@ class ModsDotGroovy {
                 }
                 quiltMetadata['contributors'] = quiltContributors
                 quiltModData['metadata'] = quiltMetadata
-                this.data = merge(this.data, ["quilt_loader":quiltModData])
+                this.data = merge(this.data, ["quilt_loader": quiltModData])
         }
     }
 
