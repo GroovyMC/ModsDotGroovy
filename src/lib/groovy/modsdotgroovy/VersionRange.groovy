@@ -33,7 +33,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
- * Represents a range of versions for a dependency. A range is made up of a list of {@link SingleVersionRange}.
+ * Represents a range of versions for a dependency. A range is made up of a list of {@link VersionRange.SingleVersionRange}.
  */
 @CompileStatic
 class VersionRange {
@@ -190,7 +190,6 @@ class VersionRange {
                         working.includeUpper = false
                         continue
                     } else {
-                        Matcher majorOnly = SEMVER_ALL_OPTIONAL.matcher(s)
                         if (matcher.find()) {
                             MatchedSemVer semVer = MatchedSemVer.of(matcher)
                             working.lower = semVer.toString()
@@ -269,14 +268,14 @@ class VersionRange {
         return data
     }
 
-    static VersionRange ofMaven(String forgeVersion) {
+    static VersionRange ofMaven(String mavenVersion) {
         final VersionRange data = new VersionRange()
         SingleVersionRange present = new SingleVersionRange()
         data.versions.add(present)
         boolean buildingUpper = false
         boolean startingSingleVersion = false
         boolean insideSingleVersion = false
-        for (char c : forgeVersion.chars) {
+        for (char c : mavenVersion.chars) {
             switch (c) {
                 case '(':
                     present.includeLower = false
