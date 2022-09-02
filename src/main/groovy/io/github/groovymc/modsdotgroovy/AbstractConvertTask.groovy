@@ -35,6 +35,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.catalog.VersionCatalogView
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
@@ -59,6 +60,9 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Input
     @Optional
     abstract MapProperty<String, Object> getArguments()
+    @Input
+    @Optional
+    abstract ListProperty<String> getCatalogs()
 
     @Internal
     protected abstract String getOutputName()
@@ -81,9 +85,12 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     AbstractConvertTask() {
         output.convention(project.layout.buildDirectory.dir(name).map {it.file(getOutputName())})
         arguments.convention(project.objects.mapProperty(String, Object))
+        catalogs.convention(['libs'])
         project.afterEvaluate {
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
-            arg('libs', versionCatalogToMap(getLibsExtension(project)))
+            catalogs.get().each {
+                arg(it, versionCatalogToMap(getLibsExtension(project, it)))
+            }
             arg('version', project.version)
             arg('platform', getPlatform())
             arg('group', project.group)
@@ -91,12 +98,12 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         }
     }
 
-    protected static VersionCatalog getLibsExtension(Project project) {
-        java.util.Optional<? extends VersionCatalog> catalogView = project.extensions.findByType(VersionCatalogsExtension)?.find('libs')
+    protected static VersionCatalog getLibsExtension(Project project, String name) {
+        java.util.Optional<? extends VersionCatalog> catalogView = project.extensions.findByType(VersionCatalogsExtension)?.find(name)
         if (!catalogView.isEmpty() || project.parent === null) {
             return catalogView.orElse(null)
         }
-        return getLibsExtension(project.parent)
+        return getLibsExtension(project.parent, name)
     }
 
     protected static Map versionCatalogToMap(VersionCatalog catalog) {

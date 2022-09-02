@@ -42,6 +42,7 @@ abstract class MDGExtension {
     abstract Property<SourceSet> getSource()
     abstract Property<MultiloaderConfiguration> getMultiloader()
     abstract MapProperty<String, Object> getArguments()
+    abstract ListProperty<String> getCatalogs()
 
     protected final Project project
 
@@ -50,6 +51,7 @@ abstract class MDGExtension {
         automaticConfiguration.set(true)
         platforms.set([Platform.FORGE])
         arguments.set([:])
+        catalogs.set(['libs'])
     }
 
     String mdgDsl(String version = null) {

@@ -74,11 +74,13 @@ class ModsDotGroovy implements Plugin<Project> {
                             case MDGExtension.Platform.FORGE:
                                 makeAndAppendForgeTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
+                                    catalogs.set(ext.catalogs.get())
                                 }
                                 break
                             case MDGExtension.Platform.QUILT:
                                 makeAndAppendQuiltTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
+                                    catalogs.set(ext.catalogs.get())
                                 }
                         }
                     } else {
@@ -108,12 +110,14 @@ class ModsDotGroovy implements Plugin<Project> {
                             makeAndAppendForgeTask(modsGroovy, it).with {
                                 dslConfiguration.set(commonConfiguration)
                                 arguments.set(ext.arguments.get())
+                                catalogs.set(ext.catalogs.get())
                             }
                         }
                         quilt.each {
                             makeAndAppendQuiltTask(modsGroovy, it).with{
                                 dslConfiguration.set(commonConfiguration)
                                 arguments.set(ext.arguments.get())
+                                catalogs.set(ext.catalogs.get())
                             }
                         }
                     }
