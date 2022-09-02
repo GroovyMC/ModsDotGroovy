@@ -28,9 +28,13 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.internal.catalog.VersionCatalogView
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
@@ -79,10 +83,69 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         arguments.convention(project.objects.mapProperty(String, Object))
         project.afterEvaluate {
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
+            arg('libs', versionCatalogToMap(getLibsExtension(project)))
             arg('version', project.version)
             arg('platform', getPlatform())
             arg('group', project.group)
             setupPlatformSpecificArguments()
+        }
+    }
+
+    protected static VersionCatalog getLibsExtension(Project project) {
+        java.util.Optional<? extends VersionCatalog> catalogView = project.extensions.findByType(VersionCatalogsExtension)?.find('libs')
+        if (!catalogView.isEmpty() || project.parent === null) {
+            return catalogView.orElse(null)
+        }
+        return getLibsExtension(project.parent)
+    }
+
+    protected static Map versionCatalogToMap(VersionCatalog catalog) {
+        Map out = [:]
+        Map versions = [:]
+        Map plugins = [:]
+        Map bundles = [:]
+        out.versions = versions
+        out.plugins = plugins
+        out.bundles = bundles
+        if (catalog === null)
+            return [:]
+        catalog.versionAliases.each {
+            var val = catalog.findVersion(it)
+            if (val.isPresent())
+                writeByPartwise(versions, it, "${val.get()}" as String)
+        }
+        catalog.pluginAliases.each {
+            var val = catalog.findPlugin(it)
+            if (val.isPresent())
+                writeByPartwise(plugins, it, "${val.get().get()}" as String)
+        }
+        catalog.bundleAliases.each {
+            var val = catalog.findBundle(it)
+            if (val.isPresent()) {
+                var modules = val.get().get()
+                writeByPartwise(bundles, it, modules.collect {"${it}" as String})
+            }
+        }
+        catalog.libraryAliases.each {
+            var val = catalog.findLibrary(it)
+            if (val.isPresent())
+                writeByPartwise(out, it, "${val.get().get()}" as String)
+        }
+        return out
+    }
+
+    protected static void writeByPartwise(Map root, String path, Object value) {
+        List<String> parts = path.split(/\./).collect {it.trim()}.findAll {!it.isEmpty()}
+        if (parts.size() == 1)
+            root[parts[0]] = value
+        else if (parts.size() >= 1) {
+            Object inner = root.computeIfAbsent(parts[0], {[:]})
+            if (!(inner instanceof Map)) {
+                root[parts[0]] = [:]
+                inner = root[parts[0]]
+            }
+            writeByPartwise(inner as Map, parts.subList(1, parts.size()).join('.'), value)
+            root[parts[0]] = inner
         }
     }
 
