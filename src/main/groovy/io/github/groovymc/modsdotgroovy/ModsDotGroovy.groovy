@@ -72,10 +72,16 @@ class ModsDotGroovy implements Plugin<Project> {
 
                         switch (platform) {
                             case MDGExtension.Platform.FORGE:
-                                makeAndAppendForgeTask(modsGroovy, project)
+                                makeAndAppendForgeTask(modsGroovy, project).with {
+                                    arguments.set(ext.arguments.get())
+                                    catalogs.set(ext.catalogs.get())
+                                }
                                 break
                             case MDGExtension.Platform.QUILT:
-                                makeAndAppendQuiltTask(modsGroovy, project)
+                                makeAndAppendQuiltTask(modsGroovy, project).with {
+                                    arguments.set(ext.arguments.get())
+                                    catalogs.set(ext.catalogs.get())
+                                }
                         }
                     } else {
                         final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
@@ -101,10 +107,18 @@ class ModsDotGroovy implements Plugin<Project> {
 
 
                         forge.each {
-                            makeAndAppendForgeTask(modsGroovy, it).dslConfiguration.set(commonConfiguration)
+                            makeAndAppendForgeTask(modsGroovy, it).with {
+                                dslConfiguration.set(commonConfiguration)
+                                arguments.set(ext.arguments.get())
+                                catalogs.set(ext.catalogs.get())
+                            }
                         }
                         quilt.each {
-                            makeAndAppendQuiltTask(modsGroovy, it).dslConfiguration.set(commonConfiguration)
+                            makeAndAppendQuiltTask(modsGroovy, it).with{
+                                dslConfiguration.set(commonConfiguration)
+                                arguments.set(ext.arguments.get())
+                                catalogs.set(ext.catalogs.get())
+                            }
                         }
                     }
                 }

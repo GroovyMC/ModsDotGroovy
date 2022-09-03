@@ -29,6 +29,7 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.SourceSet
 
@@ -40,6 +41,8 @@ abstract class MDGExtension {
     abstract ListProperty<Platform> getPlatforms()
     abstract Property<SourceSet> getSource()
     abstract Property<MultiloaderConfiguration> getMultiloader()
+    abstract MapProperty<String, Object> getArguments()
+    abstract ListProperty<String> getCatalogs()
 
     protected final Project project
 
@@ -47,6 +50,8 @@ abstract class MDGExtension {
         this.project = project
         automaticConfiguration.set(true)
         platforms.set([Platform.FORGE])
+        arguments.set([:])
+        catalogs.set(['libs'])
     }
 
     String mdgDsl(String version = null) {
