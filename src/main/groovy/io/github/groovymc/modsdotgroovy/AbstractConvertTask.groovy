@@ -100,7 +100,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
 
     protected static VersionCatalog getLibsExtension(Project project, String name) {
         java.util.Optional<? extends VersionCatalog> catalogView = project.extensions.findByType(VersionCatalogsExtension)?.find(name)
-        if (!catalogView.isEmpty() || project.parent === null) {
+        if (!catalogView?.isEmpty() || project.parent === null) {
             return catalogView.orElse(null)
         }
         return getLibsExtension(project.parent, name)
