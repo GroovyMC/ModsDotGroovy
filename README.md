@@ -81,7 +81,7 @@ The plugin can additionally be used to configure the `quilt.mod.json` file in a 
 project. To configure the plugin for Quilt, add the following to your `build.gradle`:
 ```gradle
 modsDotGroovy {
-    ...
+    //...
     platform 'quilt'
 }
 ```
@@ -90,7 +90,7 @@ present in the project. To configure the plugin for a multiloader project instea
 `build.gradle`:
 ```gradle
 modsDotGroovy {
-    ...
+    //...
     platform 'multiloader'
 }
 ```
@@ -98,7 +98,7 @@ The plugin assumes that your subprojects for Quilt, Forge, and common code are c
 If this is not the case, it can be configured as follows:
 ```gradle
 modsDotGroovy {
-    ...
+    //...
     platform 'multiloader'
     multiloader {
         common = project(':common')
