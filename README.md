@@ -17,14 +17,14 @@ Now, we apply the plugin:
 ```gradle
 plugins {
     // Other plugins here
-    id 'io.github.groovymc.modsdotgroovy' version '1.0.1' // Version can be replaced with any existing plugin version
+    id 'io.github.groovymc.modsdotgroovy' version '1.1.2' // Version can be replaced with any existing plugin version
 }
 ```
 Then, you need to decide on a ModsDotGroovy DSL version which you want to use. You can browse all available versions [here](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/dsl).
 Add the following line in your `build.gradle`, to do so:
 ```gradle
 modsDotGroovy {
-    dslVersion = '1.0.1' // Can be replaced with any existing DSL version
+    dslVersion = '1.1.3' // Can be replaced with any existing DSL version
     platform 'forge'
 }
 ```

@@ -29,7 +29,7 @@ sourceSets {
 }
 
 license {
-    header = project.file('LICENSE')
+    header = project.file('LICENSE-header.txt')
 }
 
 dependencies {
