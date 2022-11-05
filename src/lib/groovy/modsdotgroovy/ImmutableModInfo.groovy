@@ -23,10 +23,12 @@ class ImmutableModInfo {
     @Nullable String displayUrl
     @Nullable String logoFile
     @Nullable String credits
-    List<String> authors
+    Map<String, String> contributors
     String description
 
     List<Dependency> dependencies
     Map customProperties
     Map entrypoints
+
+    ImmutableQuiltModInfo quiltModInfo
 }

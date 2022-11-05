@@ -160,19 +160,20 @@ class ModsDotGroovy {
                 modData['description'] = modInfo.description
 
                 String authorsString = ''
-                switch (modInfo.authors.size()) {
+                var authors = modInfo.contributors.keySet().toList()
+                switch (authors.size()) {
                     case 0:
                         break
                     case 1:
-                        authorsString = modInfo.authors[0]
+                        authorsString = authors[0]
                         break
                     case 2:
-                        authorsString = modInfo.authors[0] + ' and ' + modInfo.authors[1]
+                        authorsString = authors[0] + ' and ' + authors[1]
                         break
                     default:
-                        modInfo.authors.eachWithIndex { String entry, int i ->
+                        authors.eachWithIndex { String entry, int i ->
                             if (i == 0) authorsString = entry
-                            else if (i == modInfo.authors.size() - 1) authorsString += ' and ' + entry
+                            else if (i == authors.size() - 1) authorsString += ' and ' + entry
                             else authorsString += ', ' + entry
                         }
                         break
@@ -225,14 +226,15 @@ class ModsDotGroovy {
                     provides.add(['id': modInfo.modId, 'version': modInfo.version])
                 }
                 quiltMetadata['name'] = modInfo.displayName
-                quiltMetadata['contact'] = ["homepage":modInfo.displayUrl]
+                quiltMetadata['contact'] = merge(['homepage':modInfo.displayUrl], modInfo.quiltModInfo.contact)
                 quiltMetadata['icon'] = modInfo.logoFile
                 quiltMetadata['description'] = modInfo.description
                 quiltModData['entrypoints'] = modInfo.entrypoints
+                quiltModData['intermediate_mappings'] = modInfo.quiltModInfo.intermediateMappings
 
                 Map quiltContributors = [:]
-                modInfo.authors.each {
-                    quiltContributors[it] = "Author"
+                modInfo.contributors.each {person, title ->
+                    quiltContributors[person] = title
                 }
                 quiltMetadata['contributors'] = quiltContributors
                 quiltModData['metadata'] = quiltMetadata

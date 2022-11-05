@@ -57,12 +57,6 @@ class ModInfoBuilder {
     @Nullable String credits = null
 
     /**
-     * The authors of the mod. <br>
-     * MDT will automatically format them as 'x, y and z'.
-     */
-    List<String> authors = []
-
-    /**
      * Display Test controls the display for your mod in the server connection screen.<br>
      */
     // TODO make enum, and actually support
@@ -79,6 +73,11 @@ class ModInfoBuilder {
     List<Dependency> dependencies
 
     /**
+     * Dependencies with which the mod cannot load
+     */
+    List<Dependency> breaks
+
+    /**
      * The custom properties of the mod
      */
     Map properties = [:]
@@ -87,6 +86,18 @@ class ModInfoBuilder {
      * The quilt entrypoints of the mod
      */
     Map entrypoints = [:]
+
+    /**
+     * The contributors of the mod, as a map from name to title. Titles are ignored on Forge.
+     */
+    Map<String, String> contributors = new LinkedHashMap()
+
+    /**
+     * A list of contacts for the mod, mapping from name to URL. Ignored on Forge.
+     */
+    Map<String, String> contact = [:]
+
+    String intermediateMappings = 'net.fabric:intermediary'
 
     private Platform platform
 
@@ -107,6 +118,15 @@ class ModInfoBuilder {
         this.dependencies = dependenciesBuilder.build()
     }
 
+    void breaks(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
+                      @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependenciesBuilder') final Closure closure) {
+        final dependenciesBuilder = new DependenciesBuilder(platform)
+        closure.delegate = dependenciesBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(dependenciesBuilder)
+        this.breaks = dependenciesBuilder.build()
+    }
+
     void setDescription(final String description) {
         this.description = description.stripIndent()
     }
@@ -115,8 +135,31 @@ class ModInfoBuilder {
         this.authors = [author]
     }
 
+    /**
+     * The authors of the mod. <br>
+     * MDT will automatically format them as 'x, y and z' on Forge.
+     */
+    List<String> getAuthors() {
+        return contributors.keySet().toList()
+    }
+
+    void setAuthors(List<String> authorList) {
+        contributors.clear()
+        authorList.each {
+            contributors[it] = 'Author'
+        }
+    }
+
     void author(final String author) {
-        this.authors << author
+        contributors[author] = author
+    }
+
+    void contact(final String name, final String location) {
+        contact[name] = location
+    }
+
+    void contributor(final String person, final String title) {
+        contributors[person] = title
     }
 
     void entrypoints(@DelegatesTo(value = EntrypointsBuilder, strategy = DELEGATE_FIRST)
@@ -132,6 +175,21 @@ class ModInfoBuilder {
         Objects.requireNonNull(this.modId, 'Missing modId for ModInfo')
         Objects.requireNonNull(this.version, "Missing version for ModInfo with modId \"${this.modId}\"")
 
-        return new ImmutableModInfo(this.modId, this.displayName ?: this.modId.capitalize(), this.version, this.updateJsonUrl, this.displayUrl, this.logoFile, this.credits, this.authors, this.description, this.dependencies, this.properties, this.entrypoints)
+        var quiltInfo = new ImmutableQuiltModInfo(this.intermediateMappings, this.breaks, this.contact)
+
+        return new ImmutableModInfo(
+                this.modId,
+                this.displayName ?: this.modId.capitalize(),
+                this.version,
+                this.updateJsonUrl,
+                this.displayUrl,
+                this.logoFile,
+                this.credits,
+                this.contributors,
+                this.description,
+                this.dependencies,
+                this.properties,
+                this.entrypoints,
+                quiltInfo)
     }
 }
