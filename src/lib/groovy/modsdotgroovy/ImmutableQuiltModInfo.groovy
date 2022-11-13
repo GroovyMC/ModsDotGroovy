@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2022 GroovyMC
+ * SPDX-License-Identifier: MIT
+ */
+
 package modsdotgroovy
 
 import groovy.transform.AutoFinal
