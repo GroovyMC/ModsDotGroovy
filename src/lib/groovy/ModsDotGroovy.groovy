@@ -351,12 +351,21 @@ class ModsDotGroovy {
             httpClient ?= HttpClient.newBuilder().build()
             // it's a GitHub URL, so let's see if it has an update.json file on the repo in any of the standard locations
             final String updateJsonUrlRoot = "https://raw.githubusercontent.com/${ghMatcher.group(1)}/${ghMatcher.group(2)}/${ghMatcher.group(3) ?: 'master'}"
-            final String[] updateJsonUrls = [
+            final List updateJsonUrls = [
                     "${updateJsonUrlRoot}/src/main/resources/update.json",
                     "${updateJsonUrlRoot}/src/main/resources/updates.json",
                     "${updateJsonUrlRoot}/update.json",
                     "${updateJsonUrlRoot}/updates.json"
             ]
+            if (updateJsonUrlRoot.endsWith('master')) {
+                final String updateJsonUrlMainBranchRoot = updateJsonUrlRoot[0..-6] + 'main'
+                updateJsonUrls.addAll([
+                        "${updateJsonUrlMainBranchRoot}/src/main/resources/update.json",
+                        "${updateJsonUrlMainBranchRoot}/src/main/resources/updates.json",
+                        "${updateJsonUrlMainBranchRoot}/update.json",
+                        "${updateJsonUrlMainBranchRoot}/updates.json"
+                ])
+            }
 
             // todo: check if the updates.json file exists locally and skip the network request if it does
 
