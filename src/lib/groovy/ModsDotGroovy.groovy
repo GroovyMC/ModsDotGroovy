@@ -53,7 +53,7 @@ class ModsDotGroovy {
      * Run a given block only if the plugin is configuring the mods.toml file for forge.
      */
     void onForge(Closure closure) {
-        if (platform == Platform.FORGE) {
+        if (platform === Platform.FORGE) {
             closure.resolveStrategy = DELEGATE_FIRST
             closure.call()
         }
@@ -102,7 +102,7 @@ class ModsDotGroovy {
      * For GroovyModLoader @GMod mods it should be {@code gml}.
      */
     void setModLoader(String modLoader) {
-       if (platform == Platform.FORGE)
+       if (platform === Platform.FORGE)
             put 'modLoader', modLoader
     }
 
@@ -110,7 +110,7 @@ class ModsDotGroovy {
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
     void setLoaderVersion(String loaderVersion) {
-        if (platform == Platform.FORGE)
+        if (platform === Platform.FORGE)
             put 'loaderVersion', VersionRange.of(loaderVersion).toForge()
     }
 
@@ -118,7 +118,7 @@ class ModsDotGroovy {
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
     void setLoaderVersion(List<String> loaderVersion) {
-        if (platform == Platform.FORGE) {
+        if (platform === Platform.FORGE) {
             final VersionRange range = new VersionRange()
             range.versions = loaderVersion.collectMany {VersionRange.of(it).versions}
             put 'loaderVersion', range.toForge()
@@ -303,6 +303,8 @@ class ModsDotGroovy {
      */
     @Nullable
     String inferUpdateJsonUrl(final ImmutableModInfo modInfo) {
+        if (platform !== Platform.FORGE) return null
+
         final String displayOrIssueTrackerUrl = modInfo.displayUrl ?: ((String) data.issueTrackerUrl)
         if (displayOrIssueTrackerUrl.is null) return null
 
