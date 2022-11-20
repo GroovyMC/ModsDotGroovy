@@ -23,7 +23,7 @@ class ImmutableModInfo {
     @Nullable String displayUrl
     @Nullable String logoFile
     @Nullable String credits
-    Map<String, String> contributors
+    List<String> authors
     String description
 
     List<Dependency> dependencies

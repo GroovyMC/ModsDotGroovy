@@ -8,8 +8,11 @@ ModsDotGroovy.make {
         modId = 'no'
         version = '1.190'
 
-        authors = ['Matyrobbrt', 'Paint_Ninja', 'lukebemish']
-        contributors.GroovyMC = 'Owner'
+        contributors = [
+                Owner: 'GroovyMC',
+                Author: ['Matyrobbrt', 'Paint_Ninja', 'lukebemish']
+        ]
+
         contact.source = 'https://github.com/GroovyMC/ModsDotGroovy'
         credits = "${buildProperties.someProperty}"
 

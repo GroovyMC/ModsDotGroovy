@@ -18,4 +18,5 @@ class ImmutableQuiltModInfo {
     String intermediateMappings
     List<Dependency> breaks
     Map<String, String> contact
+    Map<String, List<String>> contributors
 }

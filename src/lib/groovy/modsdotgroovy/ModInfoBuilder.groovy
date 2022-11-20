@@ -90,7 +90,13 @@ class ModInfoBuilder {
     /**
      * The contributors of the mod, as a map from name to title. Titles are ignored on Forge.
      */
-    Map<String, String> contributors = new LinkedHashMap()
+    Map<String, List<String>> contributors = [:]
+
+    /**
+     * The authors of the mod. <br>
+     * MDT will automatically format them as 'x, y and z' on Forge.
+     */
+    List<String> authors = []
 
     /**
      * A list of contacts for the mod, mapping from name to URL. Ignored on Forge.
@@ -135,23 +141,8 @@ class ModInfoBuilder {
         this.authors = [author]
     }
 
-    /**
-     * The authors of the mod. <br>
-     * MDT will automatically format them as 'x, y and z' on Forge.
-     */
-    List<String> getAuthors() {
-        return contributors.keySet().toList()
-    }
-
-    void setAuthors(List<String> authorList) {
-        contributors.clear()
-        authorList.each {
-            contributors[it] = 'Author'
-        }
-    }
-
     void author(final String author) {
-        contributors[author] = author
+        this.authors << author
     }
 
     void contact(final String name, final String location) {
@@ -159,7 +150,13 @@ class ModInfoBuilder {
     }
 
     void contributor(final String person, final String title) {
-        contributors[person] = title
+        contributors.computeIfAbsent(title, {[]}) << person
+    }
+
+    void contributors(final Map<String, List<String>> toAdd) {
+        toAdd.each {title, people ->
+            contributors.computeIfAbsent(title, {[]}).addAll(people)
+        }
     }
 
     void entrypoints(@DelegatesTo(value = EntrypointsBuilder, strategy = DELEGATE_FIRST)
@@ -175,7 +172,7 @@ class ModInfoBuilder {
         Objects.requireNonNull(this.modId, 'Missing modId for ModInfo')
         Objects.requireNonNull(this.version, "Missing version for ModInfo with modId \"${this.modId}\"")
 
-        var quiltInfo = new ImmutableQuiltModInfo(this.intermediateMappings, this.breaks, this.contact)
+        var quiltInfo = new ImmutableQuiltModInfo(this.intermediateMappings, this.breaks, this.contact, this.contributors)
 
         return new ImmutableModInfo(
                 this.modId,
@@ -185,7 +182,7 @@ class ModInfoBuilder {
                 this.displayUrl,
                 this.logoFile,
                 this.credits,
-                this.contributors,
+                this.authors,
                 this.description,
                 this.dependencies,
                 this.properties,
