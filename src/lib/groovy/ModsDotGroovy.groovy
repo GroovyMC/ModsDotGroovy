@@ -380,37 +380,6 @@ class ModsDotGroovy {
             }
         }
 
-        final Matcher mrMatcher = modInfo.displayUrl =~ $/.*modrinth.com/mod/([^?/]+)/?/$
-        println "displayUrl: ${modInfo.displayUrl}"
-        println "matches? ${mrMatcher.matches()}"
-        if (mrMatcher.matches()) {
-            httpClient ?= HttpClient.newBuilder().build()
-            final String updateJsonUrl = "https://api.modrinth.com/updates/${mrMatcher.group(1)}/forge_updates.json"
-
-            // modrinth's api doesn't factor in the actual mod jar's mods.toml version - just the published version,
-            // so we need to check that the returned promos map contains the mod's current version to avoid constantly
-            // nagging for updates the user might already have
-            final jsonSlurper = new JsonSlurper().setType(JsonParserType.INDEX_OVERLAY)
-            final HttpRequest request = HttpRequest.newBuilder(URI.create(updateJsonUrl)).GET().build()
-            try {
-                final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-                println response.statusCode()
-                if (response.statusCode() === HttpURLConnection.HTTP_OK) {
-                    final json = jsonSlurper.parseText(response.body())
-                    @Nullable final Map promos = json?.getAt('promos') as Map
-                    println "promos: ${promos}"
-                    if (promos !== null && !promos?.isEmpty()) {
-                        println "values: ${promos.values()}"
-                        println "contains? ${promos.values().contains(modInfo.version)}"
-                        if (promos.values().contains(modInfo.version))
-                            return updateJsonUrl
-                    }
-                }
-            } catch (final IOException ignored) {
-                println "ioexception"
-            }
-        }
-
         return null
     }
 }
