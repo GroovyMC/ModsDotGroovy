@@ -103,7 +103,7 @@ class ModInfoBuilder {
      */
     Map<String, String> contact = [:]
 
-    String intermediateMappings = 'net.fabric:intermediary'
+    String intermediateMappings = 'net.fabricmc:intermediary'
 
     private Platform platform
 
