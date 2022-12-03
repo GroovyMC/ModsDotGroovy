@@ -8,7 +8,12 @@ ModsDotGroovy.make {
         modId = 'no'
         version = '1.190'
 
-        authors = ['Matyrobbrt', 'Paint_Ninja']
+        contributors = [
+                Owner: 'GroovyMC',
+                Author: ['Matyrobbrt', 'Paint_Ninja', 'lukebemish']
+        ]
+
+        contact.source = 'https://github.com/GroovyMC/ModsDotGroovy'
         credits = "${buildProperties.someProperty}"
 
         // for testing the inferred updateJsonUrl feature - issueTrackerUrl and links to GitHub repos are also supported by this feature

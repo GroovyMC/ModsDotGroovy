@@ -29,4 +29,6 @@ class ImmutableModInfo {
     List<Dependency> dependencies
     Map customProperties
     Map entrypoints
+
+    ImmutableQuiltModInfo quiltModInfo
 }
