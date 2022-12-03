@@ -159,24 +159,8 @@ class ModsDotGroovy {
                 modData['logoFile'] = modInfo.logoFile
                 modData['description'] = modInfo.description
 
-                String authorsString = ''
-                switch (modInfo.authors.size()) {
-                    case 0:
-                        break
-                    case 1:
-                        authorsString = modInfo.authors[0]
-                        break
-                    case 2:
-                        authorsString = modInfo.authors[0] + ' and ' + modInfo.authors[1]
-                        break
-                    default:
-                        modInfo.authors.eachWithIndex { String entry, int i ->
-                            if (i == 0) authorsString = entry
-                            else if (i == modInfo.authors.size() - 1) authorsString += ' and ' + entry
-                            else authorsString += ', ' + entry
-                        }
-                        break
-                }
+                List<String> authorList = (modInfo.quiltModInfo.contributors.collectMany {it.value}+modInfo.authors).unique()
+                String authorsString = combineAsString(authorList)
                 modData['authors'] = authorsString
                 mods.add(modData)
                 break
@@ -225,19 +209,51 @@ class ModsDotGroovy {
                     provides.add(['id': modInfo.modId, 'version': modInfo.version])
                 }
                 quiltMetadata['name'] = modInfo.displayName
-                quiltMetadata['contact'] = ["homepage":modInfo.displayUrl]
+                quiltMetadata['contact'] = merge(['homepage':modInfo.displayUrl], modInfo.quiltModInfo.contact)
                 quiltMetadata['icon'] = modInfo.logoFile
                 quiltMetadata['description'] = modInfo.description
                 quiltModData['entrypoints'] = modInfo.entrypoints
+                quiltModData['intermediate_mappings'] = modInfo.quiltModInfo.intermediateMappings
 
+                Map<String, List<String>> intermediateContributors = [:]
+                modInfo.authors.each { author ->
+                    intermediateContributors.computeIfAbsent(author, {[]}) << 'Author'
+                }
+                modInfo.quiltModInfo.contributors.each { title, people ->
+                    people.each { person ->
+                        intermediateContributors.computeIfAbsent(person, {[]}) << title
+                    }
+                }
                 Map quiltContributors = [:]
-                modInfo.authors.each {
-                    quiltContributors[it] = "Author"
+                intermediateContributors.each {person, titles ->
+                    quiltContributors[person] = combineAsString(titles)
                 }
                 quiltMetadata['contributors'] = quiltContributors
                 quiltModData['metadata'] = quiltMetadata
                 this.data = merge(this.data, ["quilt_loader": quiltModData])
         }
+    }
+
+    private static String combineAsString(List<String> parts) {
+        String fullString = ''
+        switch (parts.size()) {
+            case 0:
+                break
+            case 1:
+                fullString = parts[0]
+                break
+            case 2:
+                fullString = parts[0] + ' and ' + parts[1]
+                break
+            default:
+                parts.eachWithIndex { String entry, int i ->
+                    if (i == 0) fullString = entry
+                    else if (i == parts.size() - 1) fullString += ' and ' + entry
+                    else fullString += ', ' + entry
+                }
+                break
+        }
+        return fullString
     }
 
     void sanitize() {
