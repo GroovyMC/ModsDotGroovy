@@ -9,12 +9,15 @@ import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import io.github.groovymc.modsdotgroovy.compat.MixinGradleSetup
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.FileTreeElement
+import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
+import org.gradle.internal.extensibility.DefaultExtraPropertiesExtension
 import org.gradle.language.jvm.tasks.ProcessResources
 
 import javax.annotation.Nullable
@@ -54,14 +57,14 @@ class ModsDotGroovy implements Plugin<Project> {
                         switch (platform) {
                             case MDGExtension.Platform.FORGE:
                                 makeAndAppendForgeTask(modsGroovy, project).with {
-                                    arguments.set(ext.arguments.get())
-                                    catalogs.set(ext.catalogs.get())
+                                    arguments.putAll(ext.arguments.get())
+                                    catalogs.addAll(ext.catalogs.get())
                                 }
                                 break
                             case MDGExtension.Platform.QUILT:
                                 makeAndAppendQuiltTask(modsGroovy, project).with {
-                                    arguments.set(ext.arguments.get())
-                                    catalogs.set(ext.catalogs.get())
+                                    arguments.putAll(ext.arguments.get())
+                                    catalogs.addAll(ext.catalogs.get())
                                 }
                         }
                     } else {
@@ -90,19 +93,24 @@ class ModsDotGroovy implements Plugin<Project> {
                         forge.each {
                             makeAndAppendForgeTask(modsGroovy, it).with {
                                 dslConfiguration.set(commonConfiguration)
-                                arguments.set(ext.arguments.get())
-                                catalogs.set(ext.catalogs.get())
+                                arguments.putAll(ext.arguments.get())
+                                catalogs.addAll(ext.catalogs.get())
                             }
                         }
                         quilt.each {
                             makeAndAppendQuiltTask(modsGroovy, it).with{
                                 dslConfiguration.set(commonConfiguration)
-                                arguments.set(ext.arguments.get())
-                                catalogs.set(ext.catalogs.get())
+                                arguments.putAll(ext.arguments.get())
+                                catalogs.addAll(ext.catalogs.get())
                             }
                         }
                     }
                 }
+            }
+
+            final mixinExt = project.extensions.findByName('mixin')
+            if (mixinExt !== null) {
+                MixinGradleSetup.setup(project, mixinExt)
             }
         }
     }
@@ -113,6 +121,14 @@ class ModsDotGroovy implements Plugin<Project> {
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             convertTask.setupOnProcessResources(it, (FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+        }
+
+        final ext = modsGroovy.sourceSet.getExtensions().getByType(ExtraPropertiesExtension)
+        if (ext.has('refMapFile')) {
+            final String refMapName = ext.get('refMapFile')
+            convertTask.getArguments().put('mixinRefMap', refMapName)
+            println(convertTask.getArguments().get().get('mixinRefMap'))
+            convertTask.mixinConfigName.set(refMapName.substring(0, refMapName.indexOf('.refmap')) + '.mixins.json')
         }
         return convertTask
     }

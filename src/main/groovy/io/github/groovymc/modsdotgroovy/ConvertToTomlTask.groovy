@@ -18,6 +18,9 @@ abstract class ConvertToTomlTask extends AbstractConvertTask {
         register('packMcMeta', new Strategy(
                 'pack.mcmeta', '', JSON_WRITER
         ))
+        register('mixinConfig', new Strategy(
+                'mixins.json', '', JSON_WRITER
+        ))
     }
 
     @Override

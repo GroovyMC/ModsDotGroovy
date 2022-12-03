@@ -5,6 +5,8 @@ plugins {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+sourceSets.main.ext.refMapFile = 'mymod.refmap.json'
+
 modsDotGroovy {
     dslVersion = '1.2.0'
     platforms 'forge', 'quilt'

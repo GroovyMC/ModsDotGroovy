@@ -23,6 +23,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.jvm.tasks.Jar
 import org.gradle.language.jvm.tasks.ProcessResources
 
 import java.nio.file.Files
@@ -51,6 +52,9 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Input
     @Optional
     abstract ListProperty<String> getCatalogs()
+    @Input
+    @Optional
+    abstract Property<String> getMixinConfigName()
 
     protected abstract void setupPlatformSpecificArguments()
 
@@ -83,6 +87,9 @@ abstract class AbstractConvertTask extends DefaultTask {
         return """
 if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     ModsDotGroovy.setPlatform('${getPlatform()}')
+}
+if (ModsDotGroovy.metaClass.respondsTo(null,'setMixinRefMap')) {
+    ModsDotGroovy.setMixinRefMap('${getArguments().get().get('mixinRefMap') ?: ''}')
 }
 """
     }
@@ -226,6 +233,13 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         output.get().each { String mapId, Object file ->
             processResources.from(file) { CopySpec spec ->
                 spec.into(getOutputDir(mapId))
+                        if (from == 'mixins.json') {
+                            return mixinConfigName.getOrElse(project.tasks.named('jar')
+                                    .map { (Jar) it }.map { it.archiveBaseName.get() + '.' }.getOrElse('') + 'mixins.json')
+                        }
+                        return from
+                    })
+                }
             }
         }
     }

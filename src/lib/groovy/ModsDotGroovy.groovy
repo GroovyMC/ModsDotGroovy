@@ -5,10 +5,13 @@
 
 //file:noinspection GrMethodMayBeStatic
 
+
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import modsdotgroovy.ImmutableModInfo
+import modsdotgroovy.MixinConfigBuilder
 import modsdotgroovy.ModInfoBuilder
 import modsdotgroovy.ModsBuilder
 import modsdotgroovy.PackMcMetaBuilder
@@ -30,9 +33,14 @@ class ModsDotGroovy {
     }
 
     protected static Platform platform
+    protected static String mixinRefMap
 
     protected static void setPlatform(String name) {
         platform = Platform.valueOf(name.toUpperCase(Locale.ROOT))
+    }
+
+    protected static void setMixinRefMap(String refMap) {
+        mixinRefMap = refMap.isBlank() ? null : refMap
     }
 
     void propertyMissing(String name, Object value) {
@@ -249,6 +257,16 @@ class ModsDotGroovy {
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(builder)
         extraMaps.put('packMcMeta', builder)
+    }
+
+    void mixinConfig(@DelegatesTo(value = MixinConfigBuilder, strategy = DELEGATE_FIRST)
+              @ClosureParams(value = SimpleType, options = 'modsdotgroovy.MixinConfigBuilder') final Closure closure) {
+        final builder = new MixinConfigBuilder()
+        builder.setRefMap(mixinRefMap)
+        closure.delegate = builder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(builder)
+        extraMaps.put('mixinConfig', builder)
     }
 
     void sanitize() {
