@@ -5,14 +5,22 @@
 
 //file:noinspection GrMethodMayBeStatic
 
+import groovy.json.JsonParserType
+import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import modsdotgroovy.ImmutableModInfo
 import modsdotgroovy.ModInfoBuilder
 import modsdotgroovy.ModsBuilder
 import modsdotgroovy.PackMcMetaBuilder
 import modsdotgroovy.VersionRange
+
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.util.regex.Matcher
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
@@ -47,7 +55,7 @@ class ModsDotGroovy {
      * Run a given block only if the plugin is configuring the mods.toml file for forge.
      */
     void onForge(Closure closure) {
-        if (platform == Platform.FORGE) {
+        if (platform === Platform.FORGE) {
             closure.resolveStrategy = DELEGATE_FIRST
             closure.call()
         }
@@ -96,7 +104,7 @@ class ModsDotGroovy {
      * For GroovyModLoader @GMod mods it should be {@code gml}.
      */
     void setModLoader(String modLoader) {
-       if (platform == Platform.FORGE)
+       if (platform === Platform.FORGE)
             put 'modLoader', modLoader
     }
 
@@ -104,7 +112,7 @@ class ModsDotGroovy {
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
     void setLoaderVersion(String loaderVersion) {
-        if (platform == Platform.FORGE)
+        if (platform === Platform.FORGE)
             put 'loaderVersion', VersionRange.of(loaderVersion).toForge()
     }
 
@@ -112,7 +120,7 @@ class ModsDotGroovy {
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
     void setLoaderVersion(List<String> loaderVersion) {
-        if (platform == Platform.FORGE) {
+        if (platform === Platform.FORGE) {
             final VersionRange range = new VersionRange()
             range.versions = loaderVersion.collectMany {VersionRange.of(it).versions}
             put 'loaderVersion', range.toForge()
@@ -155,30 +163,14 @@ class ModsDotGroovy {
                 modData['modId'] = modInfo.modId
                 modData['version'] = modInfo.version
                 modData['displayName'] = modInfo.displayName
-                modData['updateJsonUrl'] = modInfo.updateJsonUrl
                 modData['displayUrl'] = modInfo.displayUrl
+                modData['updateJsonUrl'] = modInfo.updateJsonUrl ?: inferUpdateJsonUrl(modInfo)
                 modData['credits'] = modInfo.credits
                 modData['logoFile'] = modInfo.logoFile
                 modData['description'] = modInfo.description
 
-                String authorsString = ''
-                switch (modInfo.authors.size()) {
-                    case 0:
-                        break
-                    case 1:
-                        authorsString = modInfo.authors[0]
-                        break
-                    case 2:
-                        authorsString = modInfo.authors[0] + ' and ' + modInfo.authors[1]
-                        break
-                    default:
-                        modInfo.authors.eachWithIndex { String entry, int i ->
-                            if (i == 0) authorsString = entry
-                            else if (i == modInfo.authors.size() - 1) authorsString += ' and ' + entry
-                            else authorsString += ', ' + entry
-                        }
-                        break
-                }
+                List<String> authorList = (modInfo.quiltModInfo.contributors.collectMany {it.value}+modInfo.authors).unique()
+                String authorsString = combineAsString(authorList)
                 modData['authors'] = authorsString
                 mods.add(modData)
                 break
@@ -227,14 +219,24 @@ class ModsDotGroovy {
                     provides.add(['id': modInfo.modId, 'version': modInfo.version])
                 }
                 quiltMetadata['name'] = modInfo.displayName
-                quiltMetadata['contact'] = ["homepage":modInfo.displayUrl]
+                quiltMetadata['contact'] = merge(['homepage':modInfo.displayUrl], modInfo.quiltModInfo.contact)
                 quiltMetadata['icon'] = modInfo.logoFile
                 quiltMetadata['description'] = modInfo.description
                 quiltModData['entrypoints'] = modInfo.entrypoints
+                quiltModData['intermediate_mappings'] = modInfo.quiltModInfo.intermediateMappings
 
+                Map<String, List<String>> intermediateContributors = [:]
+                modInfo.authors.each { author ->
+                    intermediateContributors.computeIfAbsent(author, {[]}) << 'Author'
+                }
+                modInfo.quiltModInfo.contributors.each { title, people ->
+                    people.each { person ->
+                        intermediateContributors.computeIfAbsent(person, {[]}) << title
+                    }
+                }
                 Map quiltContributors = [:]
-                modInfo.authors.each {
-                    quiltContributors[it] = "Author"
+                intermediateContributors.each {person, titles ->
+                    quiltContributors[person] = combineAsString(titles)
                 }
                 quiltMetadata['contributors'] = quiltContributors
                 quiltModData['metadata'] = quiltMetadata
@@ -249,6 +251,28 @@ class ModsDotGroovy {
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(builder)
         extraMaps.put('packMcMeta', builder)
+    }
+
+    private static String combineAsString(List<String> parts) {
+        String fullString = ''
+        switch (parts.size()) {
+            case 0:
+                break
+            case 1:
+                fullString = parts[0]
+                break
+            case 2:
+                fullString = parts[0] + ' and ' + parts[1]
+                break
+            default:
+                parts.eachWithIndex { String entry, int i ->
+                    if (i == 0) fullString = entry
+                    else if (i == parts.size() - 1) fullString += ' and ' + entry
+                    else fullString += ', ' + entry
+                }
+                break
+        }
+        return fullString
     }
 
     void sanitize() {
@@ -301,5 +325,92 @@ class ModsDotGroovy {
         closure.call(val)
         val.sanitize()
         return val
+    }
+
+    /**
+     * Infers the updateJsonUrl from the provided modInfo.
+     * @param modInfo
+     * @return the inferred updateJsonUrl, or null if it could not be inferred
+     */
+    @Nullable
+    String inferUpdateJsonUrl(final ImmutableModInfo modInfo) {
+        if (platform !== Platform.FORGE) return null
+
+        final String displayOrIssueTrackerUrl = modInfo.displayUrl ?: ((String) data.issueTrackerUrl)
+        if (displayOrIssueTrackerUrl.is null) return null
+
+        @Nullable
+        HttpClient httpClient = null
+
+        // determine if the displayUrl is a CurseForge URL and if so, extract the project ID and slug from it if possible
+        // and use those to construct an updateJsonUrl using forge.curseupdate.com
+        // example in: https://www.curseforge.com/minecraft/mc-mods/spammycombat?projectId=623297
+        // example out: 623297/spammycombat
+        final Matcher cfMatcher = displayOrIssueTrackerUrl =~ $/.*curseforge.com/minecraft/mc-mods/([^?/]+)\?projectId=(\d+)/$
+        if (cfMatcher.matches()) {
+            httpClient ?= HttpClient.newBuilder().build()
+            // determine the modId first from the modId, falling back to the slug in the URL if that fails
+            final String updateJsonUrlRoot = "https://forge.curseupdate.com/${cfMatcher.group(2)}/"
+            final String[] updateJsonUrls = [
+                    updateJsonUrlRoot + modInfo.modId,
+                    updateJsonUrlRoot + cfMatcher.group(1)
+            ]
+
+            // make a GET request to the updateJsonUrl and to see if it's valid
+            final jsonSlurper = new JsonSlurper().setType(JsonParserType.INDEX_OVERLAY)
+            for (final String url in updateJsonUrls) {
+                final HttpRequest request = HttpRequest.newBuilder(URI.create(url)).GET().build()
+                try {
+                    final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+                    if (response.statusCode() === HttpURLConnection.HTTP_OK) {
+                        final json = jsonSlurper.parseText(response.body())
+                        if (!(json?.getAt('promos') as Map).isEmpty())
+                            return url
+                    }
+                } catch (final IOException ignored) {}
+            }
+        }
+
+        // todo: create a web service that returns the projectId from a given slug and use that to avoid the need for
+        // explicitly specifying the projectId in the displayUrl
+
+        // determine if the displayUrl is a GitHub URL and if so, see if it has an updates.json file next to the mods.groovy
+        // example in: https://github.com/PaintNinja/Ninjas-Cash
+        // example out: https://raw.githubusercontent.com/PaintNinja/Ninjas-Cash/master/src/main/resources/updates.json
+        final Matcher ghMatcher = displayOrIssueTrackerUrl =~ $/.*github.com/([^?/]+)/([^?/]+)(?:/tree/([^?/]+))?/?/$
+        if (ghMatcher.matches()) {
+            httpClient ?= HttpClient.newBuilder().build()
+            // it's a GitHub URL, so let's see if it has an update.json file on the repo in any of the standard locations
+            final String updateJsonUrlRoot = "https://raw.githubusercontent.com/${ghMatcher.group(1)}/${ghMatcher.group(2)}/${ghMatcher.group(3) ?: 'master'}"
+            final List updateJsonUrls = [
+                    "${updateJsonUrlRoot}/src/main/resources/update.json",
+                    "${updateJsonUrlRoot}/src/main/resources/updates.json",
+                    "${updateJsonUrlRoot}/update.json",
+                    "${updateJsonUrlRoot}/updates.json"
+            ]
+            if (updateJsonUrlRoot.endsWith('master')) {
+                final String updateJsonUrlMainBranchRoot = updateJsonUrlRoot[0..-6] + 'main'
+                updateJsonUrls.addAll([
+                        "${updateJsonUrlMainBranchRoot}/src/main/resources/update.json",
+                        "${updateJsonUrlMainBranchRoot}/src/main/resources/updates.json",
+                        "${updateJsonUrlMainBranchRoot}/update.json",
+                        "${updateJsonUrlMainBranchRoot}/updates.json"
+                ])
+            }
+
+            // todo: check if the updates.json file exists locally and skip the network request if it does
+
+            // make a HEAD request to the updateJsonUrl to see if it exists using HttpClient
+            for (final String url in updateJsonUrls) {
+                final HttpRequest request = HttpRequest.newBuilder(URI.create(url)).method("HEAD", HttpRequest.BodyPublishers.noBody()).build()
+                try {
+                    final HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding())
+                    if (response.statusCode() === HttpURLConnection.HTTP_OK)
+                        return url
+                } catch (final IOException ignored) {}
+            }
+        }
+
+        return null
     }
 }
