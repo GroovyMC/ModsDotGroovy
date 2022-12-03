@@ -5,12 +5,16 @@
 
 package io.github.groovymc.modsdotgroovy
 
-import com.google.gson.GsonBuilder
+import groovy.transform.CompileStatic
 
+@CompileStatic
 abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
+
     @Override
-    protected String getOutputName() {
-        return 'quilt.mod.json'
+    protected void registerStrategies() {
+        register('root', new Strategy(
+                'quilt.mod.json', '', JSON_WRITER
+        ))
     }
 
     @Override
@@ -33,19 +37,6 @@ abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
         if (quiltLoaderDependency !== null) {
             arg('quiltLoaderVersion', quiltLoaderDependency.version)
         }
-    }
-
-    @Override
-    protected String writeData(Map data) {
-        final gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .create()
-        return gson.toJson(data)
-    }
-
-    @Override
-    protected String getOutputDir() {
-        return ''
     }
 
     @Override

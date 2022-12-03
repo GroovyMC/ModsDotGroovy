@@ -112,11 +112,7 @@ class ModsDotGroovy implements Plugin<Project> {
             it.getInput().set(modsGroovy.file)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
-            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-            dependsOn(convertTask)
-            from(convertTask.output.get().asFile) {
-                into 'META-INF'
-            }
+            convertTask.setupOnProcessResources(it, (FileTreeElement el) -> el.file == convertTask.input.get().asFile)
         }
         return convertTask
     }
@@ -126,11 +122,7 @@ class ModsDotGroovy implements Plugin<Project> {
             it.getInput().set(modsGroovy.file)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
-            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-            dependsOn(convertTask)
-            from(convertTask.output.get().asFile) {
-                into ''
-            }
+            convertTask.setupOnProcessResources(it, (FileTreeElement el) -> el.file == convertTask.input.get().asFile)
         }
         return convertTask
     }

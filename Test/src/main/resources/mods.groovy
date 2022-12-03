@@ -63,4 +63,10 @@ ModsDotGroovy.make {
     onQuilt {
         mixin = "no.mixin.json"
     }
+
+    extraMaps = [
+            'packMcMeta': [
+                    'hi': 'no'
+            ]
+    ]
 }

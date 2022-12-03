@@ -5,8 +5,12 @@
 
 package io.github.groovymc.modsdotgroovy
 
+import com.google.gson.GsonBuilder
+import com.moandjiezana.toml.TomlWriter
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
+import groovy.transform.TupleConstructor
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -15,7 +19,6 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.internal.catalog.VersionCatalogView
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
@@ -23,13 +26,17 @@ import org.gradle.api.tasks.*
 import org.gradle.language.jvm.tasks.ProcessResources
 
 import java.nio.file.Files
+import java.util.function.Function
 
+@CompileStatic
 abstract class AbstractConvertTask extends DefaultTask {
+    protected final Map<String, Strategy> strategies = [:]
+
     @InputFile
     abstract RegularFileProperty getInput()
     @Optional
-    @OutputFile
-    abstract RegularFileProperty getOutput()
+    @OutputFiles
+    abstract MapProperty<String, Object> getOutput()
     @Deprecated(forRemoval = true)
     @Optional
     @InputFile
@@ -45,12 +52,29 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Optional
     abstract ListProperty<String> getCatalogs()
 
-    @Internal
-    protected abstract String getOutputName()
     protected abstract void setupPlatformSpecificArguments()
-    protected abstract String writeData(Map data)
+
+    void register(String id, Strategy strategy) {
+        strategies[id] = strategy
+    }
+
+    protected String getOutputName(String mapId) {
+        return strategies.get(mapId).outputName
+    }
+
+    protected String getOutputDir(String mapId) {
+        return strategies.get(mapId).outputDir
+    }
+
+    protected String writeData(String mapId, Map data) {
+        return strategies.get(mapId).writer.apply(data)
+    }
+
     @Internal
-    protected abstract String getOutputDir()
+    protected Collection<String> getKnownMapIds() {
+        return strategies.keySet()
+    }
+
     @Internal
     protected abstract String getPlatform()
 
@@ -64,7 +88,11 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     }
 
     AbstractConvertTask() {
-        output.convention(project.layout.buildDirectory.dir(name).map {it.file(getOutputName())})
+        output.convention(project.objects.mapProperty(String, Object))
+        registerStrategies()
+        knownMapIds.each { mapId ->
+            output.put(mapId, project.layout.buildDirectory.dir(name).map { it.file(getOutputName(mapId))} )
+        }
         arguments.convention(project.objects.mapProperty(String, Object))
         catalogs.convention(['libs'])
         project.afterEvaluate {
@@ -137,6 +165,8 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         }
     }
 
+    protected void registerStrategies() {}
+
     void arg(String name, Object arg) {
         arguments[name] = arg
     }
@@ -148,11 +178,14 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
             getProject().logger.warn("Input file {} for task '{}' could not be found!", input, getName())
             return
         }
-        final data = from(input)
-        final outPath = getOutput().get().asFile.toPath()
-        if (outPath.parent !== null && !Files.exists(outPath.parent)) Files.createDirectories(outPath.parent)
-        Files.deleteIfExists(outPath)
-        Files.writeString(outPath, writeData(data))
+        final maps = split(from(input))
+        maps.each { mapId, data ->
+            output.getting(mapId).map { project.file(it) }.getOrNull()?.toPath()?.tap { outPath ->
+                if (outPath.parent !== null && !Files.exists(outPath.parent)) Files.createDirectories(outPath.parent)
+                Files.deleteIfExists(outPath)
+                Files.writeString(outPath, writeData(mapId, data))
+            }
+        }
     }
 
     @SuppressWarnings('GrDeprecatedAPIUsage')
@@ -181,12 +214,33 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
                 .extendsFrom(project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME))
 
         project.tasks.named(sourceSet.processResourcesTaskName, ProcessResources).configure {
-            it.exclude(fileName)
-            it.dependsOn(this)
-            it.from(output.get().asFile) { CopySpec spec ->
-                spec.into getOutputDir()
+            setupOnProcessResources(it, fileName)
+        }
+    }
+
+    @CompileDynamic
+    @PackageScope void setupOnProcessResources(ProcessResources processResources, Object exclusion) {
+        //noinspection GroovyAssignabilityCheck
+        processResources.exclude(exclusion)
+        processResources.dependsOn(this)
+        output.get().each { String mapId, Object file ->
+            processResources.from(file) { CopySpec spec ->
+                spec.into(getOutputDir(mapId))
             }
         }
+    }
+
+    static Map<String, Map> split(Map map) {
+        final Map<String, Map> maps = [:]
+        final Map root = new HashMap(map)
+        maps['root'] = root
+
+        ((Map)root.getOrDefault('extraMaps', [:])).each { id, val ->
+            maps[id as String] = val as Map
+        }
+        root.remove('extraMaps')
+
+        return maps
     }
 
     @CompileStatic
@@ -196,5 +250,27 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         }
         @Delegate
         final CompilerConfiguration configuration
+    }
+
+    @TupleConstructor
+    static final class Strategy {
+        final String outputName
+        final String outputDir
+        final Function<Map, String> writer
+    }
+
+    protected static final Function<Map, String> TOML_WRITER = { Map data ->
+        final tomlWriter = new TomlWriter.Builder()
+                .indentValuesBy(2)
+                .indentTablesBy(4)
+                .build()
+        return tomlWriter.write(data)
+    }
+
+    protected static final Function<Map, String> JSON_WRITER = { Map data ->
+        final gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create()
+        return gson.toJson(data)
     }
 }
