@@ -34,7 +34,8 @@ license {
 
 dependencies {
     implementation gradleApi()
-    libCompileOnly "org.apache.groovy:groovy:4.0.4"
+    libCompileOnly 'org.apache.groovy:groovy:4.0.4'
+    libCompileOnly 'org.apache.groovy:groovy-json:4.0.4'
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
 }
 

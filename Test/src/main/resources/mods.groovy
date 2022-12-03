@@ -16,6 +16,9 @@ ModsDotGroovy.make {
         contact.source = 'https://github.com/GroovyMC/ModsDotGroovy'
         credits = "${buildProperties.someProperty}"
 
+        // for testing the inferred updateJsonUrl feature - issueTrackerUrl and links to GitHub repos are also supported by this feature
+        displayUrl = 'https://curseforge.com/minecraft/mc-mods/spammycombat?projectId=623297'
+
         onForge {
             customProperty = 'hello'
         }
