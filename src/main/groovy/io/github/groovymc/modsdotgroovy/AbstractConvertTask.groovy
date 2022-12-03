@@ -97,8 +97,8 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         catalogs.convention(['libs'])
         project.afterEvaluate {
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
-            catalogs.get().each {
-                arg(it, versionCatalogToMap(getLibsExtension(project, it)))
+            catalogs.get().forEach { String id ->
+                arg(id, versionCatalogToMap(getLibsExtension(project, id)))
             }
             arg('version', project.version)
             arg('platform', getPlatform())

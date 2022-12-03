@@ -11,6 +11,7 @@ import groovy.transform.stc.SimpleType
 import modsdotgroovy.ImmutableModInfo
 import modsdotgroovy.ModInfoBuilder
 import modsdotgroovy.ModsBuilder
+import modsdotgroovy.PackMcMetaBuilder
 import modsdotgroovy.VersionRange
 
 import static groovy.lang.Closure.DELEGATE_FIRST
@@ -21,9 +22,10 @@ class ModsDotGroovy {
     protected Map data
 
     protected ModsDotGroovy() {
-        this.data = switch (platform) {
-            case Platform.QUILT -> ["schema_version": 1, "quilt_loader": [:]]
-            case Platform.FORGE -> [:]
+        if (platform === Platform.QUILT) {
+            data = ['schema_version': 1, 'quilt_loader': [:]]
+        } else {
+            data = [:]
         }
     }
 
@@ -240,8 +242,21 @@ class ModsDotGroovy {
         }
     }
 
+    void packMcMeta(@DelegatesTo(value = PackMcMetaBuilder, strategy = DELEGATE_FIRST)
+              @ClosureParams(value = SimpleType, options = 'modsdotgroovy.PackMcMetaBuilder') final Closure closure) {
+        final builder = new PackMcMetaBuilder()
+        closure.delegate = builder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(builder)
+        extraMaps.put('packMcMeta', builder)
+    }
+
     void sanitize() {
         sanitizeMap(data)
+    }
+
+    private Map getExtraMaps() {
+        (Map)data.computeIfAbsent('extraMaps') { new HashMap<>() }
     }
 
     private static void sanitizeMap(Map data) {

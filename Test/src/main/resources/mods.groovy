@@ -64,9 +64,9 @@ ModsDotGroovy.make {
         mixin = "no.mixin.json"
     }
 
-    extraMaps = [
-            'packMcMeta': [
-                    'hi': 'no'
-            ]
-    ]
+    packMcMeta {
+        packFormat = 6
+        forgeDataPackFormat = 4
+        description = 'The resources of a lovely mod'
+    }
 }
