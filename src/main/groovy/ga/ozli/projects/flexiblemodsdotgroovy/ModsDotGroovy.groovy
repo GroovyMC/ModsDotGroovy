@@ -11,14 +11,14 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  */
 @CompileStatic
 class ModsDotGroovy {
-    final ModsDotGroovyCore data = ModsDotGroovyCore.INSTANCE
+    final ModsDotGroovyCore core = ModsDotGroovyCore.INSTANCE
 
     void propertyMissing(String name, Object value) {
-        data.put(name, value)
+        core.put(name, value)
     }
 
     void put(String name, Object value) {
-        data.put(name, value)
+        core.put(name, value)
     }
 
     /**
@@ -26,47 +26,48 @@ class ModsDotGroovy {
      * Review your options at <a href="https://choosealicense.com/">https://choosealicense.com/</a>. <br>
      * All rights reserved is the default copyright stance, and is thus the default here.
      */
-    void setLicense(String license) {
-        data.put('license', license)
+    void setLicense(final String license) {
+        core.put('license', license)
     }
 
     /**
      * A URL to refer people to when problems occur with this mod.
      */
-    void setIssueTrackerUrl(String issueTrackerUrl) {
-        data.put('issueTrackerUrl', issueTrackerUrl)
+    void setIssueTrackerUrl(final String issueTrackerUrl) {
+        core.put('issueTrackerUrl', issueTrackerUrl)
     }
 
     /**
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
      * For GroovyModLoader @GMod mods it should be {@code gml}.
      */
-    void setModLoader(String modLoader) {
-        data.put('modLoader', modLoader)
+    void setModLoader(final String modLoader) {
+        core.put('modLoader', modLoader)
     }
 
-    void onQuilt(Closure closure) {}
-    void onFabric(Closure closure) {}
+    void onQuilt(final Closure closure) {
+        core.put('onQuilt', closure)
+    }
 
-    void onForge(@DelegatesTo(value = ModsDotGroovy, strategy = DELEGATE_FIRST) Closure closure) {
-        data.put('onForge', closure)
+    void onFabric(final Closure closure) {
+        core.put('onFabric', closure)
+    }
+
+    void onForge(@DelegatesTo(value = ModsDotGroovy, strategy = DELEGATE_FIRST) final Closure closure) {
+        core.put('onForge', closure)
     }
 
     void mods(@DelegatesTo(value = ModsBuilder, strategy = DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'modsdotgroovy.ModsBuilder') final Closure closure) {
-        final modsBuilder = new ModsBuilder()
-        closure.delegate = modsBuilder
-        closure.resolveStrategy = DELEGATE_FIRST
-        closure.call(modsBuilder)
-        data.put('mods', modsBuilder.mods)
+        core.put('mods', new Tuple2<PluginAwareMap, Closure>(core, closure))
     }
 
-    static synchronized ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = DELEGATE_FIRST) Closure closure) {
+    static synchronized ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = DELEGATE_FIRST) final Closure closure) {
         final ModsDotGroovy val = new ModsDotGroovy()
         closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)
-        val.data.build()
+        val.core.build()
         return val
     }
 

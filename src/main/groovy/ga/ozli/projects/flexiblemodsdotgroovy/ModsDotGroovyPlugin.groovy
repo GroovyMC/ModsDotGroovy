@@ -83,7 +83,6 @@ interface ModsDotGroovyPlugin {
      * @return
      * @throws Exception
      */
-    @CompileDynamic
     @Nullable
     default Tuple2<PluginMode, Map> build(final Map data) throws Exception {
         return null

@@ -1,5 +1,6 @@
 package ga.ozli.projects.flexiblemodsdotgroovy
 
+import ga.ozli.projects.flexiblemodsdotgroovy.plugins.DebugPlugin
 import ga.ozli.projects.flexiblemodsdotgroovy.plugins.ForgePlugin
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
@@ -7,49 +8,54 @@ import groovyjarjarantlr4.v4.runtime.misc.Nullable
 
 @CompileStatic
 class PluginAwareMap {
-    @Delegate
-    protected Map data = [:]
+    final List<String> BLACKLIST = ['data', 'pluginsMap', 'plugins', 'data']
 
-    Map getData() {
-        return this.data
+    //@Delegate - commented out for now due to IDE syntax highlighting bug
+    Map data = [:]
+
+    void propertyMissing(String name, def value) {
+        data.put(name, value)
     }
 
-    private void setData(Map newData) {
-        this.data = newData
+    def propertyMissing(String name) {
+        data.get(name)
     }
 
-    Map<String, ModsDotGroovyPlugin> pluginsMap = [:]
-
-    Map<String, ModsDotGroovyPlugin> getPluginsMap() {
-        return this.pluginsMap
+    @CompileDynamic
+    void setProperty(String name, def value) {
+        println "name: $name"
+        println "value: $value"
+        this.@"$name" = value
+        if (name !in BLACKLIST)
+            data.put(name, value)
     }
 
-    protected PriorityQueue<ModsDotGroovyPlugin> plugins = new PriorityQueue<>(
+    @CompileDynamic
+    def getProperty(String name) {
+        if (name in BLACKLIST) this.@"$name"
+        else return data.get(name)
+    }
+
+    public Map<String, ModsDotGroovyPlugin> pluginsMap = [:]
+
+    protected final PriorityQueue<ModsDotGroovyPlugin> plugins = new PriorityQueue<>(
             new Comparator<ModsDotGroovyPlugin>() {
                 @Override
                 int compare(ModsDotGroovyPlugin o1, ModsDotGroovyPlugin o2) {
-                    return o1.priority <=> o2.priority
+                    return -(o1.priority <=> o2.priority)
                 }
             }
     )
 
-    protected PriorityQueue<ModsDotGroovyPlugin> getPlugins() {
-        return this.plugins
-    }
-
-    protected PluginAwareMap(@Nullable PluginAwareMap parent) {
-        this.getPlugins().addAll(ServiceLoader.load(ModsDotGroovyPlugin).iterator()
+    PluginAwareMap(@Nullable PluginAwareMap parent) {
+        plugins.addAll(ModsDotGroovyCore.PLUGINS
                 .findAll((ModsDotGroovyPlugin plugin) -> plugin.shouldRun(parent, this)))
 
-        // for debugging
-        this.getPlugins().addAll(List.of(new ForgePlugin()).iterator()
-                .findAll((ModsDotGroovyPlugin plugin) -> plugin.shouldRun(parent, this)))
+        plugins.each { pluginsMap[it.name] = it }
 
-        this.getPlugins().each { getPluginsMap()[it.name] = it }
-
-        this.setData this.getData().withDefault { requestedKey ->
-            getPlugins().find {
-                it.getFallbackFor(this.getData(), requestedKey as String)
+        data = data.withDefault { requestedKey ->
+            plugins.find {
+                it.getFallbackFor(data, requestedKey as String)
             }
         }
 
@@ -57,33 +63,40 @@ class PluginAwareMap {
     }
 
     private void loadDefaults() {
-        for (plugin in this.getPlugins()) {
-            switch (plugin.getDefaults(this.getData())?.v1) {
+        for (plugin in plugins) {
+            final @Nullable defaults = plugin.getDefaults(data)
+            if (defaults === null) continue
+            switch (defaults.v1) {
                 case PluginMode.OVERWRITE:
-                    this.setData plugin.getDefaults(this.getData()).v2
+                    data = defaults.v2
                     return // The highest priority plugin that overwrites the defaults wins
                 case PluginMode.MERGE:
-                    this.setData merge(getData(), plugin.getDefaults(this.getData()).v2)
-                    break
+                    data = merge(data, defaults.v2)
             }
         }
     }
 
     void build() {
-        for (plugin in this.getPlugins()) {
-            switch (plugin.build(this.getData())?.v1) {
+        for (plugin in plugins) {
+            final @Nullable buildResult = plugin.build(data)
+            if (buildResult === null) continue
+            switch (buildResult.v1) {
                 case PluginMode.OVERWRITE:
-                    this.setData plugin.build(this.getData()).v2
+                    data = buildResult.v2
                     return
                 case PluginMode.MERGE:
-                    this.setData merge(this.getData(), plugin.build(this.getData()).v2)
+                    data = merge(data, buildResult.v2)
                     break
             }
         }
     }
 
+    Map toMap() {
+        return data
+    }
+
     @CompileDynamic
-    void put(final String key, final def value) {
+    def put(final String key, final def value) {
         def newValue = null
         for (plugin in plugins) {
             final result
@@ -97,7 +110,8 @@ class PluginAwareMap {
                 break
             }
         }
-        getData()[key] = newValue ?= value
+        data[key] = newValue ?: value
+        return data[key]
     }
 
     @CompileDynamic

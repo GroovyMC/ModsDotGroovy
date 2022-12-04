@@ -1,5 +1,7 @@
 package ga.ozli.projects.flexiblemodsdotgroovy
 
+import ga.ozli.projects.flexiblemodsdotgroovy.plugins.DebugPlugin
+import ga.ozli.projects.flexiblemodsdotgroovy.plugins.ForgePlugin
 import groovy.transform.CompileStatic
 
 /**
@@ -31,11 +33,18 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class ModsDotGroovyCore extends PluginAwareMap {
+    //    public static final List<ModsDotGroovyPlugin> PLUGINS = ServiceLoader.load(ModsDotGroovyPlugin).iterator().toList()
+    public static final List<ModsDotGroovyPlugin> PLUGINS = [new ForgePlugin(), new DebugPlugin()] as List<ModsDotGroovyPlugin>
+    public static final ModsDotGroovyCore INSTANCE = new ModsDotGroovyCore()
+
     final float version = 2.00f
 
-    static final ModsDotGroovyCore INSTANCE = new ModsDotGroovyCore()
-
-    protected ModsDotGroovyCore() {
+    ModsDotGroovyCore() {
         super(null)
     }
+
+//    @Override
+//    String toString() {
+//        return data.toString()
+//    }
 }

@@ -5,15 +5,10 @@ class App {
         println "Groovy v${GroovySystem.version}"
 
         final mdg = ModsDotGroovy.make {
-//            modLoader = 42
-//
-//            onForge {
-//                println 'This is a Forge project'
-//            }
             modLoader = 'javafml'
 
             mods {
-                mod {
+                modInfo {
                     license = 'MIT'
 
                     modId = 'examplemod'
@@ -22,6 +17,6 @@ class App {
                 }
             }
         }
-        println mdg.data
+        println mdg.core.getData().toString()
     }
 }
