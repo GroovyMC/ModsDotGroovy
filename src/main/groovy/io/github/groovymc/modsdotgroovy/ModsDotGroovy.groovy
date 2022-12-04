@@ -127,7 +127,6 @@ class ModsDotGroovy implements Plugin<Project> {
         if (ext.has('refMapFile')) {
             final String refMapName = ext.get('refMapFile')
             convertTask.getArguments().put('mixinRefMap', refMapName)
-            println(convertTask.getArguments().get().get('mixinRefMap'))
             convertTask.mixinConfigName.set(refMapName.substring(0, refMapName.indexOf('.refmap')) + '.mixins.json')
         }
         return convertTask
