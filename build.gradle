@@ -37,7 +37,8 @@ license {
 
 dependencies {
     implementation gradleApi()
-    libCompileOnly 'org.apache.groovy:groovy:4.0.4' // TODO this needs to be updated to 3.0.10
+    libCompileOnly 'org.apache.groovy:groovy:4.0.4'
+    libCompileOnly 'org.apache.groovy:groovy-json:4.0.4'
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
 
     compileOnly 'org.spongepowered:mixingradle:0.7.+'
