@@ -69,6 +69,21 @@ ModsDotGroovy.make {
     }
 
     onQuilt {
-        mixin = "no.mixin.json"
+        mixin = 'mymod.mixins.json'
+    }
+
+    packMcMeta {
+        packFormat = 6
+        forgeDataPackFormat = 4
+        description = 'The resources of a lovely mod'
+    }
+
+    mixinConfig {
+        compatibilityLevel = 17
+        packageName = 'com.matyrobbrt.test.mixins'
+        mixins {
+            common 'ServerPlayerMixin'
+            client 'client.MinecraftMixin'
+        }
     }
 }

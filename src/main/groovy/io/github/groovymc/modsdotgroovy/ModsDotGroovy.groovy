@@ -13,6 +13,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.FileTreeElement
+import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.language.jvm.tasks.ProcessResources
@@ -37,6 +38,14 @@ class ModsDotGroovy implements Plugin<Project> {
 
             configuration.dependencies.add(project.dependencies.create(ext.mdgDsl()))
 
+            ext.mixins.get().forEach { refMap, ids ->
+                project.tasks.withType(AbstractConvertTask).configureEach { task ->
+                    ids.forEach {
+                        task.mixinConfigs.put(it, refMap)
+                    }
+                }
+            }
+
             if (ext.automaticConfiguration.get()) {
                 final List<MDGExtension.Platform> platforms = ext.platforms.get()
                 for (MDGExtension.Platform platform : platforms.unique(false)) {
@@ -54,14 +63,14 @@ class ModsDotGroovy implements Plugin<Project> {
                         switch (platform) {
                             case MDGExtension.Platform.FORGE:
                                 makeAndAppendForgeTask(modsGroovy, project).with {
-                                    arguments.set(ext.arguments.get())
-                                    catalogs.set(ext.catalogs.get())
+                                    arguments.putAll(ext.arguments.get())
+                                    catalogs.addAll(ext.catalogs.get())
                                 }
                                 break
                             case MDGExtension.Platform.QUILT:
                                 makeAndAppendQuiltTask(modsGroovy, project).with {
-                                    arguments.set(ext.arguments.get())
-                                    catalogs.set(ext.catalogs.get())
+                                    arguments.putAll(ext.arguments.get())
+                                    catalogs.addAll(ext.catalogs.get())
                                 }
                         }
                     } else {
@@ -90,15 +99,15 @@ class ModsDotGroovy implements Plugin<Project> {
                         forge.each {
                             makeAndAppendForgeTask(modsGroovy, it).with {
                                 dslConfiguration.set(commonConfiguration)
-                                arguments.set(ext.arguments.get())
-                                catalogs.set(ext.catalogs.get())
+                                arguments.putAll(ext.arguments.get())
+                                catalogs.addAll(ext.catalogs.get())
                             }
                         }
                         quilt.each {
                             makeAndAppendQuiltTask(modsGroovy, it).with{
                                 dslConfiguration.set(commonConfiguration)
-                                arguments.set(ext.arguments.get())
-                                catalogs.set(ext.catalogs.get())
+                                arguments.putAll(ext.arguments.get())
+                                catalogs.addAll(ext.catalogs.get())
                             }
                         }
                     }
@@ -111,13 +120,21 @@ class ModsDotGroovy implements Plugin<Project> {
         final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
             it.getInput().set(modsGroovy.file)
         }
-        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
-            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-            dependsOn(convertTask)
-            from(convertTask.output.get().asFile) {
-                into 'META-INF'
+
+        final ext = modsGroovy.sourceSet.getExtensions().getByType(ExtraPropertiesExtension)
+        if (ext.has('refMapFile')) {
+            final String refMapName = ext.get('refMapFile')
+            convertTask.mixinConfigs.put(refMapName.substring(0, refMapName.indexOf('.refmap')) + '.mixins.json', refMapName)
+        } else {
+            convertTask.mixinConfigs.get().entrySet().find()?.tap {
+                ext.set('refMapFile', it.value)
             }
         }
+
+        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+            convertTask.setupOnProcessResources(it, (FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+        }
+
         return convertTask
     }
 
@@ -126,11 +143,7 @@ class ModsDotGroovy implements Plugin<Project> {
             it.getInput().set(modsGroovy.file)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
-            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-            dependsOn(convertTask)
-            from(convertTask.output.get().asFile) {
-                into ''
-            }
+            convertTask.setupOnProcessResources(it, (FileTreeElement el) -> el.file == convertTask.input.get().asFile)
         }
         return convertTask
     }

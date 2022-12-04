@@ -24,6 +24,7 @@ abstract class MDGExtension {
     abstract Property<MultiloaderConfiguration> getMultiloader()
     abstract MapProperty<String, Object> getArguments()
     abstract ListProperty<String> getCatalogs()
+    abstract MapProperty<String, List<String>> getMixins()
 
     protected final Project project
 
@@ -33,6 +34,7 @@ abstract class MDGExtension {
         platforms.set([Platform.FORGE])
         arguments.set([:])
         catalogs.set(['libs'])
+        mixins.convention([:])
     }
 
     String mdgDsl(String version = null) {
@@ -59,6 +61,15 @@ abstract class MDGExtension {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.call(conf)
         multiloader.set(conf)
+    }
+
+    void mixinConfig(String config, String refMap) {
+        final List<String> cfgs = ((List)mixins.get().get(refMap)) ?: new ArrayList<>().tap { mixins.put(refMap, it) }
+        cfgs.add(config)
+    }
+
+    void mixinConfig(String id) {
+        mixinConfig(id + '.mixins.json', id + '.refmap.json')
     }
 
     enum Platform {

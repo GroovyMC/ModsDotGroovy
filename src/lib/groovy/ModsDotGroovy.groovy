@@ -12,8 +12,10 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import modsdotgroovy.ImmutableModInfo
+import modsdotgroovy.MixinConfigBuilder
 import modsdotgroovy.ModInfoBuilder
 import modsdotgroovy.ModsBuilder
+import modsdotgroovy.PackMcMetaBuilder
 import modsdotgroovy.VersionRange
 
 import java.net.http.HttpClient
@@ -29,16 +31,24 @@ class ModsDotGroovy {
     protected Map data
 
     protected ModsDotGroovy() {
-        this.data = switch (platform) {
-            case Platform.QUILT -> ["schema_version": 1, "quilt_loader": [:]]
-            case Platform.FORGE -> [:]
+        if (platform === Platform.QUILT) {
+            data = ['schema_version': 1, 'quilt_loader': [:]]
+        } else {
+            data = [:]
         }
     }
 
     protected static Platform platform
+    protected static final Map<String, String> mixinRefMaps = [:]
 
     protected static void setPlatform(String name) {
         platform = Platform.valueOf(name.toUpperCase(Locale.ROOT))
+    }
+
+    protected static void setMixinRefMap(String configName, String refMap) {
+        if (!refMap.isBlank()) {
+            mixinRefMaps[configName] = refMap
+        }
     }
 
     void propertyMissing(String name, Object value) {
@@ -242,6 +252,45 @@ class ModsDotGroovy {
         }
     }
 
+    void packMcMeta(@DelegatesTo(value = PackMcMetaBuilder, strategy = DELEGATE_FIRST)
+              @ClosureParams(value = SimpleType, options = 'modsdotgroovy.PackMcMetaBuilder') final Closure closure) {
+        final builder = new PackMcMetaBuilder()
+        closure.delegate = builder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(builder)
+        extraMaps.put('packMcMeta', builder as Map)
+    }
+
+    void mixinConfig(String configId, @DelegatesTo(value = MixinConfigBuilder, strategy = DELEGATE_FIRST)
+              @ClosureParams(value = SimpleType, options = 'modsdotgroovy.MixinConfigBuilder') final Closure closure) {
+        final builder = new MixinConfigBuilder()
+        builder.setRefMap(mixinRefMaps[configId])
+        closure.delegate = builder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(builder)
+        extraMaps.put('mixinConfig_' + configId, builder as Map)
+
+        onQuilt {
+            final old = data['mixin']
+            if (old === null) {
+                data['mixin'] = [configId]
+            } else if (old instanceof List) {
+                old.add(configId)
+            } else {
+                data['mixin'] = [configId, old]
+            }
+        }
+    }
+
+    void mixinConfig(@DelegatesTo(value = MixinConfigBuilder, strategy = DELEGATE_FIRST)
+                     @ClosureParams(value = SimpleType, options = 'modsdotgroovy.MixinConfigBuilder') final Closure closure) {
+        mixinRefMaps.forEach { cfg, refmap ->
+            if (!extraMaps.containsKey('mixinConfig_' + cfg)) {
+                mixinConfig(cfg, closure)
+            }
+        }
+    }
+
     private static String combineAsString(List<String> parts) {
         String fullString = ''
         switch (parts.size()) {
@@ -266,6 +315,10 @@ class ModsDotGroovy {
 
     void sanitize() {
         sanitizeMap(data)
+    }
+
+    private Map getExtraMaps() {
+        (Map)data.computeIfAbsent('extraMaps') { new HashMap<>() }
     }
 
     private static void sanitizeMap(Map data) {

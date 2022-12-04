@@ -5,14 +5,25 @@
 
 package io.github.groovymc.modsdotgroovy
 
-import com.moandjiezana.toml.TomlWriter
 import groovy.transform.CompileStatic
 
 @CompileStatic
 abstract class ConvertToTomlTask extends AbstractConvertTask {
+
     @Override
-    protected String getOutputName() {
-        return 'mods.toml'
+    protected void registerStrategies() {
+        register('root', new Strategy(
+                'mods.toml', 'META-INF', TOML_WRITER
+        ))
+        register('packMcMeta', new Strategy(
+                'pack.mcmeta', '', JSON_WRITER
+        ))
+
+        mixinConfigs.get().forEach { String config, String refMap ->
+            register("mixinConfig_$config", new Strategy(
+                    config, '', JSON_WRITER
+            ))
+        }
     }
 
     @Override
@@ -32,20 +43,6 @@ abstract class ConvertToTomlTask extends AbstractConvertTask {
                 } catch (Exception ignored) {}
             }
         }
-    }
-
-    @Override
-    protected String writeData(Map data) {
-        final tomlWriter = new TomlWriter.Builder()
-                .indentValuesBy(2)
-                .indentTablesBy(4)
-                .build()
-        return tomlWriter.write(data)
-    }
-
-    @Override
-    protected String getOutputDir() {
-        return 'META-INF'
     }
 
     @Override

@@ -10,6 +10,16 @@ modsDotGroovy {
     platforms 'forge', 'quilt'
 }
 
+tasks.configureEach {
+    if (it.name == 'modsDotGroovyToToml') {
+        it.mixinConfigs.put('mymod.mixins.json', 'mymod.refmap.json')
+    }
+}
+
+afterEvaluate {
+    println(sourceSets.main.ext.refMapFile)
+}
+
 repositories {
     mavenLocal()
 }
