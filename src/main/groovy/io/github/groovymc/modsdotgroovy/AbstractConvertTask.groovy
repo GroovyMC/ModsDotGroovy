@@ -54,7 +54,7 @@ abstract class AbstractConvertTask extends DefaultTask {
     abstract ListProperty<String> getCatalogs()
     @Input
     @Optional
-    abstract Property<String> getMixinConfigName()
+    abstract MapProperty<String, String> getMixinConfigs()
 
     protected abstract void setupPlatformSpecificArguments()
 
@@ -89,20 +89,21 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     ModsDotGroovy.setPlatform('${getPlatform()}')
 }
 if (ModsDotGroovy.metaClass.respondsTo(null,'setMixinRefMap')) {
-    ModsDotGroovy.setMixinRefMap('${getArguments().get().get('mixinRefMap') ?: ''}')
+    ${mixinConfigs.get().entrySet().stream().map { Map.Entry it ->
+            "ModsDotGroovy.setMixinRefMap('$it.key', '$it.value')"
+    }.iterator().join('\n')}
 }
 """
     }
 
     AbstractConvertTask() {
+        mixinConfigs.convention([:])
         output.convention(project.objects.mapProperty(String, Object))
-        registerStrategies()
-        knownMapIds.each { mapId ->
-            output.put(mapId, project.layout.buildDirectory.dir(name).map { it.file(getOutputName(mapId))} )
-        }
         arguments.convention(project.objects.mapProperty(String, Object))
         catalogs.convention(['libs'])
         project.afterEvaluate {
+            registerStrategies()
+
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
             catalogs.get().forEach { String id ->
                 arg(id, versionCatalogToMap(getLibsExtension(project, id)))
@@ -111,6 +112,10 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setMixinRefMap')) {
             arg('platform', getPlatform())
             arg('group', project.group)
             setupPlatformSpecificArguments()
+
+            knownMapIds.each { mapId ->
+                output.put(mapId, project.layout.buildDirectory.dir(name).map { it.file(getOutputName(mapId))} )
+            }
         }
     }
 

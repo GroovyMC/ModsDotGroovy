@@ -9,7 +9,6 @@ import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
-import io.github.groovymc.modsdotgroovy.compat.MixinGradleSetup
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -17,7 +16,6 @@ import org.gradle.api.file.FileTreeElement
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
-import org.gradle.internal.extensibility.DefaultExtraPropertiesExtension
 import org.gradle.language.jvm.tasks.ProcessResources
 
 import javax.annotation.Nullable
@@ -39,6 +37,14 @@ class ModsDotGroovy implements Plugin<Project> {
             }
 
             configuration.dependencies.add(project.dependencies.create(ext.mdgDsl()))
+
+            ext.mixins.get().forEach { refMap, ids ->
+                project.tasks.withType(AbstractConvertTask).configureEach { task ->
+                    ids.forEach {
+                        task.mixinConfigs.put(it, refMap)
+                    }
+                }
+            }
 
             if (ext.automaticConfiguration.get()) {
                 final List<MDGExtension.Platform> platforms = ext.platforms.get()
@@ -107,11 +113,6 @@ class ModsDotGroovy implements Plugin<Project> {
                     }
                 }
             }
-
-            final mixinExt = project.extensions.findByName('mixin')
-            if (mixinExt !== null) {
-                MixinGradleSetup.setup(project, mixinExt)
-            }
         }
     }
 
@@ -119,16 +120,21 @@ class ModsDotGroovy implements Plugin<Project> {
         final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
             it.getInput().set(modsGroovy.file)
         }
-        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
-            convertTask.setupOnProcessResources(it, (FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-        }
 
         final ext = modsGroovy.sourceSet.getExtensions().getByType(ExtraPropertiesExtension)
         if (ext.has('refMapFile')) {
             final String refMapName = ext.get('refMapFile')
-            convertTask.getArguments().put('mixinRefMap', refMapName)
-            convertTask.mixinConfigName.set(refMapName.substring(0, refMapName.indexOf('.refmap')) + '.mixins.json')
+            convertTask.mixinConfigs.put(refMapName.substring(0, refMapName.indexOf('.refmap')) + '.mixins.json', refMapName)
+        } else {
+            convertTask.mixinConfigs.get().entrySet().find()?.tap {
+                ext.set('refMapFile', it.value)
+            }
         }
+
+        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+            convertTask.setupOnProcessResources(it, (FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+        }
+
         return convertTask
     }
 

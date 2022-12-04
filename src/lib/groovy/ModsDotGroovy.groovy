@@ -5,7 +5,6 @@
 
 //file:noinspection GrMethodMayBeStatic
 
-import groovy.transform.CompileDynamic
 import groovy.json.JsonParserType
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
@@ -40,14 +39,16 @@ class ModsDotGroovy {
     }
 
     protected static Platform platform
-    protected static String mixinRefMap
+    protected static final Map<String, String> mixinRefMaps = [:]
 
     protected static void setPlatform(String name) {
         platform = Platform.valueOf(name.toUpperCase(Locale.ROOT))
     }
 
-    protected static void setMixinRefMap(String refMap) {
-        mixinRefMap = refMap.isBlank() ? null : refMap
+    protected static void setMixinRefMap(String configName, String refMap) {
+        if (!refMap.isBlank()) {
+            mixinRefMaps[configName] = refMap
+        }
     }
 
     void propertyMissing(String name, Object value) {
@@ -257,17 +258,37 @@ class ModsDotGroovy {
         closure.delegate = builder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(builder)
-        extraMaps.put('packMcMeta', builder)
+        extraMaps.put('packMcMeta', builder as Map)
     }
 
-    void mixinConfig(@DelegatesTo(value = MixinConfigBuilder, strategy = DELEGATE_FIRST)
+    void mixinConfig(String configId, @DelegatesTo(value = MixinConfigBuilder, strategy = DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'modsdotgroovy.MixinConfigBuilder') final Closure closure) {
         final builder = new MixinConfigBuilder()
-        builder.setRefMap(mixinRefMap)
+        builder.setRefMap(mixinRefMaps[configId])
         closure.delegate = builder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(builder)
-        extraMaps.put('mixinConfig', builder)
+        extraMaps.put('mixinConfig_' + configId, builder as Map)
+
+        onQuilt {
+            final old = data['mixin']
+            if (old === null) {
+                data['mixin'] = [configId]
+            } else if (old instanceof List) {
+                old.add(configId)
+            } else {
+                data['mixin'] = [configId, old]
+            }
+        }
+    }
+
+    void mixinConfig(@DelegatesTo(value = MixinConfigBuilder, strategy = DELEGATE_FIRST)
+                     @ClosureParams(value = SimpleType, options = 'modsdotgroovy.MixinConfigBuilder') final Closure closure) {
+        mixinRefMaps.forEach { cfg, refmap ->
+            if (!extraMaps.containsKey('mixinConfig_' + cfg)) {
+                mixinConfig(cfg, closure)
+            }
+        }
     }
 
     private static String combineAsString(List<String> parts) {

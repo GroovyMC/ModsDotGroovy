@@ -15,6 +15,12 @@ abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
         register('root', new Strategy(
                 'quilt.mod.json', '', JSON_WRITER
         ))
+
+        mixinConfigs.get().forEach { String config, String refMap ->
+            register("mixinConfig_$config", new Strategy(
+                    config, '', JSON_WRITER
+            ))
+        }
     }
 
     @Override

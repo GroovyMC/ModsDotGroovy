@@ -7,7 +7,8 @@ import groovy.transform.stc.SimpleType
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-class MixinConfigBuilder extends HashMap {
+class MixinConfigBuilder extends MapBackend {
+
     MixinConfigBuilder() {
         setMinVersion('0.8')
         injectors {
@@ -16,6 +17,10 @@ class MixinConfigBuilder extends HashMap {
         setRequired(true)
     }
 
+    /**
+     * Sets the refmap
+     * @param refMap refmap
+     */
     void setRefMap(String refMap) {
         put('refmap', refMap)
     }
@@ -42,7 +47,7 @@ class MixinConfigBuilder extends HashMap {
         closure.delegate = builder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(builder)
-        this['injectors'] = builder
+        put('injectors', builder.data)
     }
 
     void mixins(@DelegatesTo(value = Mixins, strategy = DELEGATE_FIRST)
@@ -56,7 +61,7 @@ class MixinConfigBuilder extends HashMap {
         this['server'] = builder.server
     }
 
-    static final class Injectors extends HashMap {
+    static final class Injectors extends MapBackend {
         void setDefaultRequire(int defaultRequire) {
             put('defaultRequire', defaultRequire)
         }

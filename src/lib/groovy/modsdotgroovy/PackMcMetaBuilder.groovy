@@ -8,7 +8,7 @@ package modsdotgroovy
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class PackMcMetaBuilder extends HashMap {
+class PackMcMetaBuilder extends MapBackend {
     void setDescription(String description) {
         packMap['description'] = description
     }
@@ -26,6 +26,6 @@ class PackMcMetaBuilder extends HashMap {
     }
 
     private Map getPackMap() {
-        (Map)computeIfAbsent('pack') { new HashMap<>() }
+        (Map)data.computeIfAbsent('pack') { new HashMap<>() }
     }
 }

@@ -9,7 +9,7 @@ ModsDotGroovy.make {
         version = '1.190'
 
         contributors = [
-                Owner: 'GroovyMC',
+                Owner: ['GroovyMC'],
                 Author: ['Matyrobbrt', 'Paint_Ninja', 'lukebemish']
         ]
 
@@ -69,7 +69,7 @@ ModsDotGroovy.make {
     }
 
     onQuilt {
-        mixin = "no.mixin.json"
+        mixin = 'mymod.mixins.json'
     }
 
     packMcMeta {
