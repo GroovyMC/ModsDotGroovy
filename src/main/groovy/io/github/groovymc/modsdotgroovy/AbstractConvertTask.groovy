@@ -233,6 +233,8 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setMixinRefMap')) {
         output.get().each { String mapId, Object file ->
             processResources.from(file) { CopySpec spec ->
                 spec.into(getOutputDir(mapId))
+                if (mapId == 'mixinConfig') {
+                    spec.rename((String from) -> {
                         if (from == 'mixins.json') {
                             return mixinConfigName.getOrElse(project.tasks.named('jar')
                                     .map { (Jar) it }.map { it.archiveBaseName.get() + '.' }.getOrElse('') + 'mixins.json')
