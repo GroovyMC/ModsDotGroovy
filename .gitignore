@@ -1,25 +1,5 @@
-# eclipse
-bin
-*.launch
-.settings
-.metadata
-.classpath
-.project
-
-# idea
-out
-*.ipr
-*.iws
-*.iml
-.idea
-
-# gradle
-build
+# Ignore Gradle project-specific cache directory
 .gradle
 
-# other
-eclipse
-run
-
-# Files from Forge MDK
-forge*changelog.txt
+# Ignore Gradle build output directory
+build

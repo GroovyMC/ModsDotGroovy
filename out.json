@@ -1,0 +1,44 @@
+{
+    "LAB REPORT DETAILS": {
+        "labId": "236",
+        "reportId": "",
+        "receiptDate": "2018-06-03T23:00:00+0000"
+    },
+    "DUT INFORMATION": {
+        "brand": "SeaSonic",
+        "manufacturer": "Seasonic",
+        "series": "FOCUS Plus Gold",
+        "modelNumber": "SSR-650FX",
+        "serialNumber": "R1708AA174160086"
+    },
+    "DUT SPECIFICATIONS": {
+        "ratedVoltage": "100-240",
+        "ratedCurrent": "9-4.5",
+        "ratedFrequency": "50-60",
+        "ratedPower": "650",
+        "type": "ATX12V",
+        "cooling": "120mm Fluid Dynamic Bearing Fan ",
+        "cableDesign": "Fully Modular"
+    },
+    "RESULTS": {
+        "115V": {
+            "averageEfficiency": "88.653%",
+            "efficiencyWithVeryLowLoad": "0.000",
+            "averageEfficiency5VSB": "76.986%",
+            "standbyPowerConsumption": "0.0458031",
+            "averagePF": "0.983",
+            "avgNoiseOutput": "25.17 dB(A)",
+            "efficiencyRating": "GOLD",
+            "noiseRating": "A-"
+        },
+        "230V": {
+            "averageEfficiency": "90.679%",
+            "averageEfficiency5VSB": "76.319%",
+            "standbyPowerConsumption": "0.0742347",
+            "averagePF": "0.931",
+            "avgNoiseOutput": "25.40 dB(A)",
+            "efficiencyRating": "GOLD",
+            "noiseRating": "A-"
+        }
+    }
+}
