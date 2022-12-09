@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation 'org.codehaus.groovy:groovy-all:3.0.13'
+//    implementation 'org.apache.groovy:groovy-all:4.0.6'
 }
 
 application {
@@ -16,6 +17,7 @@ application {
 }
 
 tasks.withType(GroovyCompile).configureEach { GroovyCompile task ->
+    task.options.incremental = true
     task.options.encoding = 'UTF-8'
     task.groovyOptions.encoding = 'UTF-8'
     task.groovyOptions.optimizationOptions.indy = true

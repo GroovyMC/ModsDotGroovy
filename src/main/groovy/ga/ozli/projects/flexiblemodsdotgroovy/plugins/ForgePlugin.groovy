@@ -1,139 +1,73 @@
 package ga.ozli.projects.flexiblemodsdotgroovy.plugins
 
-import ga.ozli.projects.flexiblemodsdotgroovy.ModInfoBuilder
-import ga.ozli.projects.flexiblemodsdotgroovy.ModsBuilder
-import ga.ozli.projects.flexiblemodsdotgroovy.ModsDotGroovy
-import ga.ozli.projects.flexiblemodsdotgroovy.ModsDotGroovyCore
 import ga.ozli.projects.flexiblemodsdotgroovy.ModsDotGroovyPlugin
-import ga.ozli.projects.flexiblemodsdotgroovy.PluginAwareMap
-import ga.ozli.projects.flexiblemodsdotgroovy.PluginMode
+import ga.ozli.projects.flexiblemodsdotgroovy.PluginResult
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovyjarjarantlr4.v4.runtime.misc.Nullable
 
-import static groovy.lang.Closure.DELEGATE_FIRST
-
 @CompileStatic
+@SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 class ForgePlugin implements ModsDotGroovyPlugin {
-    private boolean atRoot = false
-
-    @Override
-    boolean shouldRun(@Nullable PluginAwareMap parent, PluginAwareMap self) {
-        atRoot = parent === null
-
-        println "parent: $parent, self: $self"
-
-        return true
+    // note: void methods are executed and treated as PluginResult.VALIDATE
+    static void setModLoader(final String modLoader) {
+        println "[Forge] modLoader: ${modLoader}"
+        if (modLoader ==~ /^\d/)
+            throw new RuntimeException('modLoader must not start with a number.')
     }
 
-    @Override
-    Tuple2<PluginMode, Map> getDefaults(final Map data) {
-        if (atRoot) {
-            data.platform = 'Forge'
-            return new Tuple2<>(PluginMode.MERGE, data)
+    static class Mods {
+        static void setInsideModsBuilder(final boolean insideModsBuilder) {
+            println "[Forge] mods.insideModsBuilder: ${insideModsBuilder}"
         }
-        return null
+
+        @CompileDynamic
+        static def setX(final def x) {
+            println "[Forge] mods.x: ${x}"
+            return '42'
+        }
+
+        static class ModInfo {
+            static void setModId(final String modId) {
+                println "[Forge] mods.modInfo.modId: ${modId}"
+
+                // validate the modId string
+                // https://github.com/MinecraftForge/MinecraftForge/blob/4b813e4319fbd4e7f1ea2a7edaedc82ba617f797/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModInfo.java#L32
+                if (!modId.matches(/^[a-z][a-z0-9_]{3,63}\u0024/)) {
+                    // if the modId is invalid, do a bunch of checks to generate a more helpful error message
+                    final StringBuilder errorMsg = new StringBuilder('modId must match the regex /^[a-z][a-z0-9_]{3,63}$/.')
+
+                    if (modId.contains('-') || modId.contains(' '))
+                        errorMsg.append('\nDashes and spaces are not allowed in modId as per the JPMS spec. Use underscores instead.')
+                    if (modId ==~ /^\d/)
+                        errorMsg.append('\nmodId cannot start with a number.')
+                    if (modId != modId.toLowerCase(Locale.ROOT))
+                        errorMsg.append('\nmodId must be lowercase.')
+
+                    if (modId.length() < 4)
+                        errorMsg.append('\nmodId must be at least 4 characters long to avoid conflicts.')
+                    else if (modId.length() > 64)
+                        errorMsg.append('\nmodId cannot be longer than 64 characters.')
+
+                    throw new RuntimeException(errorMsg.toString())
+                }
+            }
+        }
     }
 
     @Override
+    @Nullable
     @CompileDynamic
-    @Nullable
-    def getFallbackFor(final Map data, final String key) throws Exception {
-        if (key == 'license') {
-            if (atRoot) return 'All Rights Reserved'
-            else throw new RuntimeException('License must be specified at the root')
-        }
-        else return null
-    }
+    def set(final Deque<String> stack, final String name, def value) {
+        println "[Forge] set(name: $name, value: $value)"
 
-    @Override
-    @CompileDynamic
-    @Nullable
-    def set(final String key, def objectIn) throws Exception {
-        println "key: $key, objectIn: $objectIn"
-        if (key == 'modInfo' || key == 'mod') {
-            return setModInfo(objectIn)
+        if (!stack.isEmpty() && name == 'modLoader') {
+            println "[Forge] Warning: modLoader should be set at the root but it was found in ${stack.join '->'}"
+
+            // move the modLoader to the root by returning an empty stack
+            return new Tuple2<PluginResult, Tuple2<Deque, String>>(PluginResult.TRANSFORM, new Tuple2<Deque, String>(new ArrayDeque<String>(0), value as String))
         }
 
-        return null
-    }
-
-    String setModLoader(String modLoader) throws Exception {
-        if (atRoot && modLoader.allWhitespace)
-            throw new Exception('modLoader cannot be set to all whitespace')
-
-        if (modLoader == '42') {
-            println 'Indeed - that modLoader is the answer to life, the universe, and everything'
-            modLoader = 'javafml'
-        }
-
-        return modLoader
-    }
-
-    static boolean setOnForge(@DelegatesTo(value = ModsDotGroovy, strategy = DELEGATE_FIRST) final Closure closure) {
-        closure.delegate = ModsDotGroovy
-        closure.resolveStrategy = DELEGATE_FIRST
-        closure.call()
-
-        return true
-    }
-
-    static boolean setOnFabric(final Closure closure) {
-        return handleCrossPlatform('Fabric')
-    }
-
-    static boolean setOnQuilt(final Closure closure) {
-        return handleCrossPlatform('Quilt')
-    }
-
-    static boolean handleCrossPlatform(final String platform) {
-        final Map pluginsMap = ModsDotGroovyCore.INSTANCE.pluginsMap
-        if ('CrossPlatformPlugin' in pluginsMap && "${platform}Plugin" in pluginsMap)
-            return false // let the platform plugin handle this
-        else
-            throw new RuntimeException("on$platform {} is not supported in Forge projects. Did you forget to add the $platform and CrossPlatform plugins?")
-    }
-
-    static List<Map<String, ?>> setMods(final Tuple2<PluginAwareMap, Closure> mods) {
-        final modsBuilder = new ModsBuilder(mods.v1)
-        mods.v2.delegate = modsBuilder
-        mods.v2.resolveStrategy = DELEGATE_FIRST
-        mods.v2.call(modsBuilder)
-        modsBuilder.build()
-        println "modsBuilder.mods: ${modsBuilder.mods}"
-
-        if (modsBuilder.mods.isEmpty()) {
-            throw new RuntimeException('No mods were specified')
-        }
-
-        return modsBuilder.mods
-    }
-
-    static Map<String, ?> setModInfo(final Tuple2<PluginAwareMap, Closure> modInfo) {
-        println "called setModInfo with parent: ${modInfo.v1}, closure: ${modInfo.v2}"
-        final modInfoBuilder = new ModInfoBuilder(modInfo.v1)
-        modInfo.v2.delegate = modInfoBuilder
-        modInfo.v2.resolveStrategy = DELEGATE_FIRST
-        modInfo.v2.call(modInfoBuilder)
-        modInfoBuilder.build()
-
-        return modInfoBuilder.toMap()
-    }
-
-    static Map<String, ?> setMod(final Tuple2<PluginAwareMap, Closure> modInfo) {
-        return setModInfo(modInfo)
-    }
-
-    static String setModId(String modId) {
-        return modId
-    }
-
-    @Override
-    @Nullable
-    Tuple2<PluginMode, Map> build(final Map data) throws Exception {
-        if (atRoot) {
-            if (!data.containsKey('modLoader')) throw new Exception('modLoader must be specified')
-        }
-        return null
+        return PluginResult.UNHANDLED
     }
 }

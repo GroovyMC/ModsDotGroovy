@@ -1,32 +1,38 @@
 package ga.ozli.projects.flexiblemodsdotgroovy
 
+import ga.ozli.projects.flexiblemodsdotgroovy.frontend.PropertyInterceptor
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 
-import static groovy.lang.Closure.DELEGATE_FIRST
+import static groovy.lang.Closure.DELEGATE_ONLY
 
 @CompileStatic
-class ModsBuilder extends PluginAwareMap {
-    private List mods = [] // todo: make a PluginAwareList
+class ModsBuilder implements PropertyInterceptor {
+    private final ModsDotGroovyCore core
 
-    ModsBuilder(PluginAwareMap parent) {
-        super(parent)
+    boolean insideModsBuilder = true
+
+    void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_ONLY)
+                 @ClosureParams(value = SimpleType, options = 'ga.ozli.projects.flexiblemodsdotgroovy.ModInfoBuilder')
+                 final Closure closure) {
+        println "[Frontend] modInfo(closure)"
+        core.push('modInfo')
+        final modInfoBuilder = new ModInfoBuilder(core)
+        closure.resolveStrategy = DELEGATE_ONLY
+        closure.delegate = modInfoBuilder
+        closure.call(modInfoBuilder)
+        core.pop()
     }
 
-    List/*<Map<String, ?>>*/ getMods() {
-        return mods
+    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
+    ModsBuilder() {
+        println "[Frontend] new ModsBuilder()"
+        this.core = null
     }
 
-    void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = 'modsdotgroovy.ModInfoBuilder') final Closure closure) {
-        println 'frontend called modInfo'
-        mods << put('modInfo', new Tuple2<PluginAwareMap, Closure>(this, closure))
-    }
-
-    void mod(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'modsdotgroovy.ModInfoBuilder') final Closure closure) {
-        println 'frontend called mod'
-        mods << put('mod', new Tuple2<PluginAwareMap, Closure>(this, closure))
+    ModsBuilder(final ModsDotGroovyCore core) {
+        println "[Frontend] new ModsBuilder(core: $core)"
+        this.core = core
     }
 }

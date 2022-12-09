@@ -1,17 +1,21 @@
 package ga.ozli.projects.flexiblemodsdotgroovy
 
-class ModInfoBuilder extends PluginAwareMap {
+import ga.ozli.projects.flexiblemodsdotgroovy.frontend.PropertyInterceptor
+import groovy.transform.CompileStatic
 
-    ModInfoBuilder(PluginAwareMap parent) {
-        super(parent)
+@CompileStatic
+class ModInfoBuilder implements PropertyInterceptor {
+    private final ModsDotGroovyCore core
+
+    String modId = null
+
+    ModInfoBuilder() {
+        println "[Frontend] new ModInfoBuilder()"
+        this.core = null
     }
 
-    /**
-     * The modId of the mod. This should match the value of your mod's {@literal @}GMod/{@literal @}Mod annotated main class.
-     */
-//    String modId = null
-
-    void setModId(final String modId) {
-        put('modId', modId)
+    ModInfoBuilder(final ModsDotGroovyCore core) {
+        println "[Frontend] new ModInfoBuilder(core: $core)"
+        this.core = core
     }
 }

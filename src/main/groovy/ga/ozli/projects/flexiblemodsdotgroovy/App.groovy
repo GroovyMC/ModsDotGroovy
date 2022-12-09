@@ -5,18 +5,14 @@ class App {
         println "Groovy v${GroovySystem.version}"
 
         final mdg = ModsDotGroovy.make {
-            modLoader = 'javafml'
-
             mods {
                 modInfo {
-                    license = 'MIT'
-
                     modId = 'examplemod'
-                    displayName = 'Example Mod'
-                    version = '1.0.0'
+                    modLoader = 'javafml'
                 }
+                insideModsBuilder = true
             }
         }
-        println mdg.core.getData().toString()
+        println mdg.core.data
     }
 }
