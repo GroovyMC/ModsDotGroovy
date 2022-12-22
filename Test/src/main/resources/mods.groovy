@@ -5,8 +5,8 @@ ModsDotGroovy.make {
     license = 'MIT'
 
     mod {
-        modId = 'no'
-        version = '1.190'
+        modId = 'examplemod'
+        version = '1.0.0'
 
         contributors = [
                 Owner: ['GroovyMC'],
@@ -14,7 +14,7 @@ ModsDotGroovy.make {
         ]
 
         contact.source = 'https://github.com/GroovyMC/ModsDotGroovy'
-        credits = "${buildProperties.someProperty}"
+        credits = "${buildProperties.credits}"
 
         // for testing the inferred updateJsonUrl feature - issueTrackerUrl and links to GitHub repos are also supported by this feature
         displayUrl = 'https://curseforge.com/minecraft/mc-mods/spammycombat?projectId=623297'
