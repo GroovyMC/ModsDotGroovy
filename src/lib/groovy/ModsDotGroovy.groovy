@@ -161,8 +161,8 @@ class ModsDotGroovy {
                 modData['modId'] = modInfo.modId
                 modData['version'] = modInfo.version
                 modData['displayName'] = modInfo.displayName
-                modData['displayUrl'] = modInfo.displayUrl
-                modData['updateJsonUrl'] = modInfo.updateJsonUrl ?: inferUpdateJsonUrl(modInfo)
+                modData['displayURL'] = modInfo.displayUrl
+                modData['updateJSONURL'] = modInfo.updateJsonUrl ?: inferUpdateJsonUrl(modInfo)
                 modData['credits'] = modInfo.credits
                 modData['logoFile'] = modInfo.logoFile
                 modData['description'] = modInfo.description
@@ -321,8 +321,9 @@ class ModsDotGroovy {
     String inferUpdateJsonUrl(final ImmutableModInfo modInfo) {
         if (platform !== Platform.FORGE) return null
 
-        final String displayOrIssueTrackerUrl = modInfo.displayUrl ?: ((String) data.issueTrackerUrl)
-        if (displayOrIssueTrackerUrl.is null) return null
+        final String displayOrIssueTrackerUrl = modInfo.displayUrl ?: ((String) data.issueTrackerUrl) ?: ''
+        if (displayOrIssueTrackerUrl === null || displayOrIssueTrackerUrl.isEmpty() || displayOrIssueTrackerUrl.isAllWhitespace())
+            return null
 
         @Nullable
         HttpClient httpClient = null
