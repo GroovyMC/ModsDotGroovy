@@ -379,7 +379,6 @@ class ModsDotGroovy {
             ]
             if (updateJsonUrlRoot.endsWith('master')) {
                 final String updateJsonUrlMainBranchRoot = updateJsonUrlRoot.substring(0, updateJsonUrlRoot.length() - 6) + 'main'
-                println 'updateJsonUrlMainBranchRoot: ' + updateJsonUrlMainBranchRoot
                 updateJsonUrls.addAll([
                         "${updateJsonUrlMainBranchRoot}/src/main/resources/update.json",
                         "${updateJsonUrlMainBranchRoot}/src/main/resources/updates.json",
