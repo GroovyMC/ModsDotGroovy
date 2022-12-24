@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 
 buildscript {
     dependencies {
-        classpath 'org.codehaus.groovy:groovy-all:3.0.13'
+        classpath 'org.codehaus.groovy:groovy-all:3.0.11'
     }
 }
 
@@ -34,8 +34,8 @@ license {
 
 dependencies {
     implementation gradleApi()
-    libCompileOnly 'org.apache.groovy:groovy:4.0.4'
-    libCompileOnly 'org.apache.groovy:groovy-json:4.0.4'
+    libCompileOnly 'org.codehaus.groovy:groovy:3.0.11'
+    libCompileOnly 'org.codehaus.groovy:groovy-json:3.0.11'
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
 }
 
@@ -59,7 +59,7 @@ tasks.named('jar', Jar) {
     it.manifest.attributes makeAttributes()
 }
 
-Map<?, ?> makeAttributes() {
+final Map<String, ?> makeAttributes() {
     final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
     final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
     return [

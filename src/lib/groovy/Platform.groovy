@@ -8,4 +8,6 @@ import groovy.transform.CompileStatic
 @CompileStatic
 enum Platform {
     FORGE, QUILT
+
+    Platform() {}
 }

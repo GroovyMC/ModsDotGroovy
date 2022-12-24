@@ -29,9 +29,12 @@ class ModsDotGroovy {
     protected Map data
 
     protected ModsDotGroovy() {
-        this.data = switch (platform) {
-            case Platform.QUILT -> ["schema_version": 1, "quilt_loader": [:]]
-            case Platform.FORGE -> [:]
+        switch (platform) {
+            case Platform.QUILT:
+                this.data = ["schema_version": 1, "quilt_loader": [:]]
+                break
+            case Platform.FORGE:
+                this.data = [:]
         }
     }
 
@@ -321,7 +324,7 @@ class ModsDotGroovy {
     String inferUpdateJsonUrl(final ImmutableModInfo modInfo) {
         if (platform !== Platform.FORGE) return null
 
-        final String displayOrIssueTrackerUrl = modInfo.displayUrl ?: ((String) data.issueTrackerUrl) ?: ''
+        final String displayOrIssueTrackerUrl = modInfo.displayUrl ?: ((String) data.issueTrackerURL) ?: ''
         if (displayOrIssueTrackerUrl === null || displayOrIssueTrackerUrl.isEmpty() || displayOrIssueTrackerUrl.isAllWhitespace())
             return null
 
@@ -375,7 +378,8 @@ class ModsDotGroovy {
                     "${updateJsonUrlRoot}/updates.json"
             ]
             if (updateJsonUrlRoot.endsWith('master')) {
-                final String updateJsonUrlMainBranchRoot = updateJsonUrlRoot[0..-6] + 'main'
+                final String updateJsonUrlMainBranchRoot = updateJsonUrlRoot.substring(0, updateJsonUrlRoot.length() - 6) + 'main'
+                println 'updateJsonUrlMainBranchRoot: ' + updateJsonUrlMainBranchRoot
                 updateJsonUrls.addAll([
                         "${updateJsonUrlMainBranchRoot}/src/main/resources/update.json",
                         "${updateJsonUrlMainBranchRoot}/src/main/resources/updates.json",
