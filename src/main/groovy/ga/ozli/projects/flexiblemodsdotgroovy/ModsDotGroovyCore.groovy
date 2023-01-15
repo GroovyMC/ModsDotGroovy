@@ -14,7 +14,7 @@ class ModsDotGroovyCore {
                 }
             }
     )
-    private final ObservableMap data = new ObservableMap({ propertyName, newValue ->
+    private final ObservableMap backingData = new ObservableMap({ propertyName, newValue ->
         if (ignoreNextEvent) {
             ignoreNextEvent = false
             return false
@@ -23,17 +23,18 @@ class ModsDotGroovyCore {
         return true
     })
     private final ModsDotGroovyCoreDynamic dynamicInstance = new ModsDotGroovyCoreDynamic()
+    private final Map defaults
 
     final Deque<String> stack = new ArrayDeque<>()
 
-    boolean ignoreNextEvent = false // avoid infinite loop when a plugin changes a property in the data map
+    boolean ignoreNextEvent = false // avoid infinite loop when a plugin changes a property in the backingData map
 
     final PriorityQueue<ModsDotGroovyPlugin> getPlugins() {
         return this.@plugins
     }
 
-    final ObservableMap getData() {
-        return this.@data
+    final Map build() {
+        return MapUtils.recursivelyMerge(this.@backingData, defaults)
     }
 
     /**
@@ -51,7 +52,7 @@ class ModsDotGroovyCore {
             println "[Core] nested (${stack.toString()[1..-2].replace(', ', '->')}) observableMapTestClosure(propertyName: ${propertyName}, newValue: ${newValue})"
             return true
         })
-        data.getPropertyChangeListeners().each { nestedObservableMap.addPropertyChangeListener(it) }
+        backingData.getPropertyChangeListeners().each { nestedObservableMap.addPropertyChangeListener(it) }
         put(key, nestedObservableMap)
         stack.addLast(key)
     }
@@ -73,15 +74,8 @@ class ModsDotGroovyCore {
     void put(final String key, final def value) {
         println "[Core] put(key: $key, value: $value) stack: ${stack.toString()}"
 
-        if (stack.isEmpty()) {
-            data[key] = value
-        } else {
-            def traversedMap = data
-            for (final String stackKey in stack) {
-                traversedMap = traversedMap[stackKey]
-            }
-            traversedMap[key] = value
-        }
+        if (stack.isEmpty()) backingData[key] = value
+        else traverseStackAwareMap()[key] = value
     }
 
     /**
@@ -91,15 +85,16 @@ class ModsDotGroovyCore {
     void remove(final String key) {
         println "[Core] remove(key: $key) stack: ${stack.toString()}"
 
-        if (stack.isEmpty()) {
-            data.remove(key)
-        } else {
-            def traversedMap = data
-            for (final String stackKey in stack) {
-                traversedMap = traversedMap[stackKey]
-            }
-            (traversedMap as Map).remove(key)
+        if (stack.isEmpty()) backingData.remove(key)
+        else traverseStackAwareMap().remove(key)
+    }
+
+    Map traverseStackAwareMap(final Deque<String> stack = this.stack) {
+        def traversedMap = backingData
+        for (final String stackKey in stack) {
+            traversedMap = traversedMap[stackKey]
         }
+        return traversedMap as Map
     }
 
     ModsDotGroovyCore() {
@@ -108,7 +103,7 @@ class ModsDotGroovyCore {
         plugins << new ForgePlugin()
         println "[Core] Loaded plugins: ${plugins.collect { it.name }}"
         plugins*.init()
-
+        defaults = MapUtils.recursivelyMerge((plugins*.defaults as List<Map>).findAll { it !== null })
         setupEventListener()
     }
 
@@ -118,7 +113,7 @@ class ModsDotGroovyCore {
             dynamicInstance.pluginInstances[plugin.name] = ['instance': plugin]
         }
 
-        data.addPropertyChangeListener { event ->
+        backingData.addPropertyChangeListener { event ->
             if (ignoreNextEvent) {
                 ignoreNextEvent = false
                 return

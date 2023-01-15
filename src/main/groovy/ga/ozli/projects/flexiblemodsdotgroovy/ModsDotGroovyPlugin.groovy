@@ -2,10 +2,8 @@ package ga.ozli.projects.flexiblemodsdotgroovy
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovyjarjarantlr4.v4.runtime.misc.Nullable
 
-/**
- * Todo: Support non-static inner classes/setters
- */
 @CompileStatic
 interface ModsDotGroovyPlugin {
     /**
@@ -53,5 +51,13 @@ interface ModsDotGroovyPlugin {
     @CompileDynamic
     default def set(final Deque<String> stack, final String name, def value) {
         return PluginResult.UNHANDLED
+    }
+
+    /**
+     * @return A map of default values to use as a fallback when a property is not set and no other plugin has set it.
+     */
+    @Nullable
+    default Map getDefaults() {
+        return null
     }
 }

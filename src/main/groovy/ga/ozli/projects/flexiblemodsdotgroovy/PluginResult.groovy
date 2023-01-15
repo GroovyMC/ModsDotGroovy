@@ -19,7 +19,7 @@ enum PluginResult {
 
     /**
      * Default action for listening to the event and changing the property.<br>
-     * Useful for transforming the property. For example, making a string lowercase before it's put into the data map.<br>
+     * Useful for transforming the property. For example, making a string lowercase before it's put into the backingData map.<br>
      * Allows the next plugin to handle the property.
      */
     TRANSFORM,
@@ -32,7 +32,7 @@ enum PluginResult {
 
     /**
      * Prevents the next plugin from handling the property and prevents the property from being set.<br>
-     * Useful for preventing the property from being added to the data map altogether.
+     * Useful for preventing the property from being added to the backingData map altogether.
      */
     IGNORE
 

@@ -83,4 +83,19 @@ class ForgePlugin implements ModsDotGroovyPlugin {
 
         return PluginResult.UNHANDLED
     }
+
+    @Override
+    @Nullable
+    Map getDefaults() {
+        return [
+            modLoader: 'javafml',
+            loaderVersion: '[1,)',
+            license: 'All Rights Reserved',
+            modProperties: [
+                nestingExample: [
+                    nestedProperty: 'nestedValue'
+                ]
+            ]
+        ]
+    }
 }
