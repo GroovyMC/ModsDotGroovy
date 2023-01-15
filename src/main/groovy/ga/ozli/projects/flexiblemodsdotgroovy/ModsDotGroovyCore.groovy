@@ -140,27 +140,34 @@ class ModsDotGroovyCore {
                             for (final className in stack) {
                                 final capitalizedClassName = className.capitalize()
                                 if (currentClassesMap.containsKey(capitalizedClassName)) {
+                                    // a class instance already exists, so let's use it
                                     classObject = currentClassesMap[capitalizedClassName]['instance']
                                 } else {
+                                    // a class instance doesn't exist, so let's create it
+                                    // first, let's find the declared subclass
                                     final Class<?> tmp = classObject.getClass().declaredClasses.find {
                                         it.simpleName == className.capitalize()
                                     }
                                     if (tmp === null) {
-                                        // fail fast when we can't find a subclass
+                                        // fail fast when we can't find the subclass
                                         break
                                     } else {
+                                        // create a new instance of the subclass
                                         final constructors = tmp.getDeclaredConstructors()
                                         if (constructors.length === 0) {
+                                            // static inner class
                                             classObject = tmp
                                         } else {
+                                            // instance inner class
                                             final constructor = constructors[0]
                                             if (constructor.parameterCount === 0) classObject = constructor.newInstance()
                                             else classObject = constructor.newInstance(previousClass)
-
-                                            dynamicInstance.pluginInstances[plugin.name][capitalizedClassName] = ['instance': classObject]
-                                            previousClass = classObject
-                                            currentClassesMap = dynamicInstance.pluginInstances[plugin.name][capitalizedClassName]
                                         }
+
+                                        // store the new instance in the pluginInstances map and set the new values for the next iteration
+                                        dynamicInstance.pluginInstances[plugin.name][capitalizedClassName] = ['instance': classObject]
+                                        previousClass = classObject
+                                        currentClassesMap = dynamicInstance.pluginInstances[plugin.name][capitalizedClassName]
                                     }
                                 }
                             }
