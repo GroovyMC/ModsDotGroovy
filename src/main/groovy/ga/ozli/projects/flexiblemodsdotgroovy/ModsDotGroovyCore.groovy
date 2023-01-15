@@ -22,6 +22,7 @@ class ModsDotGroovyCore {
         println "[Core] root observableMapTestClosure(propertyName: $propertyName, newValue: $newValue)"
         return true
     })
+    private final ModsDotGroovyCoreDynamic dynamicInstance = new ModsDotGroovyCoreDynamic()
 
     final Deque<String> stack = new ArrayDeque<>()
 
@@ -113,6 +114,10 @@ class ModsDotGroovyCore {
 
     @CompileDynamic
     private final void setupEventListener() {
+        plugins.each { plugin ->
+            dynamicInstance.pluginInstances[plugin.name] = ['instance': plugin]
+        }
+
         data.addPropertyChangeListener { event ->
             if (ignoreNextEvent) {
                 ignoreNextEvent = false
@@ -126,22 +131,44 @@ class ModsDotGroovyCore {
                 if (event instanceof ObservableMap.PropertyAddedEvent || event instanceof ObservableMap.PropertyUpdatedEvent) {
                     final capitalizedPropertyName = propertyName.capitalize()
                     for (final ModsDotGroovyPlugin plugin in plugins) {
-                        Class<?> subClass = plugin.getClass()
+                        def classObject = dynamicInstance.pluginInstances[plugin.name]['instance']
                         if (!stack.isEmpty()) {
                             // resolve the class tree of the plugin to find the correct method to call
                             // e.g.: if the stack is "mods, modInfo" and the property name is "modId", then we want to call plugin.Mods.ModInfo.setModId()
+                            def previousClass = classObject
+                            Map currentClassesMap = dynamicInstance.pluginInstances[plugin.name]
                             for (final className in stack) {
-                                final Class<?> tmp = subClass.declaredClasses.find {
-                                    it.simpleName == className.capitalize()
+                                final capitalizedClassName = className.capitalize()
+                                if (currentClassesMap.containsKey(capitalizedClassName)) {
+                                    classObject = currentClassesMap[capitalizedClassName]['instance']
+                                } else {
+                                    final Class<?> tmp = classObject.getClass().declaredClasses.find {
+                                        it.simpleName == className.capitalize()
+                                    }
+                                    if (tmp === null) {
+                                        // fail fast when we can't find a subclass
+                                        break
+                                    } else {
+                                        final constructors = tmp.getDeclaredConstructors()
+                                        if (constructors.length === 0) {
+                                            classObject = tmp
+                                        } else {
+                                            final constructor = constructors[0]
+                                            if (constructor.parameterCount === 0) classObject = constructor.newInstance()
+                                            else classObject = constructor.newInstance(previousClass)
+
+                                            dynamicInstance.pluginInstances[plugin.name][capitalizedClassName] = ['instance': classObject]
+                                            previousClass = classObject
+                                            currentClassesMap = dynamicInstance.pluginInstances[plugin.name][capitalizedClassName]
+                                        }
+                                    }
                                 }
-                                if (tmp === null) break // fail fast when we can't find a subclass
-                                else subClass = tmp
                             }
                         }
 
                         // first try a dedicated, typed setter method
-                        if (subClass.metaClass.respondsTo(null, "set$capitalizedPropertyName", mapValue)) {
-                            result = subClass."set$capitalizedPropertyName"(mapValue)
+                        if (classObject.metaClass.respondsTo(classObject, "set$capitalizedPropertyName", mapValue)) {
+                            result = classObject.metaClass.invokeMethod(classObject, "set$capitalizedPropertyName", mapValue)
                         } else {
                             // fallback to the generic set method
                             result = plugin.set(stack, propertyName, mapValue)
@@ -175,7 +202,11 @@ class ModsDotGroovyCore {
                                 stack.addAll(oldStack)
                                 ignoreNextEvent = true
                                 remove(propertyName)
-                                println "[Core] Plugin \"${plugin.name}\" transformed property \"$propertyName\" from \"$mapValue\" to \"${resultV2}\" and moved it from stack \"${oldStack.join '->'}\" to \"${newStack.join '->'}\""
+                                if (mapValue == resultV2) {
+                                    println "[Core] Plugin \"${plugin.name}\" moved property \"$propertyName\" from stack \"${oldStack.join '->'}\" to \"${newStack.join '->'}\""
+                                } else {
+                                    println "[Core] Plugin \"${plugin.name}\" transformed property \"$propertyName\" from \"$mapValue\" to \"${resultV2}\" and moved it from stack \"${oldStack.join '->'}\" to \"${newStack.join '->'}\""
+                                }
                                 continue
                             }
                             println "[Core] Plugin \"${plugin.name}\" transformed property \"$propertyName\" from \"$mapValue\" to \"${result.v2}\""

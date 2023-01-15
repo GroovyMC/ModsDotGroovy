@@ -16,8 +16,12 @@ class ForgePlugin implements ModsDotGroovyPlugin {
             throw new RuntimeException('modLoader must not start with a number.')
     }
 
-    static class Mods {
-        static void setInsideModsBuilder(final boolean insideModsBuilder) {
+    class Mods {
+        Mods() {
+            println "[Forge] Instantiated ForgePlugin.Mods"
+        }
+
+        void setInsideModsBuilder(final boolean insideModsBuilder) {
             println "[Forge] mods.insideModsBuilder: ${insideModsBuilder}"
         }
 
