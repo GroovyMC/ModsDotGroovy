@@ -1,11 +1,12 @@
 package ga.ozli.projects.flexiblemodsdotgroovy
 
-import groovy.transform.CompileStatic;
+import groovy.transform.CompileStatic
 
 @CompileStatic
 enum PluginResult {
     /**
      * Default action for not even listening to the property event.
+     * Do nothing and let the next plugin handle it, or let the property change go through if no other plugin handles it.
      */
     UNHANDLED,
 
@@ -35,5 +36,5 @@ enum PluginResult {
      */
     IGNORE
 
-    PluginResult() {}
+    private PluginResult() {}
 }

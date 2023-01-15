@@ -162,28 +162,27 @@ class ModsDotGroovyCore {
                             println "[Core] Plugin \"${plugin.name}\" validated property \"$propertyName\""
                         } else if (result.v1 === PluginResult.TRANSFORM) {
                             def resultV2 = result.v2
-                            if (resultV2 instanceof Tuple2) {
-                                if (resultV2.v1 instanceof Deque) {
-                                    final Deque<String> newStack = resultV2.v1 as Deque<String>
-                                    final Deque<String> oldStack = stack.clone()
-                                    resultV2 = resultV2.v2
-                                    println "[Core] Plugin \"${plugin.name}\" transformed property \"$propertyName\" from \"$mapValue\" to \"${resultV2}\" and moved it from stack \"${oldStack.join '->'}\" to \"${newStack.join '->'}\""
-                                    stack.clear()
-                                    stack.addAll(newStack)
-                                    ignoreNextEvent = true
-                                    put(propertyName, resultV2)
-                                    stack.clear()
-                                    stack.addAll(oldStack)
-                                    ignoreNextEvent = true
-                                    remove(propertyName)
-                                    continue
-                                }
+                            // handle move requests, which are done by returning a Tuple2<Deque<String>, ?> from a transform plugin result
+                            if (resultV2 instanceof Tuple2 && resultV2.v1 instanceof Deque) {
+                                final Deque<String> newStack = resultV2.v1 as Deque<String>
+                                final Deque<String> oldStack = stack.clone()
+                                resultV2 = resultV2.v2
+                                stack.clear()
+                                stack.addAll(newStack)
+                                ignoreNextEvent = true
+                                put(propertyName, resultV2)
+                                stack.clear()
+                                stack.addAll(oldStack)
+                                ignoreNextEvent = true
+                                remove(propertyName)
+                                println "[Core] Plugin \"${plugin.name}\" transformed property \"$propertyName\" from \"$mapValue\" to \"${resultV2}\" and moved it from stack \"${oldStack.join '->'}\" to \"${newStack.join '->'}\""
+                                continue
                             }
                             println "[Core] Plugin \"${plugin.name}\" transformed property \"$propertyName\" from \"$mapValue\" to \"${result.v2}\""
                             ignoreNextEvent = true
                             put(propertyName, resultV2)
                         } else if (result.v1 === PluginResult.BREAK) {
-                            println "[Core] Plugin \"${plugin.name}\" transformed property \"$propertyName\" from \"$mapValue\" to \"${result.v2}\" and broke the chain"
+                            println "[Core] Plugin \"${plugin.name}\" transformed property \"$propertyName\" from \"$mapValue\" to \"${result.v2}\" and broke the propagation chain"
                             ignoreNextEvent = true
                             put(propertyName, result.v2)
                             break
@@ -198,7 +197,7 @@ class ModsDotGroovyCore {
                     // todo: figure out how deleting a property should work, if allowed at all (plugins setting properties to null?)
                     println "[Core] Property $propertyName was removed. Event: $event"
                 }
-            } else if (!(event.propertyName == 'size' && event.newValue === event.oldValue + 1)) { // Ignore Map.size() change event
+            } else if (!(event.propertyName == 'size' && (event.newValue === event.oldValue + 1 || event.newValue === event.oldValue - 1))) { // Ignore Map.size() change event
                 println "[Core] Unknown event: $event"
             }
         }

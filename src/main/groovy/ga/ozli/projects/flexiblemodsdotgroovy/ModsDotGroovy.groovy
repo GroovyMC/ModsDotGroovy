@@ -1,14 +1,12 @@
 package ga.ozli.projects.flexiblemodsdotgroovy
 
-import groovy.transform.CompileDynamic
+import ga.ozli.projects.flexiblemodsdotgroovy.frontend.PropertyInterceptor
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
-import groovyjarjarantlr4.v4.runtime.misc.Nullable
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 import static groovy.lang.Closure.DELEGATE_ONLY
-
 /**
  * The general idea of the new FlexibleModsDotGroovy is to allow for more flexibility through the use of plugins.
  *
@@ -41,19 +39,8 @@ import static groovy.lang.Closure.DELEGATE_ONLY
  * This is the frontend layer
  */
 @CompileStatic
-class ModsDotGroovy {
+class ModsDotGroovy implements PropertyInterceptor {
     ModsDotGroovyCore core = new ModsDotGroovyCore()
-
-    @CompileDynamic
-    void setProperty(final String name, final def value) {
-        println "[Frontend] setProperty(name: $name, value: $value)"
-        if (core.stack.isEmpty()) {
-            if (this.hasProperty(name)) this.@"$name" = value
-            core.data."$name" = value
-        } else {
-            core.data[core.stack[0]]."$name" = value
-        }
-    }
 
 //    @CompileDynamic
 //    void methodMissing(String name, @Nullable def args) {
@@ -83,7 +70,6 @@ class ModsDotGroovy {
         closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)
-//        val.build()
         return val
     }
 

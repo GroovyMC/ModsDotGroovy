@@ -43,7 +43,9 @@ interface ModsDotGroovyPlugin {
      * @param name
      * @param value
      * @return <PluginResult | Tuple2<PluginResult, ?> | Object>
-     *     If you return a Tuple2, the first value must be a PluginResult and the second value is the type of the changed value.
+     *     If you return a Tuple2, the first value must be a PluginResult and the second value is either:
+     *         - The type of the changed value.
+     *         - Another Tuple2 of the stack and the changed value, used for moving the changed value to a different location.
      *     If you return a PluginResult, it'll be treated as Tuple2<(yourPluginResult), null>.
      *     If you return an Object, it'll be treated as Tuple2<PluginResult.TRANSFORM, (yourObject)>.
      *     If you return null or don't return anything (void), it'll be treated as Tuple2<PluginResult.VALIDATE, null>.

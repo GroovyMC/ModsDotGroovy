@@ -9,7 +9,7 @@ import groovyjarjarantlr4.v4.runtime.misc.Nullable
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 class ForgePlugin implements ModsDotGroovyPlugin {
-    // note: void methods are executed and treated as PluginResult.VALIDATE
+    // note: void methods are executed and always treated as PluginResult.VALIDATE
     static void setModLoader(final String modLoader) {
         println "[Forge] modLoader: ${modLoader}"
         if (modLoader ==~ /^\d/)
@@ -21,6 +21,15 @@ class ForgePlugin implements ModsDotGroovyPlugin {
             println "[Forge] mods.insideModsBuilder: ${insideModsBuilder}"
         }
 
+        /*
+         * Note: def methods are executed and treated differently depending on what you return:
+         * - If you return null, the method is treated as PluginResult.VALIDATE
+         * - If you return a value, the method is treated as PluginResult.TRANSFORM
+         * - You can also return a PluginResult directly, which will be used as-is
+         *
+         * The dynamic nature of this means that you can return and accept any type of value you like.
+         * If there's two methods with the same name, the one with the closest typed param will be used.
+         */
         @CompileDynamic
         static def setX(final def x) {
             println "[Forge] mods.x: ${x}"
@@ -65,7 +74,7 @@ class ForgePlugin implements ModsDotGroovyPlugin {
             println "[Forge] Warning: modLoader should be set at the root but it was found in ${stack.join '->'}"
 
             // move the modLoader to the root by returning an empty stack
-            return new Tuple2<PluginResult, Tuple2<Deque, String>>(PluginResult.TRANSFORM, new Tuple2<Deque, String>(new ArrayDeque<String>(0), value as String))
+            return PluginUtils.move([], value as String)
         }
 
         return PluginResult.UNHANDLED
