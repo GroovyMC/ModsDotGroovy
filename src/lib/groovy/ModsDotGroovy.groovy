@@ -335,18 +335,33 @@ class ModsDotGroovy {
         // and use those to construct an updateJsonUrl using forge.curseupdate.com
         // example in: https://www.curseforge.com/minecraft/mc-mods/spammycombat?projectId=623297
         // example out: 623297/spammycombat
-        final Matcher cfMatcher = displayOrIssueTrackerUrl =~ $/.*curseforge.com/minecraft/mc-mods/([^?/]+)\?projectId=(\d+)/$
+        final Matcher cfMatcher = displayOrIssueTrackerUrl =~ $/.*curseforge.com/minecraft/mc-mods/([^?/]+)(?:\?projectId=(\d+))?/$
         if (cfMatcher.matches()) {
             httpClient ?= HttpClient.newBuilder().build()
-            // determine the modId first from the modId, falling back to the slug in the URL if that fails
-            final String updateJsonUrlRoot = "https://forge.curseupdate.com/${cfMatcher.group(2)}/"
-            final String[] updateJsonUrls = [
-                    updateJsonUrlRoot + modInfo.modId,
-                    updateJsonUrlRoot + cfMatcher.group(1)
-            ]
+            final jsonSlurper = new JsonSlurper().setType(JsonParserType.INDEX_OVERLAY)
+
+            List<String> updateJsonUrls = []
+            if (cfMatcher.groupCount() == 3) { // whole string, slug, project ID
+                // determine the modId first from the modId, falling back to the slug in the URL if that fails
+                final String updateJsonUrlRoot = "https://forge.curseupdate.com/${cfMatcher.group(2)}/"
+                updateJsonUrls.add(updateJsonUrlRoot + modInfo.modId)
+                updateJsonUrls.add(updateJsonUrlRoot + cfMatcher.group(1))
+            } else { // Whole string, slug
+                // Determine the projectId based on the slug
+                final String slug = cfMatcher.group(1)
+                try {
+                    final response = httpClient.send(HttpRequest.newBuilder(URI.create("https://api.cfwidget.com/minecraft/mc-mods/$slug")).GET().build(), HttpResponse.BodyHandlers.ofString())
+
+                    if (response.statusCode() === HttpURLConnection.HTTP_OK) {
+                        final Integer pId = jsonSlurper.parseText(response.body())['id'] as Integer
+                        if (pId !== null) {
+                            updateJsonUrls.add("https://forge.curseupdate.com/$pId/$slug".toString())
+                        }
+                    }
+                } catch (IOException ignored) {}
+            }
 
             // make a GET request to the updateJsonUrl and to see if it's valid
-            final jsonSlurper = new JsonSlurper().setType(JsonParserType.INDEX_OVERLAY)
             for (final String url in updateJsonUrls) {
                 final HttpRequest request = HttpRequest.newBuilder(URI.create(url)).GET().build()
                 try {
