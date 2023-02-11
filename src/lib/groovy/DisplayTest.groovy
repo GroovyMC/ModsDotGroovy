@@ -3,7 +3,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 enum DisplayTest {
     /**
-     * A red "X" will be displayed on the server connection screen if the version of this mod differs between the
+     * (default) A red "X" will be displayed on the server connection screen if the version of this mod differs between the
      * client and server.
      */
     MATCH_VERSION,
