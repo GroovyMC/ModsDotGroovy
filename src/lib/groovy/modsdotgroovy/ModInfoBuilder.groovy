@@ -59,8 +59,7 @@ class ModInfoBuilder {
     /**
      * Display Test controls the display for your mod in the server connection screen.<br>
      */
-    // TODO make enum, and actually support
-    //@Nullable String displayTest = null
+    DisplayTest displayTest = DisplayTest.MATCH_VERSION
 
     /**
      * A multi-line description text for the mod, displayed in the in-game Mods screen. <br>
@@ -187,6 +186,7 @@ class ModInfoBuilder {
                 this.dependencies,
                 this.properties,
                 this.entrypoints,
+                this.displayTest,
                 quiltInfo)
     }
 }

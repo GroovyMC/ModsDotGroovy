@@ -19,6 +19,8 @@ ModsDotGroovy.make {
         // for testing the inferred updateJsonUrl feature - issueTrackerUrl and links to GitHub repos are also supported by this feature
         displayUrl = 'https://curseforge.com/minecraft/mc-mods/spammycombat'
 
+        displayTest = DisplayTest.IGNORE_SERVER_VERSION
+
         onForge {
             customProperty = 'hello'
         }
