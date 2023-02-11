@@ -1,15 +1,15 @@
-package ga.ozli.projects.flexiblemodsdotgroovy.plugins
+package io.github.groovymc.modsdotgroovy.plugins
 
-import ga.ozli.projects.flexiblemodsdotgroovy.ModsDotGroovyPlugin
-import ga.ozli.projects.flexiblemodsdotgroovy.PluginResult
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovyjarjarantlr4.v4.runtime.misc.Nullable
+import io.github.groovymc.modsdotgroovy.ModsDotGroovyPlugin
+import io.github.groovymc.modsdotgroovy.PluginResult
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 class ForgePlugin implements ModsDotGroovyPlugin {
-    // note: void methods are executed and always treated as PluginResult.VALIDATE
+    // note: void methods are executed and treated as PluginResult.VALIDATE
     static void setModLoader(final String modLoader) {
         println "[Forge] modLoader: ${modLoader}"
         if (modLoader ==~ /^\d/)

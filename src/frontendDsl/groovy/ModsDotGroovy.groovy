@@ -1,12 +1,11 @@
-package ga.ozli.projects.flexiblemodsdotgroovy
-
-import ga.ozli.projects.flexiblemodsdotgroovy.frontend.PropertyInterceptor
+import io.github.groovymc.modsdotgroovy.ModsDotGroovyCore
+import io.github.groovymc.modsdotgroovy.frontend.ModsBuilder
+import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
+import io.github.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 
-import static groovy.lang.Closure.DELEGATE_FIRST
-import static groovy.lang.Closure.DELEGATE_ONLY
 /**
  * The general idea of the new FlexibleModsDotGroovy is to allow for more flexibility through the use of plugins.
  *
@@ -39,9 +38,7 @@ import static groovy.lang.Closure.DELEGATE_ONLY
  * This is the frontend layer
  */
 @CompileStatic
-class ModsDotGroovy implements PropertyInterceptor {
-    ModsDotGroovyCore core = new ModsDotGroovyCore()
-
+class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor {
 //    @CompileDynamic
 //    void methodMissing(String name, @Nullable def args) {
 //        println "[Frontend] methodMissing(name: $name, args: $args)"
@@ -52,31 +49,26 @@ class ModsDotGroovy implements PropertyInterceptor {
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
      * For GroovyModLoader @GMod mods it should be {@code gml}.
      */
-    String modLoader = "javafml"
+    String modLoader = 'javafml'
 
-    void mods(@DelegatesTo(value = ModsBuilder, strategy = DELEGATE_ONLY)
-              @ClosureParams(value = SimpleType, options = 'ga.ozli.projects.flexiblemodsdotgroovy.ModsBuilder') final Closure closure) {
+    void mods(@DelegatesTo(value = ModsBuilder, strategy = groovy.lang.Closure.DELEGATE_ONLY)
+              @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModsBuilder') final Closure closure) {
         println "[Frontend] mods(closure)"
         core.push('mods')
         final modsBuilder = new ModsBuilder(core)
-        closure.resolveStrategy = DELEGATE_ONLY
+        closure.resolveStrategy = groovy.lang.Closure.DELEGATE_ONLY
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
         core.pop()
     }
 
-    static synchronized ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = DELEGATE_FIRST) final Closure closure) {
+    static synchronized ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = groovy.lang.Closure.DELEGATE_FIRST) final Closure closure) {
         final ModsDotGroovy val = new ModsDotGroovy()
-        closure.resolveStrategy = DELEGATE_FIRST
+        closure.resolveStrategy = groovy.lang.Closure.DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)
         return val
     }
-
-
-
-
-
 
     /**
      * This is the toString()'ed backingData currently outputted from ModsDotGroovy.make() (before FlexibleModsDotGroovy)

@@ -1,7 +1,7 @@
-package ga.ozli.projects.flexiblemodsdotgroovy
+package io.github.groovymc.modsdotgroovy.frontend
 
-import ga.ozli.projects.flexiblemodsdotgroovy.frontend.PropertyInterceptor
 import groovy.transform.CompileStatic
+import io.github.groovymc.modsdotgroovy.ModsDotGroovyCore
 
 @CompileStatic
 class ModInfoBuilder implements PropertyInterceptor {
@@ -10,12 +10,12 @@ class ModInfoBuilder implements PropertyInterceptor {
     String modId = null
 
     ModInfoBuilder() {
-        println "[Frontend] new ModInfoBuilder()"
+        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder()"
         this.core = null
     }
 
     ModInfoBuilder(final ModsDotGroovyCore core) {
-        println "[Frontend] new ModInfoBuilder(core: $core)"
+        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder(core: $core)"
         this.core = core
     }
 }

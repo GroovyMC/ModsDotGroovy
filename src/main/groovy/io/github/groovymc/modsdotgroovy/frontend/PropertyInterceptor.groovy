@@ -1,4 +1,4 @@
-package ga.ozli.projects.flexiblemodsdotgroovy.frontend
+package io.github.groovymc.modsdotgroovy.frontend
 
 import groovy.transform.CompileDynamic
 

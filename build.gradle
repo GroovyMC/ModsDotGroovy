@@ -1,19 +1,73 @@
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+
 plugins {
+    id 'idea'
     id 'groovy'
-    id 'application'
+    id 'maven-publish'
+    id 'groovy-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.18.0'
 }
+
+group = 'io.github.groovymc.modsdotgroovy'
+archivesBaseName = 'modsdotgroovy'
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation 'org.codehaus.groovy:groovy-all:3.0.13'
-//    implementation 'org.apache.groovy:groovy-all:4.0.6'
+sourceSets {
+    frontendDsl
 }
 
-application {
-    mainClass = 'ga.ozli.projects.flexiblemodsdotgroovy.App'
+dependencies {
+    implementation gradleApi()
+    implementation 'org.codehaus.groovy:groovy-all:3.0.13'
+    implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+
+    frontendDslCompileOnly 'org.codehaus.groovy:groovy-all:3.0.13'
+    frontendDslCompileOnly sourceSets.main.output
+}
+
+pluginBundle {
+    website = 'https://github.com/GroovyMC/ModsDotGroovy'
+}
+
+gradlePlugin {
+    plugins {
+        modsdotgroovy {
+            id = 'io.github.groovymc.modsdotgroovy'
+            displayName = 'ModsDotGroovy'
+            description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
+            implementationClass = 'io.github.groovymc.modsdotgroovy.gradle.ModsDotGroovyGradlePlugin'
+        }
+    }
+}
+
+groovydoc {
+    use = true
+    source = sourceSets.frontendDsl.allSource
+    docTitle = "ModsDotGroovy v${project.version} - DSL"
+}
+
+//application {
+//    mainClass = 'ga.ozli.projects.flexiblemodsdotgroovy.App'
+//}
+
+final Map<String, ?> makeAttributes() {
+    final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+    final String currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+    return [
+            'Specification-Title'     : archivesBaseName,
+            'Specification-Vendor'    : 'GroovyMC',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : archivesBaseName,
+            'Implementation-Version'  : "${project.version}",
+            'Implementation-Vendor'   : 'Matyrobbrt',
+            'Implementation-Timestamp': currentDateTime,
+            'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})"
+    ]
 }
 
 tasks.withType(GroovyCompile).configureEach { GroovyCompile task ->
@@ -21,4 +75,59 @@ tasks.withType(GroovyCompile).configureEach { GroovyCompile task ->
     task.options.encoding = 'UTF-8'
     task.groovyOptions.encoding = 'UTF-8'
     task.groovyOptions.optimizationOptions.indy = true
+}
+
+tasks.named('jar', Jar) {
+    manifest.attributes makeAttributes()
+}
+
+tasks.register('dslJar', Jar) {
+    group = 'build'
+    from sourceSets.frontendDsl.output
+    archiveFileName = "dsl-${project.version}.jar"
+    manifest.attributes makeAttributes() + ['Maven-Artifact': "${project.group}:dsl:${project.version}"]
+}
+
+tasks.register('dslSources', Jar) {
+    from sourceSets.frontendDsl.allSource
+    archiveFileName = "dsl-${project.version}-sources.jar"
+    classifier 'sources'
+    manifest.attributes makeAttributes()
+}
+
+tasks.register('groovydocJar', Jar) {
+    classifier 'javadoc'
+    from groovydoc.destinationDir
+    dependsOn groovydoc
+    archiveFileName = "dsl-${project.version}-javadoc.jar"
+}
+
+tasks.register('publishPluginToInquisitionMaven') {
+    group = 'publishing'
+    dependsOn(
+            'publishPluginMavenPublicationToModdingInquisitionMavenRepoRepository',
+            'publishModsdotgroovyPluginMarkerMavenPublicationToModdingInquisitionMavenRepoRepository'
+    )
+}
+
+publishing {
+    publications {
+        mavenDsl(MavenPublication) {
+            groupId = 'io.github.groovymc.modsdotgroovy'
+            artifactId = 'dsl'
+            version = project.version
+
+            artifacts = [dslJar, dslSources, groovydocJar]
+        }
+    }
+    repositories {
+        maven {
+            name = 'ModdingInquisitionMavenRepo'
+            url = 'https://maven.moddinginquisition.org/releases'
+            credentials {
+                username = findProperty('inquisitionMavenUser') ?: ''
+                password = findProperty('inquisitionMavenPassword') ?: ''
+            }
+        }
+    }
 }

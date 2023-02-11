@@ -1,6 +1,6 @@
-package ga.ozli.projects.flexiblemodsdotgroovy
+package io.github.groovymc.modsdotgroovy.frontend
 
-import ga.ozli.projects.flexiblemodsdotgroovy.frontend.PropertyInterceptor
+import io.github.groovymc.modsdotgroovy.ModsDotGroovyCore
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
@@ -14,7 +14,7 @@ class ModsBuilder implements PropertyInterceptor {
     boolean insideModsBuilder = true
 
     void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_ONLY)
-                 @ClosureParams(value = SimpleType, options = 'ga.ozli.projects.flexiblemodsdotgroovy.ModInfoBuilder')
+                 @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
                  final Closure closure) {
         println "[Frontend] modInfo(closure)"
         core.push('modInfo')
@@ -27,12 +27,12 @@ class ModsBuilder implements PropertyInterceptor {
 
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
     ModsBuilder() {
-        println "[Frontend] new ModsBuilder()"
+        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.ModsBuilder()"
         this.core = null
     }
 
     ModsBuilder(final ModsDotGroovyCore core) {
-        println "[Frontend] new ModsBuilder(core: $core)"
+        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.ModsBuilder(core: $core)"
         this.core = core
     }
 }

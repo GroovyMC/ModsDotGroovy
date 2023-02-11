@@ -1,11 +1,12 @@
-package ga.ozli.projects.flexiblemodsdotgroovy
+package io.github.groovymc.modsdotgroovy
 
-import ga.ozli.projects.flexiblemodsdotgroovy.plugins.ForgePlugin
+import io.github.groovymc.modsdotgroovy.plugins.ForgePlugin
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 
+// todo: support notifying plugins of nesting (core.push()) by making a new instance of a plugin's inner class and removing that instance from dynamicInstance.pluginInstances when the stack is popped (core.pop())
 @CompileStatic
-class ModsDotGroovyCore {
+final class ModsDotGroovyCore {
     private final PriorityQueue<ModsDotGroovyPlugin> plugins = new PriorityQueue<>(
             new Comparator<ModsDotGroovyPlugin>() {
                 @Override
@@ -29,12 +30,14 @@ class ModsDotGroovyCore {
 
     boolean ignoreNextEvent = false // avoid infinite loop when a plugin changes a property in the backingData map
 
-    final PriorityQueue<ModsDotGroovyPlugin> getPlugins() {
+    PriorityQueue<ModsDotGroovyPlugin> getPlugins() {
         return this.@plugins
     }
 
-    final Map build() {
-        return MapUtils.recursivelyMerge(this.@backingData, defaults)
+    Map build() {
+        final Map result = MapUtils.recursivelyMerge(this.@backingData, defaults)
+        MapUtils.sanitizeMap(result)
+        return result
     }
 
     /**
@@ -108,10 +111,8 @@ class ModsDotGroovyCore {
     }
 
     @CompileDynamic
-    private final void setupEventListener() {
-        plugins.each { plugin ->
-            dynamicInstance.pluginInstances[plugin.name] = ['instance': plugin]
-        }
+    private void setupEventListener() {
+        plugins.each { plugin -> dynamicInstance.pluginInstances[plugin.name] = [instance: plugin] }
 
         backingData.addPropertyChangeListener { event ->
             if (ignoreNextEvent) {
@@ -160,7 +161,7 @@ class ModsDotGroovyCore {
                                         }
 
                                         // store the new instance in the pluginInstances map and set the new values for the next iteration
-                                        dynamicInstance.pluginInstances[plugin.name][capitalizedClassName] = ['instance': classObject]
+                                        dynamicInstance.pluginInstances[plugin.name][capitalizedClassName] = [instance: classObject]
                                         previousClass = classObject
                                         currentClassesMap = dynamicInstance.pluginInstances[plugin.name][capitalizedClassName]
                                     }

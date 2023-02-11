@@ -1,9 +1,13 @@
-package ga.ozli.projects.flexiblemodsdotgroovy
+package io.github.groovymc.modsdotgroovy
 
 import groovy.transform.CompileStatic
 
 @CompileStatic
 class MapUtils {
+    /**
+     * Recursively removes null values and evaluates GStrings in-place.
+     * @param data
+     */
     static void sanitizeMap(final Map data) {
         final copy = new LinkedHashMap(data) // cannot use Map.copyOf as we wish to remove null values
         copy.forEach((key, value) -> {
@@ -54,7 +58,7 @@ class MapUtils {
 
     static Map recursivelyMerge(final List<Map> maps) {
         Map result = null
-        for (map in maps) {
+        for (final Map map in maps) {
             result = recursivelyMerge(result, map)
         }
         return result

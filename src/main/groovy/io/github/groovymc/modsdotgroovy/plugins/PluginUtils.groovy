@@ -1,7 +1,7 @@
-package ga.ozli.projects.flexiblemodsdotgroovy.plugins
+package io.github.groovymc.modsdotgroovy.plugins
 
-import ga.ozli.projects.flexiblemodsdotgroovy.PluginResult
 import groovy.transform.CompileDynamic
+import io.github.groovymc.modsdotgroovy.PluginResult
 
 /**
  * Utility methods for ModsDotGroovy plugins.

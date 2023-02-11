@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+    id 'io.github.groovymc.modsdotgroovy' version '2.0.0'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+//modsDotGroovy {
+//    platforms 'forge', 'quilt'
+//}
+
+repositories {
+    mavenLocal()
+}

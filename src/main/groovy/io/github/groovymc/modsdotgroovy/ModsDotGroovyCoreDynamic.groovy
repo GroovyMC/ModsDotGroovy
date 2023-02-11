@@ -1,4 +1,4 @@
-package ga.ozli.projects.flexiblemodsdotgroovy
+package io.github.groovymc.modsdotgroovy
 
 import groovy.transform.CompileDynamic
 import groovy.transform.PackageScope
