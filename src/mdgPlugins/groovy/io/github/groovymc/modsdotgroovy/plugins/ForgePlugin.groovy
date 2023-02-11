@@ -3,8 +3,9 @@ package io.github.groovymc.modsdotgroovy.plugins
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovyjarjarantlr4.v4.runtime.misc.Nullable
-import io.github.groovymc.modsdotgroovy.ModsDotGroovyPlugin
-import io.github.groovymc.modsdotgroovy.PluginResult
+import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
+import io.github.groovymc.modsdotgroovy.plugin.PluginResult
+import io.github.groovymc.modsdotgroovy.plugin.PluginUtils
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore

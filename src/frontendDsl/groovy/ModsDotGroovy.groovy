@@ -1,4 +1,4 @@
-import io.github.groovymc.modsdotgroovy.ModsDotGroovyCore
+import io.github.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import io.github.groovymc.modsdotgroovy.frontend.ModsBuilder
 import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import io.github.groovymc.modsdotgroovy.frontend.PropertyInterceptor
@@ -38,7 +38,7 @@ import groovy.transform.stc.SimpleType
  * This is the frontend layer
  */
 @CompileStatic
-class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor {
+class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
 //    @CompileDynamic
 //    void methodMissing(String name, @Nullable def args) {
 //        println "[Frontend] methodMissing(name: $name, args: $args)"

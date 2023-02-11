@@ -1,4 +1,4 @@
-package io.github.groovymc.modsdotgroovy
+package io.github.groovymc.modsdotgroovy.core
 
 import groovy.transform.CompileDynamic
 import groovy.transform.PackageScope

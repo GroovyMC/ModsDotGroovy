@@ -1,6 +1,6 @@
 package io.github.groovymc.modsdotgroovy.frontend
 
-import io.github.groovymc.modsdotgroovy.ModsDotGroovyCore
+import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
@@ -8,7 +8,7 @@ import groovy.transform.stc.SimpleType
 import static groovy.lang.Closure.DELEGATE_ONLY
 
 @CompileStatic
-class ModsBuilder implements PropertyInterceptor {
+class ModsBuilder implements PropertyInterceptor, MapClosureInterceptor {
     private final ModsDotGroovyCore core
 
     boolean insideModsBuilder = true

@@ -1,5 +1,23 @@
-ModsDotGroovy.make {
+println "Groovy v${GroovySystem.version}"
+
+final mdg = ModsDotGroovy.make {
     modLoader = 'gml'
+
+    jumanji {
+        hello = 'world'
+
+        asDeepAsYouWant {
+            toGo {
+                one {
+                    two {
+                        three {
+                            four = 4
+                        }
+                    }
+                }
+            }
+        }
+    }
 //    loaderVersion = '[1,'
 //
 //    license = 'MIT'
@@ -74,3 +92,5 @@ ModsDotGroovy.make {
 //        mixin = "no.mixin.json"
 //    }
 }
+println mdg.core.build()
+return mdg

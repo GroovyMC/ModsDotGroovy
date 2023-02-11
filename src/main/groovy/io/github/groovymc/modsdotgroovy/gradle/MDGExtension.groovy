@@ -8,7 +8,6 @@ package io.github.groovymc.modsdotgroovy.gradle
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
-import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
@@ -18,6 +17,7 @@ import org.gradle.api.tasks.SourceSet
 @CompileStatic
 abstract class MDGExtension {
     public static final String NAME = 'modsDotGroovy'
+
     abstract Property<String> getDslVersion()
     abstract Property<Boolean> getAutomaticConfiguration()
     abstract ListProperty<Platform> getPlatforms()
@@ -40,6 +40,10 @@ abstract class MDGExtension {
         return dep
     }
 
+    List<String> mdgPlugins(final List<String> deps = ["io.github.groovymc.modsdotgroovy:plugins:2.0.0"]) {
+        return deps
+    }
+
     void platform(final String name) {
         this.setPlatform(name)
     }
@@ -48,11 +52,15 @@ abstract class MDGExtension {
         this.platforms.set([Platform.byName(name)])
     }
 
-    void platforms(List<String> platforms) {
+    void setPlatform(final Platform platform) {
+        this.platforms.set([platform])
+    }
+
+    void platforms(final List<String> platforms) {
         this.platforms.set(platforms.collect {Platform.byName(it)})
     }
 
-    void platforms(String[] platforms) {
+    void platforms(final String[] platforms) {
         this.platforms(Arrays.asList(platforms))
     }
 

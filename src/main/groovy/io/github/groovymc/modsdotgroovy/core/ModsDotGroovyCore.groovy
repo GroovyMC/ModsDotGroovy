@@ -1,8 +1,9 @@
-package io.github.groovymc.modsdotgroovy
+package io.github.groovymc.modsdotgroovy.core
 
-import io.github.groovymc.modsdotgroovy.plugins.ForgePlugin
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
+import io.github.groovymc.modsdotgroovy.plugin.PluginResult
 
 // todo: support notifying plugins of nesting (core.push()) by making a new instance of a plugin's inner class and removing that instance from dynamicInstance.pluginInstances when the stack is popped (core.pop())
 @CompileStatic
@@ -102,9 +103,8 @@ final class ModsDotGroovyCore {
 
     ModsDotGroovyCore() {
         // Load plugins
-//        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).toList())
-        plugins << new ForgePlugin()
-        println "[Core] Loaded plugins: ${plugins.collect { it.name }}"
+        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).toList())
+        println "[Core] Loaded plugins: ${plugins*.name}"
         plugins*.init()
         defaults = MapUtils.recursivelyMerge((plugins*.defaults as List<Map>).findAll { it !== null })
         setupEventListener()

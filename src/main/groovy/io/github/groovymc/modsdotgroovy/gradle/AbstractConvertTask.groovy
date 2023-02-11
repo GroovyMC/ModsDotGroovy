@@ -5,7 +5,6 @@
 
 package io.github.groovymc.modsdotgroovy.gradle
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -128,7 +127,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
             root[parts[0]] = value
         else if (parts.size() >= 1) {
             Object inner = root.computeIfAbsent(parts[0], {[:]})
-            if (!(inner instanceof Map)) {
+            if (inner !instanceof Map) {
                 root[parts[0]] = [:]
                 inner = root[parts[0]]
             }
@@ -159,7 +158,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
 //    @CompileDynamic
     Map from(File script) {
         final bindings = new Binding(arguments.get())
-        final actualDsl = dslLocation.getOrNull()?.asFile ?: (dslConfiguration.getOrNull()?:project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME)).resolve().find()
+        final actualDsl = dslLocation.getOrNull()?.asFile ?: (dslConfiguration.getOrNull() ?: project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME)).resolve().find()
         final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
             final List<String> classpath = List.of(actualDsl.toString())
             @Override
@@ -177,13 +176,14 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
                 { new File(it, fileName) }
         if (modsToml === null) throw new IllegalArgumentException("Cannot find '$fileName' file in source set $sourceSet")
         input.set(modsToml)
-        project.configurations.getByName(sourceSet.compileOnlyConfigurationName)
-                .extendsFrom(project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME))
+        project.configurations.named(sourceSet.compileOnlyConfigurationName) {
+            extendsFrom project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME)
+        }
 
         project.tasks.named(sourceSet.processResourcesTaskName, ProcessResources).configure {
-            it.exclude(fileName)
-            it.dependsOn(this)
-            it.from(output.get().asFile) { CopySpec spec ->
+            exclude fileName
+            dependsOn this
+            from(output.get().asFile) { CopySpec spec ->
                 spec.into getOutputDir()
             }
         }

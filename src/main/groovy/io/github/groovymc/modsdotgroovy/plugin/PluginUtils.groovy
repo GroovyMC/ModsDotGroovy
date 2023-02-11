@@ -1,7 +1,6 @@
-package io.github.groovymc.modsdotgroovy.plugins
+package io.github.groovymc.modsdotgroovy.plugin
 
 import groovy.transform.CompileDynamic
-import io.github.groovymc.modsdotgroovy.PluginResult
 
 /**
  * Utility methods for ModsDotGroovy plugins.
