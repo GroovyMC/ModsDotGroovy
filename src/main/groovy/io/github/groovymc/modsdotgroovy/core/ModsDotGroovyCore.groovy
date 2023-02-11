@@ -2,6 +2,7 @@ package io.github.groovymc.modsdotgroovy.core
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import io.github.groovymc.modsdotgroovy.ForgePlugin
 import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import io.github.groovymc.modsdotgroovy.plugin.PluginResult
 
@@ -104,6 +105,7 @@ final class ModsDotGroovyCore {
     ModsDotGroovyCore() {
         // Load plugins
         plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).toList())
+        plugins << new ForgePlugin()
         println "[Core] Loaded plugins: ${plugins*.name}"
         plugins*.init()
         defaults = MapUtils.recursivelyMerge((plugins*.defaults as List<Map>).findAll { it !== null })

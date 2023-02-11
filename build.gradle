@@ -130,20 +130,20 @@ tasks.register('publishPluginToInquisitionMaven') {
 
 publishing {
     publications {
-        mavenDsl(MavenPublication) {
+        frontendDsl(MavenPublication) {
             groupId = 'io.github.groovymc.modsdotgroovy'
             artifactId = 'dsl'
             version = project.version
 
             artifacts = [dslJar, dslSources, groovydocJar]
         }
-        mavenDsl(MavenPublication) {
-            groupId = 'io.github.groovymc.modsdotgroovy'
-            artifactId = 'plugins'
-            version = project.version
-
-            artifacts = [bundledPluginsJar]
-        }
+//        bundledPlugins(MavenPublication) {
+//            groupId = 'io.github.groovymc.modsdotgroovy'
+//            artifactId = 'plugins'
+//            version = project.version
+//
+//            artifact bundledPluginsJar
+//        }
     }
     repositories {
         maven {

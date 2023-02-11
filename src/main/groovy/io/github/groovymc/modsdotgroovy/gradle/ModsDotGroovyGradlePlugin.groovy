@@ -31,7 +31,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             }
 
             configuration.dependencies.add(project.dependencies.create(ext.frontendDsl()))
-            ext.mdgPlugins().each { configuration.dependencies.add(project.dependencies.create(it)) }
+//            ext.mdgPlugins().each { configuration.dependencies.add(project.dependencies.create(it)) }
 
             if (ext.automaticConfiguration.get()) {
                 final List<MDGExtension.Platform> platforms = ext.platforms.get()
