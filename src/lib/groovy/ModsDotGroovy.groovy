@@ -164,6 +164,8 @@ class ModsDotGroovy {
                 modData['modId'] = modInfo.modId
                 modData['version'] = modInfo.version
                 modData['displayName'] = modInfo.displayName
+                if (modInfo.displayTest != DisplayTest.MATCH_VERSION) // no need to include it for the default version
+                    modData['displayTest'] = modInfo.displayTest.name()
                 modData['displayURL'] = modInfo.displayUrl
                 modData['updateJSONURL'] = modInfo.updateJsonUrl ?: inferUpdateJsonUrl(modInfo)
                 modData['credits'] = modInfo.credits
