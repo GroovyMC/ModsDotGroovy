@@ -1,3 +1,4 @@
+import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import io.github.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import io.github.groovymc.modsdotgroovy.frontend.ModsBuilder
 import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
@@ -51,20 +52,37 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
      */
     String modLoader = 'javafml'
 
-    void mods(@DelegatesTo(value = ModsBuilder, strategy = groovy.lang.Closure.DELEGATE_ONLY)
+    /**
+     * A version range to match for the {@link #setModLoader(java.lang.String)}.
+     */
+    String loaderVersion = '[1,)'
+
+    /**
+     * The license for your mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.<br>
+     * Review your options at <a href="https://choosealicense.com/">https://choosealicense.com/</a>.<br>
+     * All rights reserved is the default copyright stance, and is thus the default here.
+     */
+    String license = 'All Rights Reserved'
+
+    /**
+     * A URL to refer people to when problems occur with this mod.
+     */
+    @Nullable String issueTrackerUrl = null
+
+    void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_ONLY)
               @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModsBuilder') final Closure closure) {
         println "[Frontend] mods(closure)"
         core.push('mods')
         final modsBuilder = new ModsBuilder(core)
-        closure.resolveStrategy = groovy.lang.Closure.DELEGATE_ONLY
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
         core.pop()
     }
 
-    static synchronized ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = groovy.lang.Closure.DELEGATE_FIRST) final Closure closure) {
+    static synchronized ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST) final Closure closure) {
         final ModsDotGroovy val = new ModsDotGroovy()
-        closure.resolveStrategy = groovy.lang.Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)
         return val

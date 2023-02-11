@@ -2,12 +2,34 @@ println "Groovy v${GroovySystem.version}"
 
 final mdg = ModsDotGroovy.make {
     modLoader = 'gml'
+    loaderVersion = '[1,)'
 
-    jumanji {
+    license = 'All Rights Reserved'
+    issueTrackerUrl = 'https://example.com/issues'
+
+    mods {
+        modInfo {
+            modId = 'examplemod'
+            version = '1.0.0'
+            displayName = 'Example Mod'
+            description = 'This is an example mod.'
+            authors = ['Example Mod Author']
+            logoFile = 'logo.png'
+            updateJsonUrl = 'https://example.com/update.json'
+            displayUrl = 'https://example.com'
+            credits = 'Example Mod Credits'
+            dependencies {
+                forge = "[44,)"
+                minecraft = '[1.19.3]'
+            }
+        }
+    }
+
+    unrecognisedByFrontend {
         hello = 'world'
 
-        asDeepAsYouWant {
-            toGo {
+        nest {
+            asDeepAsYouWant {
                 one {
                     two {
                         three {
