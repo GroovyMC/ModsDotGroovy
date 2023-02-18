@@ -105,7 +105,8 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
     static ConvertToTomlTask makeAndAppendForgeTask(FileWithSourceSet modsGroovy, Project project) {
         final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
-            it.getInput().set(modsGroovy.file)
+            notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
+            input.set(modsGroovy.file)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
@@ -119,7 +120,8 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
     static ConvertToQuiltJsonTask makeAndAppendQuiltTask(FileWithSourceSet modsGroovy, Project project) {
         final convertTask = project.getTasks().create('modsDotGroovyToQuiltJson', ConvertToQuiltJsonTask) {
-            it.getInput().set(modsGroovy.file)
+            notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
+            input.set(modsGroovy.file)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)

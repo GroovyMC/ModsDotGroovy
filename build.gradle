@@ -95,12 +95,12 @@ tasks.register('dslJar', Jar) {
 tasks.register('dslSources', Jar) {
     from sourceSets.frontendDsl.allSource
     archiveFileName = "dsl-${project.version}-sources.jar"
-    classifier 'sources'
+    archiveClassifier = 'sources'
     manifest.attributes makeAttributes()
 }
 
 tasks.register('groovydocJar', Jar) {
-    classifier 'javadoc'
+    archiveClassifier = 'javadoc'
     from groovydoc.destinationDir
     dependsOn groovydoc
     archiveFileName = "dsl-${project.version}-javadoc.jar"
@@ -116,7 +116,7 @@ tasks.register('bundledPluginsJar', Jar) {
 tasks.register('bundledPluginsSources', Jar) {
     from sourceSets.mdgPlugins.allSource
     archiveFileName = "plugins-${project.version}-sources.jar"
-    classifier 'sources'
+    archiveClassifier = 'sources'
     manifest.attributes makeAttributes()
 }
 

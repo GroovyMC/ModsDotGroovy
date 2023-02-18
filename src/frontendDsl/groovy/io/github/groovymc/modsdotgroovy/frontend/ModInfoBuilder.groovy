@@ -7,7 +7,6 @@ import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 import static groovy.lang.Closure.DELEGATE_FIRST
-import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
 class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {

@@ -14,25 +14,31 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.CopySpec
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.language.jvm.tasks.ProcessResources
 
+import javax.inject.Inject
 import java.nio.file.Files
 
 abstract class AbstractConvertTask extends DefaultTask {
     @InputFile
     abstract RegularFileProperty getInput()
+
     @Optional
     @OutputFile
     abstract RegularFileProperty getOutput()
+
     @Deprecated(forRemoval = true)
     @Optional
     @InputFile
     abstract RegularFileProperty getDslLocation()
+
     @Optional
     @Input
     abstract Property<Configuration> getDslConfiguration()
@@ -40,16 +46,20 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Input
     @Optional
     abstract MapProperty<String, Object> getArguments()
+
     @Input
     @Optional
     abstract ListProperty<String> getCatalogs()
 
     @Internal
     protected abstract String getOutputName()
+
     protected abstract void setupPlatformSpecificArguments()
     protected abstract String writeData(Map data)
+
     @Internal
     protected abstract String getOutputDir()
+
     @Internal
     protected abstract String getPlatform()
 
@@ -62,9 +72,16 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
 """
     }
 
+    @Inject
+    protected abstract ProjectLayout getProjectLayout()
+
+    @Inject
+    protected abstract ObjectFactory getObjects()
+
     AbstractConvertTask() {
-        output.convention(project.layout.buildDirectory.dir(name).map {it.file(getOutputName())})
-        arguments.convention(project.objects.mapProperty(String, Object))
+        notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
+        output.convention(projectLayout.buildDirectory.dir(name).map {it.file(getOutputName())})
+        arguments.convention(objects.mapProperty(String, Object))
         catalogs.convention(['libs'])
         project.afterEvaluate {
             arguments.put('buildProperties', project.extensions.extraProperties.properties)
@@ -144,7 +161,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     void run() {
         final input = getInput().asFile.get()
         if (!input.exists()) {
-            getProject().logger.warn("Input file {} for task '{}' could not be found!", input, getName())
+            logger.warn("Input file {} for task '{}' could not be found!", input, getName())
             return
         }
         final data = from(input)
@@ -194,6 +211,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         DelegateConfig(CompilerConfiguration configuration) {
             this.configuration = configuration
         }
+
         @Delegate
         final CompilerConfiguration configuration
     }
