@@ -1,0 +1,46 @@
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation localGroovy()
+}
+
+java {
+    withSourcesJar()
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.optimizationOptions.indy = true
+    groovyOptions.optimizationOptions.groovyDoc = true
+    groovyOptions.optimizationOptions.runtimeGroovydoc = true
+    options.incremental = true
+}
+
+publishing {
+    publications {
+        register('core', MavenPublication) {
+            groupId = 'io.github.groovymc.modsdotgroovy'
+            artifactId = 'core'
+            version = project.version
+
+            artifacts = [jar, sourcesJar]
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'ModdingInquisitionMavenRepo'
+            url = 'https://maven.moddinginquisition.org/releases'
+            credentials {
+                username = findProperty('inquisitionMavenUser') ?: ''
+                password = findProperty('inquisitionMavenPassword') ?: ''
+            }
+        }
+    }
+}

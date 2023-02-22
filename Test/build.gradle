@@ -3,13 +3,13 @@ plugins {
     id 'io.github.groovymc.modsdotgroovy' version '2.0.0'
 }
 
-//java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+dependencies {
+    compileOnly localGroovy()
+}
 
 modsDotGroovy {
 //    platforms 'forge', 'quilt'
     platform 'forge'
-}
-
-repositories {
-    mavenLocal()
 }

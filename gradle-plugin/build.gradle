@@ -1,0 +1,70 @@
+plugins {
+    id 'idea'
+
+    id 'groovy'
+    id 'groovy-gradle-plugin'
+
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.18.0'
+}
+
+group = 'io.github.groovymc.modsdotgroovy'
+archivesBaseName = 'modsdotgroovy'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation projects.core
+    implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+}
+
+pluginBundle {
+    website = 'https://github.com/GroovyMC/ModsDotGroovy'
+}
+
+gradlePlugin {
+    plugins {
+        modsdotgroovy {
+            id = 'io.github.groovymc.modsdotgroovy'
+            displayName = 'ModsDotGroovy'
+            description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
+            implementationClass = 'io.github.groovymc.modsdotgroovy.gradle.ModsDotGroovyGradlePlugin'
+        }
+    }
+}
+
+java {
+    withSourcesJar()
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.optimizationOptions.indy = true
+    options.incremental = true
+}
+
+publishing {
+    publications {
+        register('gradlePlugin', MavenPublication) {
+            groupId = 'io.github.groovymc.modsdotgroovy'
+            artifactId = 'modsdotgroovy'
+            version = project.version
+
+            artifacts = [jar, sourcesJar]
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'ModdingInquisitionMavenRepo'
+            url = 'https://maven.moddinginquisition.org/releases'
+            credentials {
+                username = findProperty('inquisitionMavenUser') ?: ''
+                password = findProperty('inquisitionMavenPassword') ?: ''
+            }
+        }
+    }
+}
