@@ -40,34 +40,33 @@ interface ModsDotGroovyPlugin {
      * @param stack
      * @param name
      * @param value
-     * @return <PluginResult | Tuple2<PluginResult, ?> | Object>
-     *     If you return a Tuple2, the first value must be a PluginResult and the second value is either:
-     *         - The type of the changed value.
-     *         - Another Tuple2 of the stack and the changed value, used for moving the changed value to a different location.
-     *     If you return a PluginResult, it'll be treated as Tuple2<(yourPluginResult), null>.
-     *     If you return an Object, it'll be treated as Tuple2<PluginResult.TRANSFORM, (yourObject)>.
-     *     If you return null or don't return anything (void), it'll be treated as Tuple2<PluginResult.VALIDATE, null>.
+     * @return <<T extends PluginResult> | Object | null | void>
+     *     If you return a PluginResult, it'll be treated as-is.
+     *     If you return an Object, it'll be treated as {@code new PluginResult.Change(newValue: (yourObject))}.
+     *     If you return null or don't return anything (void), it'll be treated as {@code new PluginResult.Validate()}.
      */
     @CompileDynamic
     default def set(final Deque<String> stack, final String name, def value) {
-        return PluginResult.UNHANDLED
+        return new PluginResult.Unhandled()
     }
 
     @CompileDynamic
     default def onNestEnter(final Deque<String> stack, final String name, Map value) {
-        return PluginResult.UNHANDLED
+        return new PluginResult.Unhandled()
     }
 
     @CompileDynamic
     default def onNestLeave(final Deque<String> stack, final String name, def value) {
-        return PluginResult.UNHANDLED
+        return new PluginResult.Unhandled()
     }
 
     /**
-     * @return A map of default values to use as a fallback when a property is not set and no other plugin has set it.
+     * Called when ModsDotGroovy is building the final map.
+     * @param buildingMap The map that's being built so far.
+     * @return A map of values you want to add or override in the final map.
      */
     @Nullable
-    default Map getDefaults() {
+    default Map build(Map buildingMap) {
         return null
     }
 }

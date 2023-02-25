@@ -1,40 +1,101 @@
 package io.github.groovymc.modsdotgroovy.plugin
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.TupleConstructor
+import groovyjarjarantlr4.v4.runtime.misc.Nullable
 
 @CompileStatic
-enum PluginResult {
+class PluginResult {
+    static final class Unhandled extends PluginResult {}
+
+    /**
+     * Don't make any changes to the property.
+     */
+    static class Validate extends PluginResult {}
+
+    /**
+     * If all null, then the property will be removed. If you don't want to make any changes, use {@link Validate} instead.
+     */
+    @CompileDynamic
+    @TupleConstructor
+    static class Change extends PluginResult {
+        /**
+         * The new name of the property.
+         * If null, the property will keep its original name.
+         */
+        @Nullable String newPropertyName = null
+
+        /**
+         * The new value of the property.
+         * If null, the property will be removed.
+         */
+        @Nullable def newValue = null
+
+        /**
+         * The new location of the property.
+         * If null, the property will keep its original location.
+         */
+        @Nullable Deque<String> newLocation = null
+    }
+
+    @CompileDynamic
+    static <T extends PluginResult> T of(final def obj) {
+        switch (obj) {
+            case PluginResult: return (T) obj
+            case null: return (T) new Validate()
+            default: return (T) new Change(newValue: obj)
+        }
+    }
+
+    @CompileDynamic
+    static Change rename(final String newPropertyName, final def value) {
+        return new Change(newPropertyName: newPropertyName, newValue: value)
+    }
+
+    @CompileDynamic
+    static Change move(final Deque<String> newLocation, final def value) {
+        return new Change(newLocation: newLocation, newValue: value)
+    }
+
+    @CompileDynamic
+    static Change move(final List<String> newLocation, final def value) {
+        return new Change(newLocation: new ArrayDeque<>(newLocation), newValue: value)
+    }
+
+    static Change remove() {
+        return new Change(newValue: null)
+    }
+
     /**
      * Default action for not even listening to the property event.
      * Do nothing and let the next plugin handle it, or let the property change go through if no other plugin handles it.
      */
-    UNHANDLED,
+//    UNHANDLED,
 
     /**
      * Default action for listening to the event but *not* changing the property.<br>
      * Useful for validation.<br>
      * Allows the next plugin to handle the property.
      */
-    VALIDATE,
+//    VALIDATE,
 
     /**
      * Default action for listening to the event and changing the property.<br>
-     * Useful for transforming the property. For example, making a string lowercase before it's put into the backingData map.<br>
+     * Useful for transforming the property. For example, making a string lowercase before it's put into the rootMap map.<br>
      * Allows the next plugin to handle the property.
      */
-    TRANSFORM,
+//    TRANSFORM,
 
     /**
      * Similar to {@link #TRANSFORM}, but stops firing this property event to other plugins.<br>
      * Prevents the next plugin from handling the property.
      */
-    BREAK,
+//    BREAK,
 
     /**
      * Prevents the next plugin from handling the property and prevents the property from being set.<br>
-     * Useful for preventing the property from being added to the backingData map altogether.
+     * Useful for preventing the property from being added to the rootMap map altogether.
      */
-    IGNORE
-
-    private PluginResult() {}
+//    IGNORE
 }

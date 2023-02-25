@@ -5,7 +5,6 @@ import groovy.transform.CompileStatic
 import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import io.github.groovymc.modsdotgroovy.plugin.PluginResult
-import io.github.groovymc.modsdotgroovy.plugin.PluginUtils
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
@@ -44,11 +43,11 @@ class ForgePlugin implements ModsDotGroovyPlugin {
         }
 
         static class ModInfo {
-            static Tuple2<PluginResult, ?> onNestEnter(final Deque<String> stack, final Map value) {
-                println "[Forge] mods.modInfo.onNestEnter: ${value}"
+            static PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                println "[Forge] mods.modInfo.onNestLeave: ${value}"
                 stack.pollLast()
-                stack.push(ForgePlugin.modId)
-                return PluginUtils.move(stack, value)
+                stack.addLast((String) modId)
+                return PluginResult.move(stack, value)
             }
 
             static void setModId(final String modId) {
@@ -88,15 +87,24 @@ class ForgePlugin implements ModsDotGroovyPlugin {
             println "[Forge] Warning: modLoader should be set at the root but it was found in ${stack.join '->'}"
 
             // move the modLoader to the root by returning an empty stack
-            return PluginUtils.move([], value as String)
+            return PluginResult.move([], value as String)
         }
 
-        return PluginResult.UNHANDLED
+        return new PluginResult.Unhandled()
+    }
+
+    @Override
+    @CompileDynamic
+    def onNestLeave(final Deque<String> stack, final String name, def value) {
+        println '---'
+        println "[Forge] onNestLeave(name: $name, value: $value)"
+        println '---'
+        return new PluginResult.Unhandled()
     }
 
     @Override
     @Nullable
-    Map getDefaults() {
+    Map build(Map buildingMap) {
         return [
             modLoader: 'javafml',
             loaderVersion: '[1,)',

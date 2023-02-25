@@ -5,6 +5,10 @@ plugins {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+repositories {
+    mavenLocal()
+}
+
 dependencies {
     compileOnly localGroovy()
 }
