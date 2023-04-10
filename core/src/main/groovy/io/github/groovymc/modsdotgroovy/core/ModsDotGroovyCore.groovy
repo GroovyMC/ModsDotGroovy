@@ -33,8 +33,21 @@ final class ModsDotGroovyCore {
     }
 
     private void onPropertyChangeEvent(final PropertyChangeEvent event) {
-        if (event instanceof ObservableMap.MultiPropertyEvent) onMultiPropertyEvent(event)
-        else if (event instanceof ObservableMap.PropertyEvent) onSinglePropertyEvent(event)
+        switch (event) {
+            case StackAwareObservableMap.StackChangedEvent:
+                onStackChangedEvent((StackAwareObservableMap.StackChangedEvent) event)
+                break
+            case ObservableMap.MultiPropertyEvent:
+                onMultiPropertyEvent((ObservableMap.MultiPropertyEvent) event)
+                break
+            case ObservableMap.PropertyEvent:
+                // this is being called for stack pushes because a new property is being added to the observable map
+                onSinglePropertyEvent((ObservableMap.PropertyEvent) event)
+                break
+            default:
+                if (event.propertyName == 'size' && event.newValue != event.oldValue) return // ignore size changes
+                else throw new IllegalArgumentException("Unknown event type: ${event.class.name}")
+        }
     }
 
     @CompileDynamic
@@ -44,7 +57,7 @@ final class ModsDotGroovyCore {
 
         // Notify each of the plugins in the PriorityQueue
         for (final ModsDotGroovyPlugin plugin in plugins) {
-            PluginResult result = getPluginResult(plugin, propertyName, mapValue)
+            PluginResult result = getPluginResult(plugin, PluginAction.SET, propertyName, mapValue)
             switch (result) {
                 case PluginResult.Validate:
                     println "[Core] Plugin \"${plugin.name}\" validated property \"$propertyName\""
@@ -93,78 +106,135 @@ final class ModsDotGroovyCore {
         }
     }
 
-    private void onMultiPropertyEvent(final ObservableMap.MultiPropertyEvent event) {
-        // todo
+    // todo
+    private static void onMultiPropertyEvent(final ObservableMap.MultiPropertyEvent event) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("MultiPropertyEvent not yet implemented")
     }
 
-//    private static enum MethodToCall {
-//        SET, ON_NEST_ENTER, ON_NEST_LEAVE
-//
-//        @Override
-//        String toString() {
-//            return name().toLowerCase(Locale.ROOT)
-//                    .split('_')
-//                    .collect { it.capitalize() }
-//        }
-//    }
+    private void onStackChangedEvent(final StackAwareObservableMap.StackChangedEvent event) {
+        final int oldStackSize = event.oldStack.size()
+        final int newStackSize = event.newStack.size()
+        final PluginAction action = newStackSize > oldStackSize
+                ? PluginAction.ON_NEST_ENTER
+                : PluginAction.ON_NEST_LEAVE
 
-    // todo: clean this up some more
-    private PluginResult getPluginResult(final ModsDotGroovyPlugin plugin, final String propertyName, final def mapValue) {
+        def mapValue = event.newValue ?: event.oldValue
+
+        for (final ModsDotGroovyPlugin plugin in plugins) {
+            println "plugin: ${plugin.name}"
+            println "action: ${action}"
+            println "newStack: ${event.newStack}"
+            println "oldStack: ${event.oldStack}"
+            println "value: ${mapValue}"
+            PluginResult result = getPluginResult(plugin, action, event.newStack.peekLast() ? event.newStack.last : event.oldStack.last, mapValue)
+            println "[Core] Plugin \"${plugin.name}\" returned result: ${result}"
+//            switch (result) {
+//                case PluginResult.Validate:
+//                    println "[Core] Plugin \"${plugin.name}\" validated nest \"${event.propertyName}\""
+//                    break
+//                case PluginResult.Change:
+//                    // todo: support moving the nest to a new location
+//
+//                    // todo: support changing the nest name
+//
+//                    if (result.newValue === null) {
+//                        println "[Core] Plugin \"${plugin.name}\" removed nest \"${event.propertyName}\""
+//                        setIgnoreNextEvent(true)
+//                        remove(event.propertyName)
+//                        break
+//                    } else if (result.newValue != event.newValue) {
+//                        println "[Core] Plugin \"${plugin.name}\" changed nest \"${event.propertyName}\" value from \"${event.newValue}\" to \"${result.newValue}\""
+//                        setIgnoreNextEvent(true)
+//                        put(event.propertyName, result.newValue)
+//                    }
+//                    break
+//                case PluginResult.Unhandled:
+//                    break
+//                default:
+//                    throw new IllegalStateException("Unknown PluginResult type: ${result.class.name}")
+//            }
+        }
+    }
+
+    private static final enum PluginAction {
+        SET, ON_NEST_ENTER, ON_NEST_LEAVE
+
+        PluginAction() {}
+
+        @Override
+        String toString() {
+            // converts to camelCase
+            final String str = name().toLowerCase(Locale.ROOT).split('_').collect(CharSequence.&capitalize).join('')
+            final String firstChar = str.take(1)
+            return str.replaceFirst(firstChar, firstChar.toLowerCase(Locale.ROOT))
+        }
+    }
+
+    private PluginResult getPluginResult(final ModsDotGroovyPlugin plugin, final PluginAction action = PluginAction.SET, final String propertyName, final def propertyValue) {
         final String capitalizedPropertyName = propertyName.capitalize()
         boolean useGenericMethod = false
 
-        // resolve the class tree of the plugin to find the correct method to call
-        // e.g.: if the stack is "mods, modInfo" and the property name is "modId", then we want to call plugin.Mods.ModInfo.setModId()
-        Class<?> classObject = plugin.class //traverseClass(stack, plugin.getClass())
-        final Deque<String> stack = new ArrayDeque<>(getStack())
+        // Todo: request support for tuple destructuring in CompileStatic
+        // final def (Class<?> classObject, boolean foundSubclass) = traverseClassTree(getStack(), plugin.getClass())
+        final Tuple2<Class<?>, Boolean> result = traverseClassTree(getStack(), plugin.getClass())
+        final Class<?> classObject = result.v1
+        final boolean foundSubclass = result.v2
+        //if (!foundSubclass || plugin.getClass() != classObject) useGenericMethod = true
+
+        if (useGenericMethod) {
+            switch (action) {
+                case PluginAction.SET:
+                    return PluginResult.of(plugin.set(getStack(), propertyName, propertyValue))
+                case PluginAction.ON_NEST_ENTER:
+                    return PluginResult.of(plugin.onNestEnter(getStack(), propertyName, (Map) propertyValue))
+                case PluginAction.ON_NEST_LEAVE:
+                    return PluginResult.of(plugin.onNestLeave(getStack(), propertyName, (Map) propertyValue))
+            }
+        } else {
+            final String methodName = action === PluginAction.SET
+                    ? action.toString() + capitalizedPropertyName
+                    : action.toString()
+
+            if (classObject.metaClass.respondsTo(classObject, methodName, propertyValue)) {
+                return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, propertyValue))
+            } else { // try the generic method
+                switch (action) {
+                    case PluginAction.SET:
+                        return PluginResult.of(plugin.set(getStack(), propertyName, propertyValue))
+                    case PluginAction.ON_NEST_ENTER:
+                        return PluginResult.of(plugin.onNestEnter(getStack(), propertyName, (Map) propertyValue))
+                    case PluginAction.ON_NEST_LEAVE:
+                        return PluginResult.of(plugin.onNestLeave(getStack(), propertyName, (Map) propertyValue))
+                }
+            }
+        }
+    }
+
+    /**
+     * Attempts to traverse the class tree of the plugin to find the correct method to call.<br>
+     * For example, if the stack is "mods, modInfo" and the provided class object has those subclasses, this method will
+     * return the class object for the "Mods.ModInfo" class and true. If the class object doesn't have those subclasses,
+     * then it will return the original class object and false.
+     * @param stack The subclasses to traverse
+     * @param classObject The class to start from
+     * @return A tuple containing either the traversed class or original class, and whether or not a subclass was found
+     */
+    private static Tuple2<Class<?>, Boolean> traverseClassTree(final Deque<String> stack, Class<?> classObject) {
+        boolean foundSubclass = false
         if (!stack.isEmpty()) {
-            for (final String className in stack) {
+            final Deque<String> stackCopy = new ArrayDeque<>(stack)
+            for (final String className in stackCopy) {
                 try {
                     classObject = classObject.forName(classObject.name + '$' + className.capitalize())
+                    foundSubclass = true
                 } catch (final ClassNotFoundException ignored) {
-                    // if the class doesn't exist, then we'll just use the generic setter method
-                    useGenericMethod = true
+                    // if the class doesn't exist, then we'll just use the generic method
+                    foundSubclass = false
                     break
                 }
             }
         }
 
-        if (mapValue instanceof ObservableMap) {
-            final int lastStackSize = getLastStackSize()
-            final String methodName
-            if (lastStackSize <= stack.size() && mapValue.isEmpty()) { // entering a new nest
-                methodName = 'onNestEnter'
-            } else if (lastStackSize > stack.size()) { // leaving the current nest
-                methodName = 'onNestLeave'
-            } else {
-                methodName = ''
-                throw new IllegalStateException("Unexpected stack size change: $lastStackSize -> ${stack.size()}")
-            }
-
-            if (useGenericMethod) {
-                switch (methodName) {
-                    case 'onNestEnter': return PluginResult.of(plugin.onNestEnter(stack, propertyName, mapValue))
-                    case 'onNestLeave': return PluginResult.of(plugin.onNestLeave(stack, propertyName, mapValue))
-                }
-            }
-
-            if (classObject.metaClass.respondsTo(classObject, methodName, stack, mapValue)) {
-                return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, stack, mapValue))
-            } else {
-                switch (methodName) {
-                    case 'onNestEnter': return PluginResult.of(plugin.onNestEnter(stack, propertyName, mapValue))
-                    case 'onNestLeave': return PluginResult.of(plugin.onNestLeave(stack, propertyName, mapValue))
-                }
-            }
-        }
-
-        final String methodName = "set${capitalizedPropertyName}"
-        if (useGenericMethod)
-            return PluginResult.of(plugin.set(stack, propertyName, mapValue))
-
-        if (classObject.metaClass.respondsTo(classObject, methodName, mapValue))
-            return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, mapValue))
-        else
-            return PluginResult.of(plugin.set(stack, propertyName, mapValue))
+        return new Tuple2<>(classObject, foundSubclass)
     }
 }

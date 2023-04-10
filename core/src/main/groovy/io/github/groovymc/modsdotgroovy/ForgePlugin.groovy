@@ -94,12 +94,20 @@ class ForgePlugin implements ModsDotGroovyPlugin {
     }
 
     @Override
+    PluginResult onNestEnter(final Deque<String> stack, final String name, final Map value) {
+        println '---'
+        println "[Forge] onNestEnter(name: $name, value: $value)"
+        println '---'
+        return new PluginResult.Validate()
+    }
+
+    @Override
     @CompileDynamic
-    def onNestLeave(final Deque<String> stack, final String name, def value) {
+    def onNestLeave(final Deque<String> stack, final String name, Map value) {
         println '---'
         println "[Forge] onNestLeave(name: $name, value: $value)"
         println '---'
-        return new PluginResult.Unhandled()
+        return new PluginResult.Validate()
     }
 
     @Override

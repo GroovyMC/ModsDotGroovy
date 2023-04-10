@@ -56,7 +56,7 @@ interface ModsDotGroovyPlugin {
     }
 
     @CompileDynamic
-    default def onNestLeave(final Deque<String> stack, final String name, def value) {
+    default def onNestLeave(final Deque<String> stack, final String name, Map value) {
         return new PluginResult.Unhandled()
     }
 
