@@ -16,4 +16,5 @@ dependencies {
 modsDotGroovy {
 //    platforms 'forge', 'quilt'
     platform 'forge'
+    dslVersion = '2.0.0-SNAPSHOT'
 }

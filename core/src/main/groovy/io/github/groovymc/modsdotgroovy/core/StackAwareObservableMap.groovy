@@ -10,9 +10,10 @@ import java.lang.reflect.Field
 
 @CompileStatic
 final class StackAwareObservableMap extends ObservableMap {
-    private final ObservableMap rootMap = new ObservableMap()
+    private static final Field pcsField = ObservableMap.getDeclaredField('pcs')
+
+    private final ObservableMap rootMap = makeObservableMap()
     private final Deque<String> stack = new ArrayDeque<>()
-    private final Field pcsField = rootMap.getClass().getDeclaredField('pcs')
 
     boolean ignoreNextEvent = false // avoid infinite loop when someone changes a property in the map
 
@@ -93,22 +94,22 @@ final class StackAwareObservableMap extends ObservableMap {
         stack.addLast(key)
 
         // make the nested map and attach its parent map's PropertyChangeListeners to it
-        setIgnoreNextEvent(true)
+        this.@rootMap.@ignoreNextEvent = true
         println 'before nestedData = makeObservableMap()'
         final ObservableMap nestedData = makeObservableMap()
         println 'after nestedData = makeObservableMap()'
-        setIgnoreNextEvent(true)
+        this.@rootMap.@ignoreNextEvent = true
         println 'before traverse(oldStack).getPropertyChangeListeners().each(nestedData.&addPropertyChangeListener)'
         traverse(oldStack).getPropertyChangeListeners().each(nestedData.&addPropertyChangeListener)
         println 'after traverse(oldStack).getPropertyChangeListeners().each(nestedData.&addPropertyChangeListener)'
 
-        setIgnoreNextEvent(false)
+        this.@rootMap.@ignoreNextEvent = false
         println 'before fireStackChangedEvent(oldStack, null, nestedData)'
         fireStackChangedEvent(oldStack, null, nestedData)
         println 'after fireStackChangedEvent(oldStack, null, nestedData)'
 
         // add the nestedMap
-        setIgnoreNextEvent(true) // we already fired a StackChangedEvent earlier
+        this.@rootMap.@ignoreNextEvent = true // we already fired a StackChangedEvent earlier
         putAt(oldStack, key, nestedData)
     }
 
@@ -136,15 +137,16 @@ final class StackAwareObservableMap extends ObservableMap {
 
     protected void fireStackChangedEvent(final Deque<String> oldStack, final Object oldValue, final Object newValue) {
         println "fireStackChangedEvent: $oldStack -> ${this.@stack}"
-        ((PropertyChangeSupport) this.@pcsField.get(this)).firePropertyChange(new StackChangedEvent(this, oldStack, this.@stack, oldValue, newValue))
+        ((PropertyChangeSupport) this.@pcsField.get(this.@rootMap)).firePropertyChange(new StackChangedEvent(this, oldStack, this.@stack, oldValue, newValue))
     }
     //endregion Stack
 
     @Internal
     private ObservableMap makeObservableMap() {
         return new ObservableMap({ propertyName, newValue ->
-            if (getIgnoreNextEvent()) {
-                setIgnoreNextEvent(false)
+            println "event closure. ignoreNextEvent: ${getRootMap().@ignoreNextEvent}"
+            if (getRootMap().@ignoreNextEvent) {
+                getRootMap().@ignoreNextEvent = false
                 return false // deny the change when asked to ignoreNextEvent
             }
             return true
