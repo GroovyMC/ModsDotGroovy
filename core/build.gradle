@@ -19,7 +19,6 @@ java.withSourcesJar()
 publishing {
     publications {
         register('core', MavenPublication) {
-            groupId = 'io.github.groovymc.modsdotgroovy'
             artifactId = 'core'
             version = project.version
 

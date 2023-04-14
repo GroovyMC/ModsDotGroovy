@@ -1,7 +1,6 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        mavenLocal()
     }
 }
 
@@ -12,4 +11,3 @@ enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 
 include 'core', 'gradle-plugin', 'frontend-dsl'
-include 'test'

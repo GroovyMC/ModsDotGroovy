@@ -21,17 +21,19 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     void apply(Project project) {
         final ext = project.extensions.create(MDGExtension.NAME, MDGExtension)
         final configuration = project.configurations.create(CONFIGURATION_NAME)
+        configuration.canBeConsumed = false
 
         project.getPlugins().apply('java')
 
         project.afterEvaluate {
-            project.repositories.maven { MavenArtifactRepository repo ->
-                repo.name = 'Modding Inquisition Releases'
-                repo.url = 'https://maven.moddinginquisition.org/releases'
+            if (ext.setupDsl.get()) {
+                project.repositories.maven { MavenArtifactRepository repo ->
+                    repo.name = 'Modding Inquisition Releases'
+                    repo.url = 'https://maven.moddinginquisition.org/releases'
+                }
+                configuration.dependencies.add(project.dependencies.create(ext.frontendDsl()))
+                //ext.mdgPlugins().each { configuration.dependencies.add(project.dependencies.create(it)) }
             }
-
-            configuration.dependencies.add(project.dependencies.create(ext.frontendDsl()))
-//            ext.mdgPlugins().each { configuration.dependencies.add(project.dependencies.create(it)) }
 
             if (ext.automaticConfiguration.get()) {
                 final List<MDGExtension.Platform> platforms = ext.platforms.get()

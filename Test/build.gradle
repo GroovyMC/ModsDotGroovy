@@ -1,20 +1,21 @@
 plugins {
     id 'java'
-    id 'io.github.groovymc.modsdotgroovy' version '2.0.0'
+    id 'io.github.groovymc.modsdotgroovy'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
-    mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
     compileOnly localGroovy()
+    modsDotGroovy('io.github.groovymc.modsdotgroovy:frontend-dsl')
 }
 
 modsDotGroovy {
-//    platforms 'forge', 'quilt'
+    //platforms 'forge', 'quilt'
     platform 'forge'
-    dslVersion = '2.0.0-SNAPSHOT'
+    setupDsl = false
 }

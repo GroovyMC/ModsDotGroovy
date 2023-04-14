@@ -49,7 +49,6 @@ tasks.withType(GroovyCompile).configureEach {
 publishing {
     publications {
         register('gradlePlugin', MavenPublication) {
-            groupId = 'io.github.groovymc.modsdotgroovy'
             artifactId = 'modsdotgroovy'
             version = project.version
 

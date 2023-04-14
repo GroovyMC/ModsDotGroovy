@@ -38,7 +38,6 @@ tasks.register('groovydocJar', Jar) {
 publishing {
     publications {
         register('frontendDsl', MavenPublication) {
-            groupId = 'io.github.groovymc.modsdotgroovy'
             artifactId = 'dsl'
             version = project.version
 

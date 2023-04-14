@@ -1,0 +1,11 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
+    }
+    includeBuild('../')
+}
+
+rootProject.name = 'ModsDotGroovy-Test'
+
+includeBuild('../')

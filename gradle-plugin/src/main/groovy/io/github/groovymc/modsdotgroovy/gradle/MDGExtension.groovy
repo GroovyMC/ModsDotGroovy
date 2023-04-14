@@ -25,6 +25,7 @@ abstract class MDGExtension {
     abstract Property<MultiloaderConfiguration> getMultiloader()
     abstract MapProperty<String, Object> getArguments()
     abstract ListProperty<String> getCatalogs()
+    abstract Property<Boolean> getSetupDsl()
 
     protected final Project project
 
@@ -34,6 +35,7 @@ abstract class MDGExtension {
         platforms.set([Platform.FORGE])
         arguments.set([:])
         catalogs.set(['libs'])
+        setupDsl.set(true)
     }
 
     String frontendDsl(final String dep = "io.github.groovymc.modsdotgroovy:dsl:${getDslVersion().getOrElse('2.0.0')}") {
