@@ -1,3 +1,5 @@
+
+
 import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import io.github.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import io.github.groovymc.modsdotgroovy.frontend.ModsBuilder
@@ -80,7 +82,10 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
         core.pop()
     }
 
-    static synchronized ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST) final Closure closure) {
+    static synchronized ModsDotGroovy make(
+            @DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+            @ClosureParams(value = SimpleType, options = 'ModsDotGroovy')
+            final Closure closure) {
         final ModsDotGroovy val = new ModsDotGroovy()
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val
