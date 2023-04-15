@@ -20,7 +20,7 @@ final class ModsDotGroovyCore {
         println "[Core] Initialised plugins: ${plugins*.name}"
 
         // Setup backingData event listeners
-        backingData.getRootMap().addPropertyChangeListener(this.&onPropertyChangeEvent)
+        backingData.getRootMap().addPropertyChangeListener(this.&listenPropertyChangeEvent)
     }
 
     Map build() {
@@ -32,7 +32,7 @@ final class ModsDotGroovyCore {
         return result
     }
 
-    private void onPropertyChangeEvent(final PropertyChangeEvent event) {
+    private void listenPropertyChangeEvent(final PropertyChangeEvent event) {
         switch (event) {
             case StackAwareObservableMap.StackChangedEvent:
                 onStackChangedEvent((StackAwareObservableMap.StackChangedEvent) event)
@@ -57,7 +57,7 @@ final class ModsDotGroovyCore {
 
         // Notify each of the plugins in the PriorityQueue
         for (final ModsDotGroovyPlugin plugin in plugins) {
-            PluginResult result = getPluginResult(plugin, PluginAction.SET, propertyName, mapValue)
+            PluginResult result = getPluginResult(getStack(), plugin, PluginAction.SET, propertyName, mapValue)
             switch (result) {
                 case PluginResult.Validate:
                     println "[Core] Plugin \"${plugin.name}\" validated property \"$propertyName\""
@@ -118,6 +118,10 @@ final class ModsDotGroovyCore {
                 ? PluginAction.ON_NEST_ENTER
                 : PluginAction.ON_NEST_LEAVE
 
+        final Deque<String> stack = newStackSize > oldStackSize
+                ? event.newStack
+                : event.oldStack
+
         def mapValue = event.newValue ?: event.oldValue
 
         for (final ModsDotGroovyPlugin plugin in plugins) {
@@ -125,8 +129,9 @@ final class ModsDotGroovyCore {
             println "action: ${action}"
             println "newStack: ${event.newStack}"
             println "oldStack: ${event.oldStack}"
+            println "nestName: ${stack.last}"
             println "value: ${mapValue}"
-            PluginResult result = getPluginResult(plugin, action, event.newStack.peekLast() ? event.newStack.last : event.oldStack.last, mapValue)
+            PluginResult result = getPluginResult(stack, plugin, action, stack.last, mapValue)
             println "[Core] Plugin \"${plugin.name}\" returned result: ${result}"
 //            switch (result) {
 //                case PluginResult.Validate:
@@ -164,19 +169,20 @@ final class ModsDotGroovyCore {
         @Override
         String toString() {
             // converts to camelCase
-            final String str = name().toLowerCase(Locale.ROOT).split('_').collect(CharSequence.&capitalize).join('')
+            final String str = name().toLowerCase(Locale.ROOT).split('_').collect {it.capitalize()}.join('')
             final String firstChar = str.take(1)
             return str.replaceFirst(firstChar, firstChar.toLowerCase(Locale.ROOT))
         }
     }
 
-    private PluginResult getPluginResult(final ModsDotGroovyPlugin plugin, final PluginAction action = PluginAction.SET, final String propertyName, final def propertyValue) {
+    private PluginResult getPluginResult(final Deque<String> eventStack, final ModsDotGroovyPlugin plugin, final PluginAction action = PluginAction.SET, final String propertyName, final def propertyValue) {
         final String capitalizedPropertyName = propertyName.capitalize()
         boolean useGenericMethod = false
 
         // Todo: request support for tuple destructuring in CompileStatic
+        println "traversing class tree for ${propertyValue} with stack ${eventStack}"
         // final def (Class<?> classObject, boolean foundSubclass) = traverseClassTree(getStack(), plugin.getClass())
-        final Tuple2<Class<?>, Boolean> result = traverseClassTree(getStack(), plugin.getClass())
+        final Tuple2<Class<?>, Boolean> result = traverseClassTree(eventStack, plugin.getClass())
         final Class<?> classObject = result.v1
         final boolean foundSubclass = result.v2
         //if (!foundSubclass || plugin.getClass() != classObject) useGenericMethod = true
@@ -184,28 +190,33 @@ final class ModsDotGroovyCore {
         if (useGenericMethod) {
             switch (action) {
                 case PluginAction.SET:
-                    return PluginResult.of(plugin.set(getStack(), propertyName, propertyValue))
+                    return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
                 case PluginAction.ON_NEST_ENTER:
-                    return PluginResult.of(plugin.onNestEnter(getStack(), propertyName, (Map) propertyValue))
+                    return PluginResult.of(plugin.onNestEnter(eventStack, propertyName, (Map) propertyValue))
                 case PluginAction.ON_NEST_LEAVE:
-                    return PluginResult.of(plugin.onNestLeave(getStack(), propertyName, (Map) propertyValue))
+                    return PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
             }
         } else {
             final String methodName = action === PluginAction.SET
                     ? action.toString() + capitalizedPropertyName
                     : action.toString()
 
-            if (classObject.metaClass.respondsTo(classObject, methodName, propertyValue)) {
-                return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, propertyValue))
-            } else { // try the generic method
-                switch (action) {
-                    case PluginAction.SET:
-                        return PluginResult.of(plugin.set(getStack(), propertyName, propertyValue))
-                    case PluginAction.ON_NEST_ENTER:
-                        return PluginResult.of(plugin.onNestEnter(getStack(), propertyName, (Map) propertyValue))
-                    case PluginAction.ON_NEST_LEAVE:
-                        return PluginResult.of(plugin.onNestLeave(getStack(), propertyName, (Map) propertyValue))
-                }
+            switch (action) {
+                case PluginAction.SET:
+                    if (classObject.metaClass.respondsTo(classObject, methodName, propertyValue))
+                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, propertyValue))
+                    else
+                        return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
+                case PluginAction.ON_NEST_ENTER:
+                    if (classObject.metaClass.respondsTo(classObject, methodName, eventStack, (Map) propertyValue))
+                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, eventStack, (Map) propertyValue))
+                    else
+                        return PluginResult.of(plugin.onNestEnter(eventStack, propertyName, (Map) propertyValue))
+                case PluginAction.ON_NEST_LEAVE:
+                    if (classObject.metaClass.respondsTo(classObject, methodName, eventStack, (Map) propertyValue))
+                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, eventStack, (Map) propertyValue))
+                    else
+                        return PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
             }
         }
     }
