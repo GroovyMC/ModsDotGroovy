@@ -124,6 +124,8 @@ final class ModsDotGroovyCore {
 
         def mapValue = event.newValue ?: event.oldValue
 
+        String propertyName = stack.last
+
         for (final ModsDotGroovyPlugin plugin in plugins) {
             println "plugin: ${plugin.name}"
             println "action: ${action}"
@@ -133,31 +135,39 @@ final class ModsDotGroovyCore {
             println "value: ${mapValue}"
             PluginResult result = getPluginResult(stack, plugin, action, stack.last, mapValue)
             println "[Core] Plugin \"${plugin.name}\" returned result: ${result}"
-//            switch (result) {
-//                case PluginResult.Validate:
-//                    println "[Core] Plugin \"${plugin.name}\" validated nest \"${event.propertyName}\""
-//                    break
-//                case PluginResult.Change:
-//                    // todo: support moving the nest to a new location
-//
-//                    // todo: support changing the nest name
-//
-//                    if (result.newValue === null) {
-//                        println "[Core] Plugin \"${plugin.name}\" removed nest \"${event.propertyName}\""
-//                        setIgnoreNextEvent(true)
-//                        remove(event.propertyName)
-//                        break
-//                    } else if (result.newValue != event.newValue) {
-//                        println "[Core] Plugin \"${plugin.name}\" changed nest \"${event.propertyName}\" value from \"${event.newValue}\" to \"${result.newValue}\""
-//                        setIgnoreNextEvent(true)
-//                        put(event.propertyName, result.newValue)
-//                    }
-//                    break
-//                case PluginResult.Unhandled:
-//                    break
-//                default:
-//                    throw new IllegalStateException("Unknown PluginResult type: ${result.class.name}")
-//            }
+            switch (result) {
+                case PluginResult.Validate:
+                    println "[Core] Plugin \"${plugin.name}\" validated nest \"${propertyName}\""
+                    break
+                case PluginResult.Change:
+                    var change = (PluginResult.Change) result
+                    // todo: support moving the nest to a new location
+                    if (change.newPropertyName !== null) {
+                        println "[Core] Plugin \"${plugin.name}\" renamed nest \"${propertyName}\" to \"${change.newPropertyName}\""
+                        setIgnoreNextEvent(true)
+                        var old = remove(propertyName)
+                        setIgnoreNextEvent(true)
+                        put(change.newPropertyName, old)
+                    }
+                    if (change.newValue === null) {
+                        println "[Core] Plugin \"${plugin.name}\" removed nest \"${propertyName}\""
+                        setIgnoreNextEvent(true)
+                        remove(propertyName)
+                        break
+                    } else if (change.newValue != event.newValue) {
+                        println "[Core] Plugin \"${plugin.name}\" changed nest \"${propertyName}\" value from \"${mapValue}\" to \"${change.newValue}\""
+                        setIgnoreNextEvent(true)
+                        put(propertyName, change.newValue)
+                    }
+                    break
+                case PluginResult.Error:
+                    ((PluginResult.Error) result).throwException()
+                    break
+                case PluginResult.Unhandled:
+                    break
+                default:
+                    throw new IllegalStateException("Unknown PluginResult type: ${result.class.name}")
+            }
         }
     }
 
@@ -180,7 +190,6 @@ final class ModsDotGroovyCore {
         boolean useGenericMethod = false
 
         // Todo: request support for tuple destructuring in CompileStatic
-        println "traversing class tree for ${propertyValue} with stack ${eventStack}"
         // final def (Class<?> classObject, boolean foundSubclass) = traverseClassTree(getStack(), plugin.getClass())
         final Tuple2<Class<?>, Boolean> result = traverseClassTree(eventStack, plugin.getClass())
         final Class<?> classObject = result.v1
@@ -234,15 +243,13 @@ final class ModsDotGroovyCore {
         boolean foundSubclass = false
         if (!stack.isEmpty()) {
             final Deque<String> stackCopy = new ArrayDeque<>(stack)
-            for (final String className in stackCopy) {
-                try {
-                    classObject = classObject.forName(classObject.name + '$' + className.capitalize())
-                    foundSubclass = true
-                } catch (final ClassNotFoundException ignored) {
-                    // if the class doesn't exist, then we'll just use the generic method
-                    foundSubclass = false
-                    break
-                }
+            var name = classObject.name + '$' + stackCopy.collect {it.capitalize()}.join('$')
+            try {
+                classObject = classObject.forName(name)
+                foundSubclass = true
+            } catch (final ClassNotFoundException ignored) {
+                // if the class doesn't exist, then we'll just use the generic method
+                foundSubclass = false
             }
         }
 

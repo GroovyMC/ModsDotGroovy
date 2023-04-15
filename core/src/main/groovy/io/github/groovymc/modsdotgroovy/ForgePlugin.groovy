@@ -9,7 +9,6 @@ import io.github.groovymc.modsdotgroovy.plugin.PluginResult
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 class ForgePlugin implements ModsDotGroovyPlugin {
-    private static String modId = ''
 
     // note: void methods are executed and treated as PluginResult.VALIDATE
     static void setModLoader(final String modLoader) {
@@ -18,39 +17,32 @@ class ForgePlugin implements ModsDotGroovyPlugin {
             throw new RuntimeException('modLoader must not start with a number.')
     }
 
-    class Mods {
+    static class Mods {
         Mods() {
             println "[Forge] Instantiated ForgePlugin.Mods"
         }
 
-        void setInsideModsBuilder(final boolean insideModsBuilder) {
-            println "[Forge] mods.insideModsBuilder: ${insideModsBuilder}"
+        private static List modInfo = []
+
+        static def onNestLeave(final Deque<String> stack, final Map value) {
+            println "[Forge] mods.onNestLeave: ${value}"
+            return modInfo
         }
 
-        /*
-         * Note: def methods are executed and treated differently depending on what you return:
-         * - If you return null, the method is treated as PluginResult.VALIDATE
-         * - If you return a value, the method is treated as PluginResult.TRANSFORM
-         * - You can also return a PluginResult directly, which will be used as-is
-         *
-         * The dynamic nature of this means that you can return and accept any type of value you like.
-         * If there's two methods with the same name, the one with the closest typed param will be used.
-         */
-        @CompileDynamic
-        static def setX(final def x) {
-            println "[Forge] mods.x: ${x}"
-            return '42'
+        static def onNestEnter(final Deque<String> stack, final Map value) {
+            println "[Forge] mods.onNestEnter: ${value}"
+            modInfo.clear()
+            return new PluginResult.Validate()
         }
 
         static class ModInfo {
             static PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                println "[Forge] mods.modInfo.onNestLeave: ${value}"
-                stack.pollLast()
-                stack.addLast((String) modId)
-                return PluginResult.move(stack, value)
+                println "[Forge] mods.modInfo.onNestLeave"
+                modInfo.add(value)
+                return new PluginResult.Change(newValue: null)
             }
 
-            static void setModId(final String modId) {
+            static PluginResult setModId(final String modId) {
                 println "[Forge] mods.modInfo.modId: ${modId}"
 
                 // validate the modId string
@@ -71,8 +63,10 @@ class ForgePlugin implements ModsDotGroovyPlugin {
                     else if (modId.length() > 64)
                         errorMsg.append('\nmodId cannot be longer than 64 characters.')
 
-                    throw new RuntimeException(errorMsg.toString())
+                    return new PluginResult.Error(errorMsg.toString())
                 }
+
+                return new PluginResult.Validate()
             }
         }
     }
@@ -116,12 +110,7 @@ class ForgePlugin implements ModsDotGroovyPlugin {
         return [
             modLoader: 'javafml',
             loaderVersion: '[1,)',
-            license: 'All Rights Reserved',
-            modProperties: [
-                nestingExample: [
-                    nestedProperty: 'nestedValue'
-                ]
-            ]
+            license: 'All Rights Reserved'
         ]
     }
 }

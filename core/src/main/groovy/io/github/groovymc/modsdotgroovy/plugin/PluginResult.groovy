@@ -39,6 +39,27 @@ class PluginResult {
         @Nullable Deque<String> newLocation = null
     }
 
+    /**
+     * Represents an error in validation that occurred during the plugin's execution.
+     */
+    @TupleConstructor
+    static class Error extends PluginResult {
+        /**
+         * The error message.
+         */
+        final String message
+
+        static class MDGPluginException extends RuntimeException {
+            MDGPluginException(final String message) {
+                super(message)
+            }
+        }
+
+        void throwException() {
+            throw new MDGPluginException(message)
+        }
+    }
+
     @CompileDynamic
     static <T extends PluginResult> T of(final def obj) {
         switch (obj) {
