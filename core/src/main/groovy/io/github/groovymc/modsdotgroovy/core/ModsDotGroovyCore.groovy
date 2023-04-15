@@ -57,7 +57,12 @@ final class ModsDotGroovyCore {
 
         // Notify each of the plugins in the PriorityQueue
         for (final ModsDotGroovyPlugin plugin in plugins) {
-            PluginResult result = getPluginResult(getStack(), plugin, PluginAction.SET, propertyName, mapValue)
+            PluginResult result
+            try {
+                result = getPluginResult(getStack(), plugin, PluginAction.SET, propertyName, mapValue)
+            } catch (Exception e) {
+                throw new PluginResult.Error.MDGPluginException(e) // to make this easier to catch if we'd ever like to.
+            }
             switch (result) {
                 case PluginResult.Validate:
                     println "[Core] Plugin \"${plugin.name}\" validated property \"$propertyName\""
@@ -190,11 +195,9 @@ final class ModsDotGroovyCore {
         boolean useGenericMethod = false
 
         // Todo: request support for tuple destructuring in CompileStatic
-        // final def (Class<?> classObject, boolean foundSubclass) = traverseClassTree(getStack(), plugin.getClass())
-        final Tuple2<Class<?>, Boolean> result = traverseClassTree(eventStack, plugin.getClass())
-        final Class<?> classObject = result.v1
-        final boolean foundSubclass = result.v2
-        //if (!foundSubclass || plugin.getClass() != classObject) useGenericMethod = true
+        // final def (Class<?> delegateObject, boolean foundSubclass) = traverseClassTree(getStack(), plugin.getClass())
+        final Tuple2<Object, Boolean> result = traverseClassTree(eventStack, plugin)
+        final Object delegateObject = result.v1
 
         if (useGenericMethod) {
             switch (action) {
@@ -212,18 +215,18 @@ final class ModsDotGroovyCore {
 
             switch (action) {
                 case PluginAction.SET:
-                    if (classObject.metaClass.respondsTo(classObject, methodName, propertyValue))
-                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, propertyValue))
+                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, propertyValue))
+                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, propertyValue))
                     else
                         return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
                 case PluginAction.ON_NEST_ENTER:
-                    if (classObject.metaClass.respondsTo(classObject, methodName, eventStack, (Map) propertyValue))
-                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, eventStack, (Map) propertyValue))
+                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, eventStack, (Map) propertyValue))
+                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, eventStack, (Map) propertyValue))
                     else
                         return PluginResult.of(plugin.onNestEnter(eventStack, propertyName, (Map) propertyValue))
                 case PluginAction.ON_NEST_LEAVE:
-                    if (classObject.metaClass.respondsTo(classObject, methodName, eventStack, (Map) propertyValue))
-                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, eventStack, (Map) propertyValue))
+                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, eventStack, (Map) propertyValue))
+                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, eventStack, (Map) propertyValue))
                     else
                         return PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
             }
@@ -236,23 +239,26 @@ final class ModsDotGroovyCore {
      * return the class object for the "Mods.ModInfo" class and true. If the class object doesn't have those subclasses,
      * then it will return the original class object and false.
      * @param stack The subclasses to traverse
-     * @param classObject The class to start from
+     * @param delegateObject The plugin object to start from
      * @return A tuple containing either the traversed class or original class, and whether or not a subclass was found
      */
-    private static Tuple2<Class<?>, Boolean> traverseClassTree(final Deque<String> stack, Class<?> classObject) {
+    private static Tuple2<Object, Boolean> traverseClassTree(final Deque<String> stack, Object delegateObject) {
         boolean foundSubclass = false
+        Object rootObject = delegateObject
         if (!stack.isEmpty()) {
             final Deque<String> stackCopy = new ArrayDeque<>(stack)
-            var name = classObject.name + '$' + stackCopy.collect {it.capitalize()}.join('$')
-            try {
-                classObject = classObject.forName(name)
+            for (final String s : stack) {
+                delegateObject = delegateObject.properties.get(s)
+                if (delegateObject === null) {
+                    foundSubclass = false
+                    delegateObject = rootObject
+                    break
+                }
+                stackCopy.removeFirst()
                 foundSubclass = true
-            } catch (final ClassNotFoundException ignored) {
-                // if the class doesn't exist, then we'll just use the generic method
-                foundSubclass = false
             }
         }
 
-        return new Tuple2<>(classObject, foundSubclass)
+        return new Tuple2<>(delegateObject, foundSubclass)
     }
 }

@@ -11,38 +11,34 @@ import io.github.groovymc.modsdotgroovy.plugin.PluginResult
 class ForgePlugin implements ModsDotGroovyPlugin {
 
     // note: void methods are executed and treated as PluginResult.VALIDATE
-    static void setModLoader(final String modLoader) {
+    void setModLoader(final String modLoader) {
         println "[Forge] modLoader: ${modLoader}"
         if (modLoader ==~ /^\d/)
             throw new RuntimeException('modLoader must not start with a number.')
     }
 
-    static class Mods {
-        Mods() {
-            println "[Forge] Instantiated ForgePlugin.Mods"
-        }
+    final mods = new Object() {
+        private final List modInfos = []
 
-        private static List modInfo = []
-
-        static def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Deque<String> stack, final Map value) {
             println "[Forge] mods.onNestLeave: ${value}"
-            return modInfo
+            return modInfos
         }
 
-        static def onNestEnter(final Deque<String> stack, final Map value) {
+        def onNestEnter(final Deque<String> stack, final Map value) {
             println "[Forge] mods.onNestEnter: ${value}"
-            modInfo.clear()
+            modInfos.clear()
             return new PluginResult.Validate()
         }
 
-        static class ModInfo {
-            static PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+        final modInfo = new Object() {
+            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 println "[Forge] mods.modInfo.onNestLeave"
-                modInfo.add(value)
+                modInfos.add(value)
                 return new PluginResult.Change(newValue: null)
             }
 
-            static PluginResult setModId(final String modId) {
+            PluginResult setModId(final String modId) {
                 println "[Forge] mods.modInfo.modId: ${modId}"
 
                 // validate the modId string
