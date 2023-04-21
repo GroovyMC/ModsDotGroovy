@@ -53,6 +53,14 @@ class PluginResult {
             MDGPluginException(final String message) {
                 super(message)
             }
+
+            MDGPluginException(final String message, final Throwable cause) {
+                super(message, cause)
+            }
+
+            MDGPluginException(final Throwable cause) {
+                super(cause)
+            }
         }
 
         void throwException() {
