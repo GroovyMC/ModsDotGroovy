@@ -10,6 +10,7 @@ repositories {
 dependencies {
     implementation localGroovy()
     implementation projects.core
+    compileOnly 'org.jetbrains:annotations:24.0.1'
 }
 
 java {

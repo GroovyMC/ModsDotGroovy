@@ -1,6 +1,6 @@
 
 
-import groovyjarjarantlr4.v4.runtime.misc.Nullable
+import org.jetbrains.annotations.Nullable
 import io.github.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import io.github.groovymc.modsdotgroovy.frontend.ModsBuilder
 import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend

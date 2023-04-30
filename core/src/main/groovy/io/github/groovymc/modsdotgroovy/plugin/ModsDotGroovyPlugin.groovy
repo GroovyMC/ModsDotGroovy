@@ -2,7 +2,7 @@ package io.github.groovymc.modsdotgroovy.plugin
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovyjarjarantlr4.v4.runtime.misc.Nullable
+import org.jetbrains.annotations.Nullable
 
 @CompileStatic
 interface ModsDotGroovyPlugin {

@@ -3,8 +3,13 @@ plugins {
     id 'maven-publish'
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     implementation localGroovy()
+    compileOnly 'org.jetbrains:annotations:24.0.1'
 }
 
 tasks.withType(GroovyCompile).configureEach {

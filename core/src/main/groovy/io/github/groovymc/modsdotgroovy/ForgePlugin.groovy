@@ -2,9 +2,9 @@ package io.github.groovymc.modsdotgroovy
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import io.github.groovymc.modsdotgroovy.plugin.PluginResult
+import org.jetbrains.annotations.Nullable
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
@@ -14,7 +14,7 @@ class ForgePlugin implements ModsDotGroovyPlugin {
     void setModLoader(final String modLoader) {
         println "[Forge] modLoader: ${modLoader}"
         if (modLoader ==~ /^\d/)
-            throw new RuntimeException('modLoader must not start with a number.')
+            throw new PluginResult.MDGPluginException('modLoader must not start with a number.')
     }
 
     final mods = new Object() {
@@ -38,7 +38,7 @@ class ForgePlugin implements ModsDotGroovyPlugin {
                 return PluginResult.remove()
             }
 
-            PluginResult setModId(final String modId) {
+            void setModId(final String modId) {
                 println "[Forge] mods.modInfo.modId: ${modId}"
 
                 // validate the modId string
@@ -59,9 +59,8 @@ class ForgePlugin implements ModsDotGroovyPlugin {
                     else if (modId.length() > 64)
                         errorMsg.append('\nmodId cannot be longer than 64 characters.')
 
-                    return new PluginResult.Error(errorMsg.toString())
+                    throw new PluginResult.MDGPluginException(errorMsg.toString())
                 }
-
                 this.modId = modId
                 return new PluginResult.Validate()
             }

@@ -56,12 +56,7 @@ final class ModsDotGroovyCore {
 
         // Notify each of the plugins in the PriorityQueue
         for (final ModsDotGroovyPlugin plugin in plugins) {
-            PluginResult result
-            try {
-                result = getPluginResult(getStack(), plugin, PluginAction.SET, propertyName, mapValue)
-            } catch (Exception e) {
-                throw new PluginResult.Error.MDGPluginException(e) // to make this easier to catch if we'd ever like to.
-            }
+            PluginResult result = getPluginResult(getStack(), plugin, PluginAction.SET, propertyName, mapValue)
             switch (result) {
                 case PluginResult.Validate:
                     println "[Core] Plugin \"${plugin.name}\" validated property \"$propertyName\""
@@ -163,9 +158,6 @@ final class ModsDotGroovyCore {
                         setIgnoreNextEvent(true)
                         put(propertyName, change.newValue)
                     }
-                    break
-                case PluginResult.Error:
-                    ((PluginResult.Error) result).throwException()
                     break
                 case PluginResult.Unhandled:
                     break
