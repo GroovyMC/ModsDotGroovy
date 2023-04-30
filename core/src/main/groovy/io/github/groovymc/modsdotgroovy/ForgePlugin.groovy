@@ -2,49 +2,45 @@ package io.github.groovymc.modsdotgroovy
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovyjarjarantlr4.v4.runtime.misc.Nullable
 import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import io.github.groovymc.modsdotgroovy.plugin.PluginResult
+import org.jetbrains.annotations.Nullable
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
-class ForgePlugin implements ModsDotGroovyPlugin {
+class ForgePlugin extends ModsDotGroovyPlugin {
 
     // note: void methods are executed and treated as PluginResult.VALIDATE
-    static void setModLoader(final String modLoader) {
+    void setModLoader(final String modLoader) {
         println "[Forge] modLoader: ${modLoader}"
         if (modLoader ==~ /^\d/)
-            throw new RuntimeException('modLoader must not start with a number.')
+            throw new PluginResult.MDGPluginException('modLoader must not start with a number.')
     }
 
-    static class Mods {
-        Mods() {
-            println "[Forge] Instantiated ForgePlugin.Mods"
-        }
+    class Mods {
+        private final List modInfos = []
 
-        private static List modInfo = []
-
-        static def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Deque<String> stack, final Map value) {
             println "[Forge] mods.onNestLeave: ${value}"
-            return modInfo
+            return modInfos
         }
 
-        static def onNestEnter(final Deque<String> stack, final Map value) {
+        def onNestEnter(final Deque<String> stack, final Map value) {
             println "[Forge] mods.onNestEnter: ${value}"
-            modInfo.clear()
+            modInfos.clear()
             return new PluginResult.Validate()
         }
 
-        static class ModInfo {
-            private static String modId
+        class ModInfo {
+            String modId
 
-            static PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 println "[Forge] mods.modInfo.onNestLeave"
-                modInfo.add(value)
+                modInfos.add(value)
                 return PluginResult.remove()
             }
 
-            static PluginResult setModId(final String modId) {
+            def setModId(final String modId) {
                 println "[Forge] mods.modInfo.modId: ${modId}"
 
                 // validate the modId string
@@ -65,18 +61,21 @@ class ForgePlugin implements ModsDotGroovyPlugin {
                     else if (modId.length() > 64)
                         errorMsg.append('\nmodId cannot be longer than 64 characters.')
 
-                    return new PluginResult.Error(errorMsg.toString())
+                    throw new PluginResult.MDGPluginException(errorMsg.toString())
                 }
-
                 this.modId = modId
                 return new PluginResult.Validate()
             }
 
-            static class Dependencies {
-                static PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            class Dependencies {
+                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                     println "[Forge] mods.modInfo.dependencies.onNestLeave"
-                    stack.addLast(modId) // redirect to mods.modInfo.dependencies.modId
-                    return PluginResult.move(stack, value)
+                    if (ModInfo.this.modId === null)
+                        throw new PluginResult.MDGPluginException('modId must be set before dependencies can be set.')
+                    Deque<String> newStack = new ArrayDeque<>()
+                    newStack.addLast("dependencies")
+                    newStack.addLast(ModInfo.this.modId)
+                    return PluginResult.move(newStack, value)
                 }
             }
         }

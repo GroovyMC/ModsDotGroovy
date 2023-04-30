@@ -3,7 +3,7 @@ package io.github.groovymc.modsdotgroovy.frontend
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
-import groovyjarjarantlr4.v4.runtime.misc.Nullable
+import org.jetbrains.annotations.Nullable
 import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 import static groovy.lang.Closure.DELEGATE_FIRST

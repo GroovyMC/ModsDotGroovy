@@ -11,8 +11,8 @@ import org.gradle.api.file.FileTreeElement
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.language.jvm.tasks.ProcessResources
+import org.jetbrains.annotations.Nullable
 
-import javax.annotation.Nullable
 
 class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     public static final String CONFIGURATION_NAME = 'modsDotGroovy'

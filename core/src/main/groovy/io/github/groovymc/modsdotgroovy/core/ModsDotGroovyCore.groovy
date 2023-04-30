@@ -2,11 +2,14 @@ package io.github.groovymc.modsdotgroovy.core
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.Memoized
 import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
+import io.github.groovymc.modsdotgroovy.plugin.NestKey
 import io.github.groovymc.modsdotgroovy.plugin.PluginRegistry
 import io.github.groovymc.modsdotgroovy.plugin.PluginResult
 
 import java.beans.PropertyChangeEvent
+import java.lang.reflect.Modifier
 
 @CompileStatic
 final class ModsDotGroovyCore {
@@ -55,6 +58,7 @@ final class ModsDotGroovyCore {
         def mapValue = event.newValue
 
         // Notify each of the plugins in the PriorityQueue
+        Deque<String> originalStack = new ArrayDeque<>(getStack())
         for (final ModsDotGroovyPlugin plugin in plugins) {
             PluginResult result = getPluginResult(getStack(), plugin, PluginAction.SET, propertyName, mapValue)
             switch (result) {
@@ -65,7 +69,7 @@ final class ModsDotGroovyCore {
                     result = (PluginResult.Change) result // Groovy 3 workaround - usually this cast is unnecessary
 
                     // change the stack to the new location if different
-                    if (result.newLocation !== null && result.newLocation != getStack()) {
+                    if (result.newLocation !== null && result.newLocation != originalStack) {
                         println "[Core] Plugin \"${plugin.name}\" moved property from \"${getStack().join '->'}\" to \"${result.newLocation.join '->'}\""
                         // first, remove the property from the old location
                         setIgnoreNextEvent(true)
@@ -93,6 +97,11 @@ final class ModsDotGroovyCore {
                     }
 
                     // and finally, put it in the map
+
+                    if (originalStack != getStack()) {
+
+                    }
+
                     setIgnoreNextEvent(true)
                     put(propertyName, mapValue)
                     break
@@ -159,9 +168,6 @@ final class ModsDotGroovyCore {
                         put(propertyName, change.newValue)
                     }
                     break
-                case PluginResult.Error:
-                    ((PluginResult.Error) result).throwException()
-                    break
                 case PluginResult.Unhandled:
                     break
                 default:
@@ -189,11 +195,9 @@ final class ModsDotGroovyCore {
         boolean useGenericMethod = false
 
         // Todo: request support for tuple destructuring in CompileStatic
-        // final def (Class<?> classObject, boolean foundSubclass) = traverseClassTree(getStack(), plugin.getClass())
-        final Tuple2<Class<?>, Boolean> result = traverseClassTree(eventStack, plugin.getClass())
-        final Class<?> classObject = result.v1
-        final boolean foundSubclass = result.v2
-        //if (!foundSubclass || plugin.getClass() != classObject) useGenericMethod = true
+        // final def (Class<?> delegateObject, boolean foundSubclass) = traverseClassTree(getStack(), plugin.getClass())
+        final Tuple2<Object, Boolean> result = traverseClassTree(eventStack, plugin)
+        final Object delegateObject = result.v1
 
         if (useGenericMethod) {
             switch (action) {
@@ -211,18 +215,18 @@ final class ModsDotGroovyCore {
 
             switch (action) {
                 case PluginAction.SET:
-                    if (classObject.metaClass.respondsTo(classObject, methodName, propertyValue))
-                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, propertyValue))
+                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, propertyValue))
+                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, propertyValue))
                     else
                         return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
                 case PluginAction.ON_NEST_ENTER:
-                    if (classObject.metaClass.respondsTo(classObject, methodName, eventStack, (Map) propertyValue))
-                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, eventStack, (Map) propertyValue))
+                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, eventStack, (Map) propertyValue))
+                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, eventStack, (Map) propertyValue))
                     else
                         return PluginResult.of(plugin.onNestEnter(eventStack, propertyName, (Map) propertyValue))
                 case PluginAction.ON_NEST_LEAVE:
-                    if (classObject.metaClass.respondsTo(classObject, methodName, eventStack, (Map) propertyValue))
-                        return PluginResult.of(classObject.metaClass.invokeMethod(classObject, methodName, eventStack, (Map) propertyValue))
+                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, eventStack, (Map) propertyValue))
+                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, eventStack, (Map) propertyValue))
                     else
                         return PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
             }
@@ -235,23 +239,96 @@ final class ModsDotGroovyCore {
      * return the class object for the "Mods.ModInfo" class and true. If the class object doesn't have those subclasses,
      * then it will return the original class object and false.
      * @param stack The subclasses to traverse
-     * @param classObject The class to start from
+     * @param delegateObject The plugin object to start from
      * @return A tuple containing either the traversed class or original class, and whether or not a subclass was found
      */
-    private static Tuple2<Class<?>, Boolean> traverseClassTree(final Deque<String> stack, Class<?> classObject) {
+    private static Tuple2<Object, Boolean> traverseClassTree(final Deque<String> stack, ModsDotGroovyPlugin pluginObject) {
         boolean foundSubclass = false
+        Object delegateObject = (Object) pluginObject
         if (!stack.isEmpty()) {
             final Deque<String> stackCopy = new ArrayDeque<>(stack)
-            var name = classObject.name + '$' + stackCopy.collect {it.capitalize()}.join('$')
-            try {
-                classObject = classObject.forName(name)
-                foundSubclass = true
-            } catch (final ClassNotFoundException ignored) {
-                // if the class doesn't exist, then we'll just use the generic method
-                foundSubclass = false
+            List<String> stackList = []
+            while (!stackCopy.empty) {
+                String s = stackCopy.pollFirst()
+                stackList.add(s)
+                NestKey key = new NestKey(stackList)
+                if (pluginObject.getNest(key) !== null) {
+                    delegateObject = pluginObject.getNest(key)
+                    foundSubclass = true
+                } else {
+                    var found = true
+                    println delegateObject
+                    Object oldObject = (Object) delegateObject
+                    try {
+                        delegateObject = delegateObject[s]
+                        if (delegateObject == null) {
+                            found = false
+                        }
+                        pluginObject.initializeNest(key, delegateObject)
+                    } catch (MissingPropertyException ignored) {
+                        found = false
+                        delegateObject = oldObject
+                        var classSearchName = s.capitalize()
+                        Class<?> innerClass
+                        try {
+                            innerClass = findFirstInnerClass(delegateObject.class, classSearchName)
+                        } catch (IllegalStateException ignored2) {
+                            // ignore
+                        }
+                        if (innerClass != null) {
+                            boolean has1
+                            if (innerClass.constructors.any {
+                                if ((it.modifiers & Modifier.PUBLIC) == 0) return false
+                                if (it.parameterCount == 1) {
+                                    has1 = true
+                                    return true
+                                }
+                                return it.parameterCount == 0
+                            }) {
+                                delegateObject = innerClass.metaClass.invokeConstructor(has1 ? new Object[]{delegateObject} : new Object[]{})
+                                pluginObject.initializeNest(key, delegateObject)
+                                found = true
+                            }
+                            var fields = innerClass.fields.findAll { it.type == innerClass && (it.modifiers & Modifier.STATIC) != 0 }
+                            if (fields.size() == 1) {
+                                delegateObject = fields[0].get(delegateObject)
+                                pluginObject.initializeNest(key, delegateObject)
+                                found = true
+                            }
+                        }
+                    }
+                    if (!found) {
+                        foundSubclass = false
+                        delegateObject = pluginObject
+                        break
+                    }
+                    foundSubclass = true
+                }
             }
         }
 
-        return new Tuple2<>(classObject, foundSubclass)
+        return new Tuple2<>(delegateObject, foundSubclass)
+    }
+
+    @Memoized
+    private static Class<?> findFirstInnerClass(Class<?> clazz, String name) {
+        var innerClass = clazz.classes.find {it.simpleName == name}
+        if (innerClass != null) return innerClass
+
+        var matchesFromInterfaces = clazz.interfaces.collect {
+            findFirstInnerClass(it, name)
+        }
+
+        if (matchesFromInterfaces.size() == 1) {
+            return matchesFromInterfaces[0]
+        } else if (matchesFromInterfaces.size() > 1) {
+            throw new IllegalStateException("Multiple inner classes with the name \"${name}\" found in the class tree of \"${clazz.name}\"")
+        }
+
+        if (clazz.superclass !== null && ModsDotGroovyPlugin.class.isAssignableFrom(clazz.superclass)) {
+            return findFirstInnerClass(clazz.superclass, name)
+        }
+
+        return null
     }
 }

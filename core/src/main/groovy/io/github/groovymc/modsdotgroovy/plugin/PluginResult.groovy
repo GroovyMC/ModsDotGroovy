@@ -3,7 +3,7 @@ package io.github.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import groovyjarjarantlr4.v4.runtime.misc.Nullable
+import org.jetbrains.annotations.Nullable
 
 @CompileStatic
 class PluginResult {
@@ -40,31 +40,20 @@ class PluginResult {
     }
 
     /**
-     * Represents an error in validation that occurred during the plugin's execution.
+     * Represents an error in validation that occurred during the plugin's execution. If this exception is thrown, the
+     * plugin is assumed to be in a recoverable state - it just recieved invalid data.
      */
-    @TupleConstructor
-    static class Error extends PluginResult {
-        /**
-         * The error message.
-         */
-        final String message
-
-        static class MDGPluginException extends RuntimeException {
-            MDGPluginException(final String message) {
-                super(message)
-            }
-
-            MDGPluginException(final String message, final Throwable cause) {
-                super(message, cause)
-            }
-
-            MDGPluginException(final Throwable cause) {
-                super(cause)
-            }
+    static class MDGPluginException extends RuntimeException {
+        MDGPluginException(final String message) {
+            super(message)
         }
 
-        void throwException() {
-            throw new MDGPluginException(message)
+        MDGPluginException(final String message, final Throwable cause) {
+            super(message, cause)
+        }
+
+        MDGPluginException(Throwable throwable) {
+            super(throwable)
         }
     }
 
