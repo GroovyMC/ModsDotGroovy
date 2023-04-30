@@ -35,7 +35,7 @@ class ForgePlugin implements ModsDotGroovyPlugin {
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 println "[Forge] mods.modInfo.onNestLeave"
                 modInfos.add(value)
-                return new PluginResult.Change(newValue: null)
+                return PluginResult.remove()
             }
 
             PluginResult setModId(final String modId) {
@@ -62,7 +62,16 @@ class ForgePlugin implements ModsDotGroovyPlugin {
                     return new PluginResult.Error(errorMsg.toString())
                 }
 
+                this.modId = modId
                 return new PluginResult.Validate()
+            }
+
+            static class Dependencies {
+                static PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                    println "[Forge] mods.modInfo.dependencies.onNestLeave"
+                    stack.addLast(modId) // redirect to mods.modInfo.dependencies.modId
+                    return PluginResult.move(stack, value)
+                }
             }
         }
     }

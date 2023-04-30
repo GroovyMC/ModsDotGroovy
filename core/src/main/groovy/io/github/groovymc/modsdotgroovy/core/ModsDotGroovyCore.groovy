@@ -41,7 +41,6 @@ final class ModsDotGroovyCore {
                 onMultiPropertyEvent((ObservableMap.MultiPropertyEvent) event)
                 break
             case ObservableMap.PropertyEvent:
-                // this is being called for stack pushes because a new property is being added to the observable map
                 onSinglePropertyEvent((ObservableMap.PropertyEvent) event)
                 break
             default:
