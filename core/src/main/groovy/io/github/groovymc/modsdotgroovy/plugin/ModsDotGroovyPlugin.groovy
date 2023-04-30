@@ -5,20 +5,20 @@ import groovy.transform.CompileStatic
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
-interface ModsDotGroovyPlugin {
+abstract class ModsDotGroovyPlugin {
     /**
      * Byte.MAX_VALUE = highest priority, Byte.MIN_VALUE = lowest priority.
      * Higher priority plugins will have their actions executed first.
      * @return the priority of this plugin
      */
-    default byte getPriority() {
+    byte getPriority() {
         return 0
     }
 
     /**
      * The name of the plugin, used for logging and debugging purposes.
      */
-    default String getName() {
+    String getName() {
         final String simpleName = getClass().simpleName
         return simpleName.endsWith('Plugin') ? simpleName[0..-7] : simpleName
     }
@@ -26,11 +26,11 @@ interface ModsDotGroovyPlugin {
     /**
      * The version of the plugin, used for logging and debugging purposes.
      */
-    default float getVersion() {
+    float getVersion() {
         return 1.00f
     }
 
-    default void init() {
+    void init() {
         println "[$name] Plugin $name v$version initialized"
     }
 
@@ -46,17 +46,17 @@ interface ModsDotGroovyPlugin {
      *     If you return null or don't return anything (void), it'll be treated as {@code new PluginResult.Validate()}.
      */
     @CompileDynamic
-    default def set(final Deque<String> stack, final String name, def value) {
+    def set(final Deque<String> stack, final String name, def value) {
         return new PluginResult.Unhandled()
     }
 
     @CompileDynamic
-    default def onNestEnter(final Deque<String> stack, final String name, Map value) {
+    def onNestEnter(final Deque<String> stack, final String name, Map value) {
         return new PluginResult.Unhandled()
     }
 
     @CompileDynamic
-    default def onNestLeave(final Deque<String> stack, final String name, Map value) {
+    def onNestLeave(final Deque<String> stack, final String name, Map value) {
         return new PluginResult.Unhandled()
     }
 
@@ -66,7 +66,17 @@ interface ModsDotGroovyPlugin {
      * @return A map of values you want to add or override in the final map.
      */
     @Nullable
-    default Map build(Map buildingMap) {
+    Map build(Map buildingMap) {
         return null
+    }
+
+    private final Map<NestKey, Object> nests = [:]
+
+    final initializeNest(NestKey key, Object nest) {
+        nests[key] = nest
+    }
+
+    final getNest(NestKey key) {
+        return nests[key]
     }
 }

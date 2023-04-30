@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
-class ForgePlugin implements ModsDotGroovyPlugin {
+class ForgePlugin extends ModsDotGroovyPlugin {
 
     // note: void methods are executed and treated as PluginResult.VALIDATE
     void setModLoader(final String modLoader) {
@@ -17,7 +17,7 @@ class ForgePlugin implements ModsDotGroovyPlugin {
             throw new PluginResult.MDGPluginException('modLoader must not start with a number.')
     }
 
-    final mods = new Object() {
+    class Mods {
         private final List modInfos = []
 
         def onNestLeave(final Deque<String> stack, final Map value) {
@@ -31,14 +31,16 @@ class ForgePlugin implements ModsDotGroovyPlugin {
             return new PluginResult.Validate()
         }
 
-        final modInfo = new Object() {
+        class ModInfo {
+            String modId
+
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 println "[Forge] mods.modInfo.onNestLeave"
                 modInfos.add(value)
                 return PluginResult.remove()
             }
 
-            void setModId(final String modId) {
+            def setModId(final String modId) {
                 println "[Forge] mods.modInfo.modId: ${modId}"
 
                 // validate the modId string
@@ -65,11 +67,15 @@ class ForgePlugin implements ModsDotGroovyPlugin {
                 return new PluginResult.Validate()
             }
 
-            static class Dependencies {
-                static PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            class Dependencies {
+                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                     println "[Forge] mods.modInfo.dependencies.onNestLeave"
-                    stack.addLast(modId) // redirect to mods.modInfo.dependencies.modId
-                    return PluginResult.move(stack, value)
+                    if (ModInfo.this.modId === null)
+                        throw new PluginResult.MDGPluginException('modId must be set before dependencies can be set.')
+                    Deque<String> newStack = new ArrayDeque<>()
+                    newStack.addLast("dependencies")
+                    newStack.addLast(ModInfo.this.modId)
+                    return PluginResult.move(newStack, value)
                 }
             }
         }
