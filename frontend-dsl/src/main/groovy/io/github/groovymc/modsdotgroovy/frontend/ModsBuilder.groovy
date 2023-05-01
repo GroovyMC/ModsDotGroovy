@@ -1,5 +1,6 @@
 package io.github.groovymc.modsdotgroovy.frontend
 
+import groovy.util.logging.Log4j2
 import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
@@ -8,6 +9,7 @@ import groovy.transform.stc.SimpleType
 import static groovy.lang.Closure.DELEGATE_ONLY
 
 @CompileStatic
+@Log4j2(category = 'MDG - Frontend')
 class ModsBuilder implements PropertyInterceptor, MapClosureInterceptor {
     private final ModsDotGroovyCore core
 
@@ -16,7 +18,7 @@ class ModsBuilder implements PropertyInterceptor, MapClosureInterceptor {
     void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_ONLY)
                  @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
                  final Closure closure) {
-        println "[Frontend] modInfo(closure)"
+        log.debug "modInfo(closure)"
         core.push('modInfo')
         final modInfoBuilder = new ModInfoBuilder(core)
         closure.resolveStrategy = DELEGATE_ONLY
@@ -27,12 +29,12 @@ class ModsBuilder implements PropertyInterceptor, MapClosureInterceptor {
 
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
     ModsBuilder() {
-        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.ModsBuilder()"
+        log.debug "new io.github.groovymc.modsdotgroovy.frontend.ModsBuilder()"
         this.core = null
     }
 
     ModsBuilder(final ModsDotGroovyCore core) {
-        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.ModsBuilder(core: $core)"
+        log.debug "new io.github.groovymc.modsdotgroovy.frontend.ModsBuilder(core: $core)"
         this.core = core
     }
 }

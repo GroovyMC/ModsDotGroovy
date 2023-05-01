@@ -1,10 +1,12 @@
 package io.github.groovymc.modsdotgroovy.frontend
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Log4j2
 import org.jetbrains.annotations.Nullable
 import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 @CompileStatic
+@Log4j2(category = 'MDG - Frontend')
 class DependenciesBuilder implements PropertyInterceptor, MapClosureInterceptor {
     private final ModsDotGroovyCore core
 
@@ -12,12 +14,12 @@ class DependenciesBuilder implements PropertyInterceptor, MapClosureInterceptor 
     @Nullable String minecraft
 
     DependenciesBuilder() {
-        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.DependenciesBuilder()"
+        log.debug "new io.github.groovymc.modsdotgroovy.frontend.DependenciesBuilder()"
         this.core = null
     }
 
     DependenciesBuilder(final ModsDotGroovyCore core) {
-        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.DependenciesBuilder(core: $core)"
+        log.debug "new io.github.groovymc.modsdotgroovy.frontend.DependenciesBuilder(core: $core)"
         this.core = core
     }
 }

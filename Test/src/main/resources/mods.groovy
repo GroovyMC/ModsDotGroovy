@@ -1,6 +1,4 @@
-println "Groovy v${GroovySystem.version}"
-
-final mdg = ModsDotGroovy.make {
+ModsDotGroovy.make {
     modLoader = 'gml'
     loaderVersion = '[1,)'
 
@@ -114,5 +112,3 @@ final mdg = ModsDotGroovy.make {
 //        mixin = "no.mixin.json"
 //    }
 }
-println mdg.core.build()
-return mdg

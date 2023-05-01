@@ -7,12 +7,16 @@ import groovy.transform.stc.SimpleType
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.attributes.Bundling
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.LibraryElements
+import org.gradle.api.attributes.Usage
+import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.annotations.Nullable
-
 
 class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     public static final String CONFIGURATION_NAME = 'modsDotGroovy'
@@ -22,6 +26,11 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         final ext = project.extensions.create(MDGExtension.NAME, MDGExtension)
         final configuration = project.configurations.create(CONFIGURATION_NAME)
         configuration.canBeConsumed = false
+        configuration.attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category, Category.LIBRARY))
+        configuration.attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling, Bundling.EXTERNAL))
+        configuration.attributes.attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(TargetJvmEnvironment, TargetJvmEnvironment.STANDARD_JVM))
+        configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, Usage.JAVA_RUNTIME))
+        configuration.attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements, LibraryElements.JAR))
 
         project.getPlugins().apply('java')
 
@@ -109,6 +118,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
             notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
             input.set(modsGroovy.file)
+            dependsOn(project.configurations.getByName(CONFIGURATION_NAME))
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
@@ -124,6 +134,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         final convertTask = project.getTasks().create('modsDotGroovyToQuiltJson', ConvertToQuiltJsonTask) {
             notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
             input.set(modsGroovy.file)
+            dependsOn(project.configurations.getByName(CONFIGURATION_NAME))
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
