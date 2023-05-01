@@ -37,8 +37,8 @@ abstract class ConvertToTomlTask extends AbstractConvertTask {
     @Override
     protected String writeData(Map data) {
         final tomlWriter = new TomlWriter.Builder()
-                .indentValuesBy(2)
-                .indentTablesBy(4)
+//                .indentValuesBy(2)
+//                .indentTablesBy(4)
                 .build()
         return tomlWriter.write(data)
     }
