@@ -68,32 +68,30 @@ final class ModsDotGroovyCore {
                     log.debug "Plugin \"${plugin.name}\" validated property \"$propertyName\""
                     break
                 case PluginResult.Change:
-                    result = (PluginResult.Change) result // Groovy 3 workaround - usually this cast is unnecessary
+                    result = (PluginResult.Change) result
 
-                    // set the new name and value
-                    if (result.newPropertyName !== null && result.newPropertyName != propertyName) {
-                        log.debug "Plugin \"${plugin.name}\" renamed property \"${propertyName}\" to \"${result.newPropertyName}\""
-                        propertyName = result.newPropertyName
-                        setIgnoreNextEvent(true)
-                        put(propertyName, mapValue)
-                    }
-
-                    if (result.newValue === null) {
-                        log.debug "Plugin \"${plugin.name}\" removed property \"$propertyName\""
-                        setIgnoreNextEvent(true)
-                        remove(propertyName)
-                        break
-                    } else if (result.newValue != mapValue) {
-                        log.debug "Plugin \"${plugin.name}\" changed property \"${propertyName}\" value from \"${mapValue}\" to \"${result.newValue}\""
-                        mapValue = result.newValue
-                        setIgnoreNextEvent(true)
-                        put(propertyName, mapValue)
-                    }
-
-                    // change the stack to the new location if different
-                    if (result.newLocation !== null && result.newLocation != originalStack) {
+                    if (result.newLocation !== null && result.newLocation != originalStack && result.newValue !== null) {
                         log.debug "Plugin \"${plugin.name}\" moved property from \"${getStack().join '->'}\" to \"${result.newLocation.join '->'}\""
-                        move(propertyName, result.newLocation, propertyName, mapValue)
+                        move(propertyName, result.newLocation, result.newPropertyName, result.newValue)
+                        break
+                    }
+                    if (result.newPropertyName !== null) {
+                        log.debug "Plugin \"${plugin.name}\" renamed property \"${propertyName}\" to \"${result.newPropertyName}\""
+                        setIgnoreNextEvent(true)
+                        var old = put(propertyName, null)
+                        setIgnoreNextEvent(true)
+                        put(result.newPropertyName, old)
+                        propertyName = result.newPropertyName
+                    }
+                    if (result.newValue === null) {
+                        log.debug "Plugin \"${plugin.name}\" removed property \"${propertyName}\""
+                        setIgnoreNextEvent(true)
+                        put(propertyName, null)
+                        break
+                    } else if (result.newValue != event.newValue) {
+                        log.debug "Plugin \"${plugin.name}\" changed property \"${propertyName}\" value from \"${mapValue}\" to \"${result.newValue}\""
+                        setIgnoreNextEvent(true)
+                        put(propertyName, result.newValue)
                     }
                     break
                 case PluginResult.Unhandled:
@@ -157,14 +155,15 @@ final class ModsDotGroovyCore {
                     if (change.newPropertyName !== null) {
                         log.debug "Plugin \"${plugin.name}\" renamed nest \"${propertyName}\" to \"${change.newPropertyName}\""
                         setIgnoreNextEvent(true)
-                        var old = remove(propertyName)
+                        var old = put(propertyName, null)
                         setIgnoreNextEvent(true)
                         put(change.newPropertyName, old)
+                        propertyName = change.newPropertyName
                     }
                     if (change.newValue === null) {
                         log.debug "Plugin \"${plugin.name}\" removed nest \"${propertyName}\""
                         setIgnoreNextEvent(true)
-                        remove(propertyName)
+                        put(propertyName, null)
                         break
                     } else if (change.newValue != event.newValue) {
                         log.debug "Plugin \"${plugin.name}\" changed nest \"${propertyName}\" value from \"${mapValue}\" to \"${change.newValue}\""

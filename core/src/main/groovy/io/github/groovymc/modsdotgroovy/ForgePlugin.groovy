@@ -9,9 +9,6 @@ import io.github.groovymc.modsdotgroovy.plugin.PluginUtils
 import org.apache.logging.log4j.core.Logger
 import org.jetbrains.annotations.Nullable
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 @Log4j2(category = 'MDG - ForgePlugin')
@@ -89,7 +86,7 @@ class ForgePlugin extends ModsDotGroovyPlugin {
                     throw new PluginResult.MDGPluginException(errorMsg.toString())
                 }
                 this.modId = modId
-                return PluginResult.rename('modIdNew', modId)
+                return new PluginResult.Validate()
             }
 
             PluginResult setAuthor(final String author) {
