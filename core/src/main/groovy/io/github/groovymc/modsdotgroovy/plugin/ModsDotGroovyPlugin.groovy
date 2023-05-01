@@ -33,6 +33,9 @@ abstract class ModsDotGroovyPlugin {
         return 1.00f
     }
 
+    /**
+     * Called when the plugin is initialized. Use this to setup any resources you need.
+     */
     void init() {
         log.info "Plugin $name v$version initialized"
     }
@@ -53,11 +56,33 @@ abstract class ModsDotGroovyPlugin {
         return new PluginResult.Unhandled()
     }
 
+    /**
+     * A generic method that's called when entering a nest.
+     * Used as a fallback for when a plugin doesn't implement an explicit onNestEnter.
+     * @param stack
+     * @param name
+     * @param value
+     * @return <<T extends PluginResult> | Object | null | void>
+     *     If you return a PluginResult, it'll be treated as-is.
+     *     If you return an Object, it'll be treated as {@code new PluginResult.Change(newValue: (yourObject))}.
+     *     If you return null or don't return anything (void), it'll be treated as {@code new PluginResult.Validate()}.
+     */
     @CompileDynamic
     def onNestEnter(final Deque<String> stack, final String name, Map value) {
         return new PluginResult.Unhandled()
     }
 
+    /**
+     * A generic method that's called when leaving a nest.
+     * Used as a fallback for when a plugin doesn't implement an explicit onNestLeave.
+     * @param stack
+     * @param name
+     * @param value
+     * @return <<T extends PluginResult> | Object | null | void>
+     *     If you return a PluginResult, it'll be treated as-is.
+     *     If you return an Object, it'll be treated as {@code new PluginResult.Change(newValue: (yourObject))}.
+     *     If you return null or don't return anything (void), it'll be treated as {@code new PluginResult.Validate()}.
+     */
     @CompileDynamic
     def onNestLeave(final Deque<String> stack, final String name, Map value) {
         return new PluginResult.Unhandled()
@@ -75,11 +100,12 @@ abstract class ModsDotGroovyPlugin {
 
     private final Map<NestKey, Object> nests = [:]
 
-    final initializeNest(NestKey key, Object nest) {
+    final void initializeNest(final NestKey key, final Object nest) {
         nests[key] = nest
     }
 
-    final getNest(NestKey key) {
+    @Nullable
+    final getNest(final NestKey key) {
         return nests[key]
     }
 }

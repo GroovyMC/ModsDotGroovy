@@ -1,6 +1,5 @@
 package io.github.groovymc.modsdotgroovy
 
-
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
@@ -94,7 +93,7 @@ class ForgePlugin extends ModsDotGroovyPlugin {
         log.debug "set(name: $name, value: $value)"
 
         if (!stack.isEmpty() && name == 'modLoader') {
-            log.debug "Warning: modLoader should be set at the root but it was found in ${stack.join '->'}"
+            log.warn "modLoader should be set at the root but it was found in ${stack.join '->'}"
 
             // move the modLoader to the root by returning an empty stack
             return PluginResult.move([], value as String)
