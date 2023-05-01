@@ -55,6 +55,11 @@ class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
     @Nullable String credits
 
     /**
+     * Display Test controls the display for your mod in the server connection screen.
+     */
+    DisplayTest displayTest = DisplayTest.MATCH_VERSION
+
+    /**
      * A multi-line description text for the mod, displayed in the in-game Mods screen.
      */
     String description = ''
@@ -64,6 +69,12 @@ class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
      * These will be automatically formatted as 'x, y and z' on Forge.
      */
     List<String> authors = []
+
+    /**
+     * The author of the mod. <br>
+     * An alternative to {@link #authors} for single author mods.
+     */
+    String author = ''
 
     ModInfoBuilder() {
         log.debug "new io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder()"

@@ -5,8 +5,12 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import io.github.groovymc.modsdotgroovy.plugin.PluginResult
+import io.github.groovymc.modsdotgroovy.plugin.PluginUtils
 import org.apache.logging.log4j.core.Logger
 import org.jetbrains.annotations.Nullable
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
@@ -16,8 +20,26 @@ class ForgePlugin extends ModsDotGroovyPlugin {
     // note: void methods are executed and treated as PluginResult.VALIDATE
     void setModLoader(final String modLoader) {
         log.debug "modLoader: ${modLoader}"
-        if (modLoader ==~ /^\d/)
+        if (PluginUtils.startsWithNumber(modLoader))
             throw new PluginResult.MDGPluginException('modLoader must not start with a number.')
+    }
+
+    void setLicense(final String license) {
+        log.debug "license: ${license}"
+        if (license.isBlank())
+            throw new PluginResult.MDGPluginException('license cannot be set to a blank string. Omit the setter altogether if you don\'t want to specify a license.')
+    }
+
+    /** Support British spelling as an alias */
+    PluginResult setLicence(final String licence) {
+        log.debug "licence: ${licence}"
+        return PluginResult.rename('license', licence)
+    }
+
+    void setIssueTrackerUrl(final String issueTrackerUrl) {
+        log.debug "issueTrackerUrl: ${issueTrackerUrl}"
+        if (!PluginUtils.isValidHttpUrl(issueTrackerUrl))
+            throw new PluginResult.MDGPluginException('issueTrackerUrl must start with http:// or https://')
     }
 
     class Mods {
@@ -54,7 +76,7 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 
                     if (modId.contains('-') || modId.contains(' '))
                         errorMsg.append('\nDashes and spaces are not allowed in modId as per the JPMS spec. Use underscores instead.')
-                    if (modId ==~ /^\d/)
+                    if (PluginUtils.startsWithNumber(modId))
                         errorMsg.append('\nmodId cannot start with a number.')
                     if (modId != modId.toLowerCase(Locale.ROOT))
                         errorMsg.append('\nmodId must be lowercase.')
@@ -70,11 +92,29 @@ class ForgePlugin extends ModsDotGroovyPlugin {
                 return PluginResult.rename('modIdNew', modId)
             }
 
+            PluginResult setAuthor(final String author) {
+                log.debug "mods.modInfo.author: ${author}"
+                return PluginResult.rename('authors', [author])
+            }
+
+            void setLogoFile(final String logoFile) {
+                log.debug "mods.modInfo.logoFile: ${logoFile}"
+                if (!logoFile.contains('.'))
+                    throw new PluginResult.MDGPluginException('logoFile is missing a file extension. Did you forget to put ".png" at the end?')
+            }
+
+            void setUpdateJsonUrl(final String updateJsonUrl) {
+                log.debug "mods.modInfo.updateJsonUrl: ${updateJsonUrl}"
+                if (!PluginUtils.isValidHttpUrl(updateJsonUrl))
+                    throw new PluginResult.MDGPluginException('updateJsonUrl must start with http:// or https://')
+            }
+
             class Dependencies {
                 PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                     log.debug "mods.modInfo.dependencies.onNestLeave"
                     if (ModInfo.this.modId === null)
                         throw new PluginResult.MDGPluginException('modId must be set before dependencies can be set.')
+
                     return PluginResult.move(['dependencies'], ModInfo.this.modId, value)
                 }
             }

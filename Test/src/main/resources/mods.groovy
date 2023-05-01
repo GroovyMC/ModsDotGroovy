@@ -5,21 +5,21 @@ ModsDotGroovy.make {
     license = 'All Rights Reserved'
     issueTrackerUrl = 'https://example.com/issues'
 
-    mods {
-        modInfo {
-            modId = 'examplemod'
-            version = '1.0.0'
-            displayName = 'Example Mod'
-            description = 'This is an example mod.'
-            authors = ['Example Mod Author']
-            logoFile = 'logo.png'
-            updateJsonUrl = 'https://example.com/update.json'
-            displayUrl = 'https://example.com'
-            credits = 'Example Mod Credits'
-            dependencies {
-                forge = "[44,)"
-                minecraft = '[1.19.3]'
-            }
+    mod {
+        modId = 'examplemod'
+        version = '1.0.0'
+        displayName = 'Example Mod'
+        description = 'This is an example mod.'
+        //authors = ['Example Mod Author']
+        author = 'Example Mod Author'
+        logoFile = 'logo.png'
+        updateJsonUrl = 'https://example.com/update.json'
+        displayUrl = 'https://example.com'
+        credits = 'Example Mod Credits'
+        displayTest = DisplayTest.MATCH_VERSION
+        dependencies {
+            forge = "[44,)"
+            minecraft = '[1.19.3]'
         }
     }
 
