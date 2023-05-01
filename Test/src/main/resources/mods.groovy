@@ -20,6 +20,22 @@ ModsDotGroovy.make {
         dependencies {
             forge = "[44,)"
             minecraft = '[1.19.3]'
+
+            mod {
+                modId = 'patchouli'
+                versionRange = '[1.1,)'
+                ordering = DependencyOrdering.AFTER
+                side = DependencySide.BOTH
+            }
+
+            // todo: support this in the ForgePlugin
+            exampledep {
+                versionRange = '[1,)'
+                side = DependencySide.CLIENT
+            }
+
+            // todo: support this, too
+            exampledep2 = '[1,)'
         }
     }
 

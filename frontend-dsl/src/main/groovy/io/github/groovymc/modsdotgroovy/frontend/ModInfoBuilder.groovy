@@ -57,7 +57,7 @@ class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
     /**
      * Display Test controls the display for your mod in the server connection screen.
      */
-    DisplayTest displayTest = DisplayTest.MATCH_VERSION
+    def displayTest = null //DisplayTest.MATCH_VERSION // todo: fix type issue
 
     /**
      * A multi-line description text for the mod, displayed in the in-game Mods screen.
@@ -87,7 +87,8 @@ class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
     }
 
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
-                      @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependenciesBuilder') final Closure closure) {
+                      @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.DependenciesBuilder')
+                      final Closure closure) {
         log.debug "dependencies(closure)"
         core.push('dependencies')
         final dependenciesBuilder = new DependenciesBuilder(core)

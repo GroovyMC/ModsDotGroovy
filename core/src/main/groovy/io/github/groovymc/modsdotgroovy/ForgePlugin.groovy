@@ -110,12 +110,50 @@ class ForgePlugin extends ModsDotGroovyPlugin {
             }
 
             class Dependencies {
-                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                    log.debug "mods.modInfo.dependencies.onNestLeave"
+                private final List dependencies = []
+
+                def onNestEnter(final Deque<String> stack, final Map value) {
+                    log.debug "mods.modInfo.dependencies.onNestEnter: ${value}"
                     if (ModInfo.this.modId === null)
                         throw new PluginResult.MDGPluginException('modId must be set before dependencies can be set.')
 
-                    return PluginResult.move(['dependencies'], ModInfo.this.modId, value)
+                    dependencies.clear()
+                    return new PluginResult.Validate()
+                }
+
+                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                    log.debug "mods.modInfo.dependencies.onNestLeave"
+                    return PluginResult.move(['dependencies'], ModInfo.this.modId, dependencies)
+                }
+
+                @Nullable
+                @CompileDynamic // todo: figure out why this is never called
+                def set(final Deque<String> stack, final String name, def value) {
+                    log.debug "mods.modInfo.dependencies.set(name: $name, value: $value)"
+
+                    // support `modId = "versionRange"` syntax
+                    final newStack = new ArrayDeque<String>(stack)
+                    newStack.push('dependency')
+                    return new PluginResult.Change(newLocation: newStack, newValue: [modId: name, versionRange: value])
+
+                    // todo: support `modId { versionRange = '...'; side = DependencySide.CLIENT; ... }` syntax
+                }
+
+                class Dependency {
+                    @Nullable String modId = null
+                    @Nullable String versionRange = null
+
+                    PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                        log.debug "mods.modInfo.dependencies.dependency.onNestLeave"
+                        if (this.modId === null)
+                            throw new PluginResult.MDGPluginException('dependency is missing a modId')
+
+                        if (this.versionRange === null)
+                            throw new PluginResult.MDGPluginException("dependency \"${this.modId}\" is missing a versionRange")
+
+                        dependencies.add(value)
+                        return PluginResult.remove()
+                    }
                 }
             }
         }
@@ -145,14 +183,14 @@ class ForgePlugin extends ModsDotGroovyPlugin {
     @Override
     PluginResult onNestEnter(final Deque<String> stack, final String name, final Map value) {
         log.debug "onNestEnter(name: $name, value: $value)"
-        return new PluginResult.Validate()
+        return new PluginResult.Unhandled()
     }
 
     @Override
     @CompileDynamic
     def onNestLeave(final Deque<String> stack, final String name, Map value) {
         log.debug "onNestLeave(name: $name, value: $value)"
-        return new PluginResult.Validate()
+        return new PluginResult.Unhandled()
     }
 
     @Override
