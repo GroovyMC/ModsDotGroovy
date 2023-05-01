@@ -72,48 +72,26 @@ class PluginResult {
     }
 
     @CompileDynamic
-    static Change move(final Deque<String> newLocation, final def value) {
-        return new Change(newLocation: newLocation, newValue: value)
+    static Change move(final Deque<String> newParentLocation, final def value) {
+        return new Change(newLocation: newParentLocation, newValue: value)
     }
 
     @CompileDynamic
-    static Change move(final List<String> newLocation, final def value) {
-        return new Change(newLocation: new ArrayDeque<>(newLocation), newValue: value)
+    static Change move(final List<String> newParentLocation, final def value) {
+        return new Change(newLocation: new ArrayDeque<>(newParentLocation), newValue: value)
+    }
+
+    @CompileDynamic
+    static Change move(final Deque<String> newParentLocation, final String newPropertyName, final def value) {
+        return new Change(newLocation: newParentLocation, newValue: value, newPropertyName: newPropertyName)
+    }
+
+    @CompileDynamic
+    static Change move(final List<String> newParentLocation, final String newPropertyName, final def value) {
+        return new Change(newLocation: new ArrayDeque<>(newParentLocation), newValue: value, newPropertyName: newPropertyName)
     }
 
     static Change remove() {
         return new Change(newValue: null)
     }
-
-    /**
-     * Default action for not even listening to the property event.
-     * Do nothing and let the next plugin handle it, or let the property change go through if no other plugin handles it.
-     */
-//    UNHANDLED,
-
-    /**
-     * Default action for listening to the event but *not* changing the property.<br>
-     * Useful for validation.<br>
-     * Allows the next plugin to handle the property.
-     */
-//    VALIDATE,
-
-    /**
-     * Default action for listening to the event and changing the property.<br>
-     * Useful for transforming the property. For example, making a string lowercase before it's put into the rootMap map.<br>
-     * Allows the next plugin to handle the property.
-     */
-//    TRANSFORM,
-
-    /**
-     * Similar to {@link #TRANSFORM}, but stops firing this property event to other plugins.<br>
-     * Prevents the next plugin from handling the property.
-     */
-//    BREAK,
-
-    /**
-     * Prevents the next plugin from handling the property and prevents the property from being set.<br>
-     * Useful for preventing the property from being added to the rootMap map altogether.
-     */
-//    IGNORE
 }

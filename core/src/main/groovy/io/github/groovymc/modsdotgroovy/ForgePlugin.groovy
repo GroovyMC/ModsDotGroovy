@@ -1,18 +1,22 @@
 package io.github.groovymc.modsdotgroovy
 
+
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.util.logging.Log4j2
 import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import io.github.groovymc.modsdotgroovy.plugin.PluginResult
+import org.apache.logging.log4j.core.Logger
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
+@Log4j2(category = 'MDG - ForgePlugin')
 class ForgePlugin extends ModsDotGroovyPlugin {
 
     // note: void methods are executed and treated as PluginResult.VALIDATE
     void setModLoader(final String modLoader) {
-        println "[Forge] modLoader: ${modLoader}"
+        log.debug "modLoader: ${modLoader}"
         if (modLoader ==~ /^\d/)
             throw new PluginResult.MDGPluginException('modLoader must not start with a number.')
     }
@@ -21,12 +25,12 @@ class ForgePlugin extends ModsDotGroovyPlugin {
         private final List modInfos = []
 
         def onNestLeave(final Deque<String> stack, final Map value) {
-            println "[Forge] mods.onNestLeave: ${value}"
+            log.debug "mods.onNestLeave: ${value}"
             return modInfos
         }
 
         def onNestEnter(final Deque<String> stack, final Map value) {
-            println "[Forge] mods.onNestEnter: ${value}"
+            log.debug "mods.onNestEnter: ${value}"
             modInfos.clear()
             return new PluginResult.Validate()
         }
@@ -35,13 +39,13 @@ class ForgePlugin extends ModsDotGroovyPlugin {
             String modId
 
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                println "[Forge] mods.modInfo.onNestLeave"
+                log.debug "mods.modInfo.onNestLeave"
                 modInfos.add(value)
                 return PluginResult.remove()
             }
 
             def setModId(final String modId) {
-                println "[Forge] mods.modInfo.modId: ${modId}"
+                log.debug "mods.modInfo.modId: ${modId}"
 
                 // validate the modId string
                 // https://github.com/MinecraftForge/MinecraftForge/blob/4b813e4319fbd4e7f1ea2a7edaedc82ba617f797/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModInfo.java#L32
@@ -64,31 +68,33 @@ class ForgePlugin extends ModsDotGroovyPlugin {
                     throw new PluginResult.MDGPluginException(errorMsg.toString())
                 }
                 this.modId = modId
-                return new PluginResult.Validate()
+                return PluginResult.rename('modIdNew', modId)
             }
 
             class Dependencies {
                 PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                    println "[Forge] mods.modInfo.dependencies.onNestLeave"
+                    log.debug "mods.modInfo.dependencies.onNestLeave"
                     if (ModInfo.this.modId === null)
                         throw new PluginResult.MDGPluginException('modId must be set before dependencies can be set.')
-                    Deque<String> newStack = new ArrayDeque<>()
-                    newStack.addLast("dependencies")
-                    newStack.addLast(ModInfo.this.modId)
-                    return PluginResult.move(newStack, value)
+                    return PluginResult.move(['dependencies'], ModInfo.this.modId, value)
                 }
             }
         }
     }
 
     @Override
+    Logger getLog() {
+        return log
+    }
+
+    @Override
     @Nullable
     @CompileDynamic
     def set(final Deque<String> stack, final String name, def value) {
-        println "[Forge] set(name: $name, value: $value)"
+        log.debug "set(name: $name, value: $value)"
 
         if (!stack.isEmpty() && name == 'modLoader') {
-            println "[Forge] Warning: modLoader should be set at the root but it was found in ${stack.join '->'}"
+            log.debug "Warning: modLoader should be set at the root but it was found in ${stack.join '->'}"
 
             // move the modLoader to the root by returning an empty stack
             return PluginResult.move([], value as String)
@@ -99,18 +105,14 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 
     @Override
     PluginResult onNestEnter(final Deque<String> stack, final String name, final Map value) {
-        println '---'
-        println "[Forge] onNestEnter(name: $name, value: $value)"
-        println '---'
+        log.debug "onNestEnter(name: $name, value: $value)"
         return new PluginResult.Validate()
     }
 
     @Override
     @CompileDynamic
     def onNestLeave(final Deque<String> stack, final String name, Map value) {
-        println '---'
-        println "[Forge] onNestLeave(name: $name, value: $value)"
-        println '---'
+        log.debug "onNestLeave(name: $name, value: $value)"
         return new PluginResult.Validate()
     }
 

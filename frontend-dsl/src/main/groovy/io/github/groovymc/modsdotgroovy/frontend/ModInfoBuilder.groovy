@@ -3,12 +3,14 @@ package io.github.groovymc.modsdotgroovy.frontend
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import groovy.util.logging.Log4j2
 import org.jetbrains.annotations.Nullable
 import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
+@Log4j2(category = 'MDG - Frontend')
 class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
     private final ModsDotGroovyCore core
 
@@ -64,18 +66,18 @@ class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
     List<String> authors = []
 
     ModInfoBuilder() {
-        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder()"
+        log.debug "new io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder()"
         this.core = null
     }
 
     ModInfoBuilder(final ModsDotGroovyCore core) {
-        println "[Frontend] new io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder(core: $core)"
+        log.debug "new io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder(core: $core)"
         this.core = core
     }
 
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                       @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependenciesBuilder') final Closure closure) {
-        println "[Frontend] dependencies(closure)"
+        log.debug "dependencies(closure)"
         core.push('dependencies')
         final dependenciesBuilder = new DependenciesBuilder(core)
         closure.delegate = dependenciesBuilder

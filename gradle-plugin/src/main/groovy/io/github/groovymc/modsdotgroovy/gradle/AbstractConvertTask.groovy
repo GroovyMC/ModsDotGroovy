@@ -5,10 +5,8 @@
 
 package io.github.groovymc.modsdotgroovy.gradle
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
-
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -35,11 +33,6 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Optional
     @OutputFile
     abstract RegularFileProperty getOutput()
-
-    @Deprecated(forRemoval = true)
-    @Optional
-    @InputFile
-    abstract RegularFileProperty getDslLocation()
 
     @Optional
     @Input
@@ -176,9 +169,12 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     @SuppressWarnings('GrDeprecatedAPIUsage')
     Map from(File script) {
         final bindings = new Binding(arguments.get())
-        final actualDsl = dslLocation.getOrNull()?.asFile ?: (dslConfiguration.getOrNull() ?: project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME)).resolve().find()
+        final actualDsl = (dslConfiguration.getOrNull() ?: project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME))
+                .resolvedConfiguration.resolvedArtifacts.collect {
+            it.file
+        }
         final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
-            final List<String> classpath = List.of(actualDsl.toString())
+            final List<String> classpath = actualDsl.collect {it.toString()}
             @Override
             List<String> getClasspath() {
                 return classpath

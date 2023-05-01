@@ -2,6 +2,7 @@ package io.github.groovymc.modsdotgroovy.plugin
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.apache.logging.log4j.core.Logger
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
@@ -23,6 +24,8 @@ abstract class ModsDotGroovyPlugin {
         return simpleName.endsWith('Plugin') ? simpleName[0..-7] : simpleName
     }
 
+    abstract Logger getLog()
+
     /**
      * The version of the plugin, used for logging and debugging purposes.
      */
@@ -31,7 +34,7 @@ abstract class ModsDotGroovyPlugin {
     }
 
     void init() {
-        println "[$name] Plugin $name v$version initialized"
+        log.info "Plugin $name v$version initialized"
     }
 
     /**
