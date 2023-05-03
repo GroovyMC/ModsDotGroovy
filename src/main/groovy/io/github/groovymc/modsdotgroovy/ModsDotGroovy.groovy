@@ -89,14 +89,16 @@ class ModsDotGroovy implements Plugin<Project> {
 
                         forge.each {
                             makeAndAppendForgeTask(modsGroovy, it).with {
-                                dslConfiguration.set(commonConfiguration)
+                                it.dependsOn(commonConfiguration)
+                                dslClasspath.from(commonConfiguration)
                                 arguments.set(ext.arguments.get())
                                 catalogs.set(ext.catalogs.get())
                             }
                         }
                         quilt.each {
                             makeAndAppendQuiltTask(modsGroovy, it).with{
-                                dslConfiguration.set(commonConfiguration)
+                                it.dependsOn(commonConfiguration)
+                                dslClasspath.from(commonConfiguration)
                                 arguments.set(ext.arguments.get())
                                 catalogs.set(ext.catalogs.get())
                             }

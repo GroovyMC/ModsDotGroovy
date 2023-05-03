@@ -10,15 +10,13 @@ import groovy.transform.CompileStatic
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.internal.catalog.VersionCatalogView
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.language.jvm.tasks.ProcessResources
 
@@ -30,13 +28,9 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Optional
     @OutputFile
     abstract RegularFileProperty getOutput()
-    @Deprecated(forRemoval = true)
-    @Optional
-    @InputFile
-    abstract RegularFileProperty getDslLocation()
-    @Optional
-    @Input
-    abstract Property<Configuration> getDslConfiguration()
+
+    @InputFiles
+    abstract ConfigurableFileCollection getDslClasspath()
 
     @Input
     @Optional
@@ -159,9 +153,9 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     @CompileDynamic
     Map from(File script) {
         final bindings = new Binding(arguments.get())
-        final actualDsl = dslLocation.getOrNull()?.asFile ?: (dslConfiguration.getOrNull()?:project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME)).resolve().find()
+        final actualDslFiles = !dslClasspath.isEmpty()?dslClasspath:project.configurations.getByName(ModsDotGroovy.CONFIGURATION_NAME).resolve()
         final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
-            final List<String> classpath = List.of(actualDsl.toString())
+            final List<String> classpath = actualDslFiles.collect {it.toString()}
             @Override
             List<String> getClasspath() {
                 return classpath
