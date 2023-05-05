@@ -1,5 +1,6 @@
 package io.github.groovymc.modsdotgroovy.frontend
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
@@ -11,7 +12,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
 @Log4j2(category = 'MDG - Frontend')
-class DependenciesBuilder implements PropertyInterceptor, MapClosureInterceptor {
+class DependenciesBuilder implements MapClosureInterceptor {
     private final ModsDotGroovyCore core
 
     @Nullable String forge
@@ -37,5 +38,13 @@ class DependenciesBuilder implements PropertyInterceptor, MapClosureInterceptor 
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(dependencyBuilder)
         core.pop()
+    }
+
+    @CompileDynamic
+    void setProperty(final String name, final def value) {
+        mod {
+            modId = name
+            versionRange = value
+        }
     }
 }

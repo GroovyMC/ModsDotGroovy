@@ -139,18 +139,18 @@ class ForgePlugin extends ModsDotGroovyPlugin {
                     return PluginResult.move(['dependencies'], ModInfo.this.modId, dependencies)
                 }
 
-                @Nullable
-                @CompileDynamic // todo: figure out why this is never called
-                def set(final Deque<String> stack, final String name, def value) {
-                    log.debug "mods.modInfo.dependencies.set(name: $name, value: $value)"
-
-                    // support `modId = "versionRange"` syntax
-                    final newStack = new ArrayDeque<String>(stack)
-                    newStack.push('dependency')
-                    return new PluginResult.Change(newLocation: newStack, newValue: [modId: name, versionRange: value])
-
-                    // todo: support `modId { versionRange = '...'; side = DependencySide.CLIENT; ... }` syntax
-                }
+//                @Nullable
+//                @CompileDynamic
+//                def set(final Deque<String> stack, final String name, def value) {
+//                    log.debug "mods.modInfo.dependencies.set(name: $name, value: $value)"
+//
+//                    // todo: support `modId = "versionRange"` syntax in plugin layer rather than the frontend layer(?)
+//                    final newStack = new ArrayDeque<String>(stack)
+//                    newStack.addLast('dependency')
+//                    return new PluginResult.Change(newLocation: newStack, newValue: [modId: name, versionRange: value])
+//
+//                    // todo: support `modId { versionRange = '...'; side = DependencySide.CLIENT; ... }` syntax
+//                }
 
                 class Dependency {
                     @Nullable String modId = null
