@@ -56,6 +56,8 @@ final class ModsDotGroovyCore {
 
     @CompileDynamic
     private void onSinglePropertyEvent(final ObservableMap.PropertyEvent event) {
+        if (event instanceof ObservableMap.PropertyRemovedEvent) return // ignore removals
+
         String propertyName = event.propertyName
         def mapValue = event.newValue
 
@@ -75,18 +77,22 @@ final class ModsDotGroovyCore {
                         move(propertyName, result.newLocation, result.newPropertyName, result.newValue)
                         break
                     }
-                    if (result.newPropertyName !== null) {
+                    if (result.newPropertyName !== null && result.newValue !== null) {
                         log.debug "Plugin \"${plugin.name}\" renamed property \"${propertyName}\" to \"${result.newPropertyName}\""
+
+                        // first remove the old property
                         setIgnoreNextEvent(true)
-                        var old = put(propertyName, null)
-                        setIgnoreNextEvent(true)
-                        put(result.newPropertyName, old)
+                        remove(propertyName)
+
+                        // then add the new property
                         propertyName = result.newPropertyName
+                        setIgnoreNextEvent(true)
+                        put(propertyName, result.newValue)
                     }
                     if (result.newValue === null) {
                         log.debug "Plugin \"${plugin.name}\" removed property \"${propertyName}\""
                         setIgnoreNextEvent(true)
-                        put(propertyName, null)
+                        remove(propertyName)
                         break
                     } else if (result.newValue != event.newValue) {
                         log.debug "Plugin \"${plugin.name}\" changed property \"${propertyName}\" value from \"${mapValue}\" to \"${result.newValue}\""
