@@ -158,13 +158,17 @@ final class ModsDotGroovyCore {
                         }
                         break
                     }
-                    if (change.newPropertyName !== null) {
+                    if (change.newPropertyName !== null && change.newValue !== null) {
                         log.debug "Plugin \"${plugin.name}\" renamed nest \"${propertyName}\" to \"${change.newPropertyName}\""
+
+                        // first remove the old property
                         setIgnoreNextEvent(true)
-                        var old = put(propertyName, null)
-                        setIgnoreNextEvent(true)
-                        put(change.newPropertyName, old)
+                        remove(propertyName)
+
+                        // then add the new property
                         propertyName = change.newPropertyName
+                        setIgnoreNextEvent(true)
+                        put(propertyName, change.newValue)
                     }
                     if (change.newValue === null) {
                         log.debug "Plugin \"${plugin.name}\" removed nest \"${propertyName}\""
