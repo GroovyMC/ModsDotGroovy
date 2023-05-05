@@ -58,5 +58,6 @@ final mdg = ModsDotGroovy.make {
         }
     }
 }
-println mdg.core.build() // for viewing the built map that consumers will receive
+Map builtMap = mdg.core.build() // for viewing the built map that consumers will receive
+println builtMap
 return mdg

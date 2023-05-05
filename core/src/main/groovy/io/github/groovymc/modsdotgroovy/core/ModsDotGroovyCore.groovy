@@ -228,9 +228,11 @@ final class ModsDotGroovyCore {
 
             switch (action) {
                 case PluginAction.SET:
-                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, propertyValue))
+                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, propertyValue)) // explicit setter
                         return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, propertyValue))
-                    else
+                    else if (delegateObject.metaClass.respondsTo(delegateObject, 'set', eventStack, propertyName, propertyValue)) // inner generic setter
+                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, 'set', eventStack, propertyName, propertyValue))
+                    else // outer generic setter
                         return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
                 case PluginAction.ON_NEST_ENTER:
                     if (delegateObject.metaClass.respondsTo(delegateObject, methodName, eventStack, (Map) propertyValue))
@@ -258,64 +260,66 @@ final class ModsDotGroovyCore {
     private static Tuple2<Object, Boolean> traverseClassTree(final Deque<String> stack, ModsDotGroovyPlugin pluginObject) {
         boolean foundSubclass = false
         Object delegateObject = (Object) pluginObject
-        if (!stack.isEmpty()) {
-            final Deque<String> stackCopy = new ArrayDeque<>(stack)
-            List<String> stackList = []
-            while (!stackCopy.empty) {
-                String s = stackCopy.pollFirst()
-                stackList.add(s)
-                NestKey key = new NestKey(stackList)
-                if (pluginObject.getNest(key) !== null) {
-                    delegateObject = pluginObject.getNest(key)
-                    foundSubclass = true
-                } else {
-                    var found = true
-                    Object oldObject = (Object) delegateObject
-                    try {
-                        delegateObject = delegateObject[s]
-                        if (delegateObject == null) {
-                            found = false
-                        }
-                        pluginObject.initializeNest(key, delegateObject)
-                    } catch (MissingPropertyException ignored) {
+
+        if (stack.isEmpty())
+            return new Tuple2<>(delegateObject, foundSubclass)
+
+        final Deque<String> stackCopy = new ArrayDeque<>(stack)
+        List<String> stackList = []
+        while (!stackCopy.empty) {
+            String s = stackCopy.pollFirst()
+            stackList.add(s)
+            NestKey key = new NestKey(stackList)
+            if (pluginObject.getNest(key) !== null) {
+                delegateObject = pluginObject.getNest(key)
+                foundSubclass = true
+            } else {
+                boolean found = true
+                Object oldObject = (Object) delegateObject
+                try {
+                    delegateObject = delegateObject[s]
+                    if (delegateObject == null) {
                         found = false
-                        delegateObject = oldObject
-                        var classSearchName = s.capitalize()
-                        Class<?> innerClass
-                        try {
-                            innerClass = findFirstInnerClass(delegateObject.class, classSearchName)
-                        } catch (IllegalStateException ignored2) {
-                            // ignore
+                    }
+                    pluginObject.initializeNest(key, delegateObject)
+                } catch (MissingPropertyException ignored) {
+                    found = false
+                    delegateObject = oldObject
+                    var classSearchName = s.capitalize()
+                    Class<?> innerClass
+                    try {
+                        innerClass = findFirstInnerClass(delegateObject.class, classSearchName)
+                    } catch (IllegalStateException ignored2) {
+                        // ignore
+                    }
+                    if (innerClass != null) {
+                        boolean has1 = false
+                        if (innerClass.constructors.any {
+                            if ((it.modifiers & Modifier.PUBLIC) == 0) return false
+                            if (it.parameterCount === 1) {
+                                has1 = true
+                                return true
+                            }
+                            return it.parameterCount === 0
+                        }) {
+                            delegateObject = innerClass.metaClass.invokeConstructor(has1 ? new Object[]{delegateObject} : new Object[]{})
+                            pluginObject.initializeNest(key, delegateObject)
+                            found = true
                         }
-                        if (innerClass != null) {
-                            boolean has1 = false
-                            if (innerClass.constructors.any {
-                                if ((it.modifiers & Modifier.PUBLIC) == 0) return false
-                                if (it.parameterCount == 1) {
-                                    has1 = true
-                                    return true
-                                }
-                                return it.parameterCount == 0
-                            }) {
-                                delegateObject = innerClass.metaClass.invokeConstructor(has1 ? new Object[]{delegateObject} : new Object[]{})
-                                pluginObject.initializeNest(key, delegateObject)
-                                found = true
-                            }
-                            var fields = innerClass.fields.findAll { it.type == innerClass && (it.modifiers & Modifier.STATIC) != 0 }
-                            if (fields.size() == 1) {
-                                delegateObject = fields[0].get(delegateObject)
-                                pluginObject.initializeNest(key, delegateObject)
-                                found = true
-                            }
+                        var fields = innerClass.fields.findAll { it.type == innerClass && (it.modifiers & Modifier.STATIC) != 0 }
+                        if (fields.size() === 1) {
+                            delegateObject = fields[0].get(delegateObject)
+                            pluginObject.initializeNest(key, delegateObject)
+                            found = true
                         }
                     }
-                    if (!found) {
-                        foundSubclass = false
-                        delegateObject = pluginObject
-                        break
-                    }
-                    foundSubclass = true
                 }
+                if (!found) {
+                    foundSubclass = false
+                    delegateObject = pluginObject
+                    break
+                }
+                foundSubclass = true
             }
         }
 
@@ -331,7 +335,7 @@ final class ModsDotGroovyCore {
             findFirstInnerClass(it, name)
         }
 
-        if (matchesFromInterfaces.size() == 1) {
+        if (matchesFromInterfaces.size() === 1) {
             return matchesFromInterfaces[0]
         } else if (matchesFromInterfaces.size() > 1) {
             throw new IllegalStateException("Multiple inner classes with the name \"${name}\" found in the class tree of \"${clazz.name}\"")
