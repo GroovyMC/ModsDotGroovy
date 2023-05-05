@@ -1,5 +1,7 @@
 package io.github.groovymc.modsdotgroovy
 
+import groovy.json.JsonParserType
+import groovy.json.JsonSlurper
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
@@ -8,6 +10,11 @@ import io.github.groovymc.modsdotgroovy.plugin.PluginResult
 import io.github.groovymc.modsdotgroovy.plugin.PluginUtils
 import org.apache.logging.log4j.core.Logger
 import org.jetbrains.annotations.Nullable
+
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.util.regex.Matcher
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
@@ -54,10 +61,17 @@ class ForgePlugin extends ModsDotGroovyPlugin {
         }
 
         class ModInfo {
-            String modId
+            @Nullable String modId = null
+            @Nullable String displayUrl = null
+            @Nullable String issueTrackerUrl = null
+            @Nullable String updateJsonUrl = null
 
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 log.debug "mods.modInfo.onNestLeave"
+
+                if (updateJsonUrl === null || updateJsonUrl.isBlank())
+                    value['updateJsonUrl'] = inferUpdateJsonUrl(modId, displayUrl, issueTrackerUrl)
+
                 modInfos.add(value)
                 return PluginResult.remove()
             }
@@ -104,6 +118,8 @@ class ForgePlugin extends ModsDotGroovyPlugin {
                 log.debug "mods.modInfo.updateJsonUrl: ${updateJsonUrl}"
                 if (!PluginUtils.isValidHttpUrl(updateJsonUrl))
                     throw new PluginResult.MDGPluginException('updateJsonUrl must start with http:// or https://')
+
+                this.updateJsonUrl = updateJsonUrl
             }
 
             class Dependencies {
@@ -147,6 +163,8 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 
                         if (this.versionRange === null)
                             throw new PluginResult.MDGPluginException("dependency \"${this.modId}\" is missing a versionRange")
+
+                        value['mandatory'] ?= true
 
                         dependencies.add(value)
                         return PluginResult.remove()
@@ -198,5 +216,99 @@ class ForgePlugin extends ModsDotGroovyPlugin {
             loaderVersion: '[1,)',
             license: 'All Rights Reserved'
         ]
+    }
+
+    @Nullable
+    private static String inferUpdateJsonUrl(final String modId, @Nullable final String displayUrl, @Nullable final String issueTrackerUrl) {
+        final String displayOrIssueTrackerUrl = displayUrl ?: issueTrackerUrl ?: '';
+        if (displayOrIssueTrackerUrl.isBlank())
+            return null
+
+        @Nullable
+        HttpClient httpClient = null
+
+        // determine if the displayUrl is a CurseForge URL and if so, extract the project ID and slug from it if possible
+        // and use those to construct an updateJsonUrl using forge.curseupdate.com
+        // example in: https://www.curseforge.com/minecraft/mc-mods/spammycombat?projectId=623297
+        // example out: 623297/spammycombat
+        final Matcher cfMatcher = displayOrIssueTrackerUrl =~ $/.*curseforge.com/minecraft/mc-mods/([^?/]+)(?:\?projectId=(\d+))?/$
+        if (cfMatcher.matches()) {
+            httpClient ?= HttpClient.newBuilder().build()
+            final jsonSlurper = new JsonSlurper().setType(JsonParserType.INDEX_OVERLAY)
+
+            List<String> updateJsonUrls = []
+            if (cfMatcher.groupCount() == 3) { // whole string, slug, project ID
+                // determine the modId first from the modId, falling back to the slug in the URL if that fails
+                final String updateJsonUrlRoot = "https://forge.curseupdate.com/${cfMatcher.group(2)}/"
+                updateJsonUrls.add(updateJsonUrlRoot + modId)
+                updateJsonUrls.add(updateJsonUrlRoot + cfMatcher.group(1))
+            } else { // Whole string, slug
+                // Determine the projectId based on the slug
+                final String slug = cfMatcher.group(1)
+                try {
+                    final response = httpClient.send(
+                            HttpRequest.newBuilder(URI.create("https://api.cfwidget.com/minecraft/mc-mods/$slug")).GET().build(),
+                            HttpResponse.BodyHandlers.ofString()
+                    )
+
+                    if (response.statusCode() === HttpURLConnection.HTTP_OK) {
+                        final Integer pId = jsonSlurper.parseText(response.body())['id'] as Integer
+                        if (pId !== null) {
+                            updateJsonUrls.add("https://forge.curseupdate.com/$pId/$slug".toString())
+                        }
+                    }
+                } catch (IOException ignored) {}
+            }
+
+            // make a GET request to the updateJsonUrl and to see if it's valid
+            for (final String url in updateJsonUrls) {
+                final HttpRequest request = HttpRequest.newBuilder(URI.create(url)).GET().build()
+                try {
+                    final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+                    if (response.statusCode() === HttpURLConnection.HTTP_OK) {
+                        final json = jsonSlurper.parseText(response.body())
+                        if (!(json?.getAt('promos') as Map).isEmpty())
+                            return url
+                    }
+                } catch (final IOException ignored) {}
+            }
+        }
+
+        // determine if the displayUrl is a GitHub URL and if so, see if it has an updates.json file next to the mods.groovy
+        // example in: https://github.com/PaintNinja/Ninjas-Cash
+        // example out: https://raw.githubusercontent.com/PaintNinja/Ninjas-Cash/master/src/main/resources/updates.json
+        final Matcher ghMatcher = displayOrIssueTrackerUrl =~ $/.*github.com/([^?/]+)/([^?/]+)(?:/tree/([^?/]+))?/?/$
+        if (ghMatcher.matches()) {
+            httpClient ?= HttpClient.newBuilder().build()
+            // it's a GitHub URL, so let's see if it has an update.json file on the repo in any of the standard locations
+            final String updateJsonUrlRoot = "https://raw.githubusercontent.com/${ghMatcher.group(1)}/${ghMatcher.group(2)}/${ghMatcher.group(3) ?: 'master'}"
+            final List updateJsonUrls = [
+                    "${updateJsonUrlRoot}/src/main/resources/update.json",
+                    "${updateJsonUrlRoot}/src/main/resources/updates.json",
+                    "${updateJsonUrlRoot}/update.json",
+                    "${updateJsonUrlRoot}/updates.json"
+            ]
+            if (updateJsonUrlRoot.endsWith('master')) {
+                final String updateJsonUrlMainBranchRoot = updateJsonUrlRoot.substring(0, updateJsonUrlRoot.length() - 6) + 'main'
+                updateJsonUrls.addAll([
+                        "${updateJsonUrlMainBranchRoot}/src/main/resources/update.json",
+                        "${updateJsonUrlMainBranchRoot}/src/main/resources/updates.json",
+                        "${updateJsonUrlMainBranchRoot}/update.json",
+                        "${updateJsonUrlMainBranchRoot}/updates.json"
+                ])
+            }
+
+            // make a HEAD request to the updateJsonUrl to see if it exists using HttpClient
+            for (final String url in updateJsonUrls) {
+                final HttpRequest request = HttpRequest.newBuilder(URI.create(url)).method('HEAD', HttpRequest.BodyPublishers.noBody()).build()
+                try {
+                    final HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding())
+                    if (response.statusCode() === HttpURLConnection.HTTP_OK)
+                        return url
+                } catch (final IOException ignored) {}
+            }
+        }
+
+        return null
     }
 }

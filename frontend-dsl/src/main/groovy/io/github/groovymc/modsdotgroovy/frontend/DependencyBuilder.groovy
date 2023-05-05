@@ -9,14 +9,29 @@ import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 class DependencyBuilder implements PropertyInterceptor, MapClosureInterceptor {
     private final ModsDotGroovyCore core
 
+    /**@
+     * The ID of the mod this dependency is depending on.
+     */
     String modId
 
+    /**@
+     * Does this dependency have to exist? If not, ordering must also be specified.
+     */
     boolean mandatory = true
 
+    /**@
+     * A version range of the versions of the mod you're compatible with.
+     */
     String versionRange
 
+    /**@
+     * An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+     */
     String ordering = 'NONE'
 
+    /**@
+     * Side this dependency is applied on - BOTH, CLIENT or SERVER
+     */
     String side = 'BOTH'
 
     DependencyBuilder() {

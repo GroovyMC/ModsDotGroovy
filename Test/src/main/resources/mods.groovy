@@ -13,8 +13,11 @@ ModsDotGroovy.make {
         //authors = ['Example Mod Author']
         author = 'Example Mod Author'
         logoFile = 'logo.png'
-        updateJsonUrl = 'https://example.com/update.json'
-        displayUrl = 'https://example.com'
+
+//        updateJsonUrl = 'https://example.com/update.json'
+        // for testing the inferred updateJsonUrl feature - issueTrackerUrl and links to GitHub repos are also supported by this feature
+        displayUrl = 'https://curseforge.com/minecraft/mc-mods/spammycombat'
+
         credits = 'Example Mod Credits'
         displayTest = DisplayTest.MATCH_VERSION
         dependencies {
