@@ -44,7 +44,7 @@ dependencies {
 pluginBundle {
     tags = ['groovy', 'forge', 'quilt', 'fabric', 'minecraft']
     website = 'https://github.com/GroovyMC/ModsDotGroovy'
-    vcsUrl = 'https://github.com/BrassMC/ModsDotGroovy'
+    vcsUrl = 'https://github.com/GroovyMC/ModsDotGroovy'
 }
 
 gradlePlugin {
