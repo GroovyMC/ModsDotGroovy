@@ -3,12 +3,12 @@
   "quilt_loader": {
     "metadata": {
       "license": "MIT",
-      "name": "Examplemod",
       "contact": {
-        "homepage": "https://curseforge.com/minecraft/mc-mods/spammycombat",
-        "source": "https://github.com/GroovyMC/ModsDotGroovy"
+        "sources": "https://github.com/GroovyMC/ModsDotGroovy",
+        "homepage": "https://curseforge.com/minecraft/mc-mods/spammycombat"
       },
-      "description": "",
+      "name": "Examplemod",
+      "description": "A very nice example mod",
       "contributors": {
         "GroovyMC": "Owner",
         "Matyrobbrt": "Author",
@@ -20,38 +20,39 @@
       {
         "optional": false,
         "id": "minecraft",
-        "versions": "\u003e\u003d1.19"
+        "versions": ">=1.19"
       },
       {
         "optional": false,
         "id": "minecraft",
-        "versions": "\u003c1.20"
+        "versions": "<1.20"
       },
       {
         "id": "quilt_loader",
         "optional": false,
         "versions": [
-          "\u003e\u003d0.17.3"
+          ">=0.17.3"
         ]
       },
       {
         "optional": true,
         "id": "roughlyenoughitems",
-        "versions": "\u003e\u003d9.0.0"
+        "versions": ">=9.0.0"
       },
       {
         "optional": true,
         "id": "roughlyenoughitems",
-        "versions": "\u003c9.2.0"
+        "versions": "<9.2.0"
       },
       {
         "id": "patchouli",
         "optional": false,
         "versions": [
-          "\u003e\u003d1.1"
+          ">=1.1"
         ]
       }
     ],
+    "customProperty": "hello_quabric",
     "intermediate_mappings": "net.fabricmc:intermediary",
     "id": "examplemod",
     "version": "1.0.0",
@@ -67,5 +68,7 @@
       ]
     }
   },
-  "mixin": "no.mixin.json"
+  "mixin": [
+    "no.mixin.json"
+  ]
 }

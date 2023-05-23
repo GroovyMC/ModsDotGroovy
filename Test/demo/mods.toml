@@ -10,7 +10,7 @@ license = "MIT"
   displayURL = "https://curseforge.com/minecraft/mc-mods/spammycombat"
   updateJSONURL = "https://forge.curseupdate.com/623297/spammycombat"
   credits = "Thanks to the mods.groovy contributors"
-  description = ""
+  description = "A very nice example mod"
   authors = "GroovyMC, Matyrobbrt, Paint_Ninja and lukebemish"
 
     [[dependencies.examplemod]]
@@ -42,4 +42,4 @@ license = "MIT"
       modId = "minecraft"
 
     [modproperties.examplemod]
-      customProperty = "hello"
+      customProperty = "hello_forge"
