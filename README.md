@@ -6,9 +6,6 @@ ModsDotGroovy is a Gradle plugin which allows writing the Forge `mods.toml` in a
 
 ## Plugin Portal and Central
 **Note**: Starting with plugin version `1.3.0` and DSL version `1.4.0`, the plugin is on the Gradle Plugin Portal, and the DSL is on Maven Central.  
-This means that the group has also changed from `io.github.groovymc` to `org.groovymc`, so the following restrictions are in place:
-- plugin version `1.2.0` or earlier may only use DSL version `1.3.0` or earlier;
-- plugin version `1.3.0` or later may only use DSL version `1.4.0` or later.  
 We recommend migrating to the Plugin Portal version and DSL `>=1.4.0`.
 
 ## Installation
