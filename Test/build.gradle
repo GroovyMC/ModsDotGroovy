@@ -2,7 +2,7 @@ import io.github.groovymc.modsdotgroovy.AbstractConvertTask
 
 plugins {
     id 'java'
-    id 'io.github.groovymc.modsdotgroovy' version '1.2.0'
+    id 'org.groovymc.modsdotgroovy' version '1.2.0'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)

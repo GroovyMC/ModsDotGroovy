@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <name>GroovyMC_GroovyModLoader Config DSL Script</name>
-    <groupId>GroovyMC_GroovyModLoader</groupId>
-    <artifactId>GroovyMC_GroovyModLoader_dsl</artifactId>
+    <name>GroovyMC_ModsDotGroovy Config DSL Script</name>
+    <groupId>GroovyMC_ModsDotGroovy</groupId>
+    <artifactId>GroovyMC_ModsDotGroovy_dsl</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <parent>

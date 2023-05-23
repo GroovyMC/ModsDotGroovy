@@ -60,7 +60,13 @@ object GroovyMC_ModsDotGroovy_BuildDSL : BuildType({
 
         gradle {
             name = "Publish DSL"
-            tasks = "publishMavenDslPublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository \n"
+            tasks = "clean publishMavenDslPublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository"
+        }
+
+        gradle {
+            name = "Publish Inquisition DSL"
+            tasks = "publishMavenDslPublicationToModdingInquisitionMavenRepoRepository"
+            gradleParams = "-PinquisitionPublish"
         }
     }
 })
@@ -99,6 +105,11 @@ object GroovyMC_ModsDotGroovy_BuildPlugin : BuildType({
         gradle {
             name = "Publish Gradle Plugin"
             tasks = "clean publish publishPlugins"
+        }
+        gradle {
+            name = "Publish Inquisition"
+            tasks = "publishPluginMavenPublicationToModdingInquisitionMavenRepoRepository publishModsdotgroovyPluginMarkerMavenPublicationToModdingInquisitionMavenRepoRepository"
+            gradleParams = "-PinquisitionPublish"
         }
     }
 })
