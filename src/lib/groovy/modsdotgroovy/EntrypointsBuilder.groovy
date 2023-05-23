@@ -16,10 +16,15 @@ class EntrypointsBuilder {
     Map entrypoints = [:]
 
     void propertyMissing(String name, value) {
-        if (value instanceof List) {
-            entrypoints[name] = value.toList()
+        final oldVal = this.entrypoints[name]
+        if (oldVal === null) {
+            if (value instanceof List) {
+                this.entrypoints[name] = value.toList()
+            } else {
+                this.entrypoints[name] = [value]
+            }
         } else {
-            entrypoints[name] = [value]
+            (oldVal as List).add(value)
         }
     }
 
@@ -30,6 +35,54 @@ class EntrypointsBuilder {
      */
     void entrypoint(String name, args) {
         propertyMissing(name, args)
+    }
+
+    /**
+     * Adds client entrypoints.
+     * @param entrypoints the entrypoints to add
+     */
+    void setClient(List<String> entrypoints) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'client_init' : 'client', entrypoints)
+    }
+
+    /**
+     * Adds server entrypoints.
+     * @param entrypoints the entrypoints to add
+     */
+    void setServer(List<String> entrypoints) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'server_init' : 'server', entrypoints)
+    }
+
+    /**
+     * Adds main entrypoints.
+     * @param entrypoints the entrypoints to add
+     */
+    void setMain(List<String> entrypoints) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'init' : 'main', entrypoints)
+    }
+
+    /**
+     * Adds a client entrypoint.
+     * @param entrypoint the entrypoint to add
+     */
+    void setClient(String entrypoint) {
+        setClient([entrypoint])
+    }
+
+    /**
+     * Adds a server entrypoint.
+     * @param entrypoint the entrypoint to add
+     */
+    void setServer(String entrypoint) {
+        setServer([entrypoint])
+    }
+
+    /**
+     * Adds a main entrypoint.
+     * @param entrypoint the entrypoint to add
+     */
+    void setMain(String entrypoint) {
+        setMain([entrypoint])
     }
 
     Map adapted(@DelegatesTo(value = AdaptedBuilder, strategy = DELEGATE_FIRST)

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "license": "MIT",
+  "contact": {
+    "sources": "https://github.com/GroovyMC/ModsDotGroovy",
+    "homepage": "https://curseforge.com/minecraft/mc-mods/spammycombat"
+  },
+  "custom": {
+    "customProperty": "hello_quabric"
+  },
+  "id": "examplemod",
+  "version": "1.0.0",
+  "name": "Examplemod",
+  "description": "A very nice example mod",
+  "entrypoints": {
+    "main": [
+      "mymod.Hi"
+    ],
+    "client": [
+      "test.no.NoClient"
+    ]
+  },
+  "authors": [
+    "GroovyMC"
+  ],
+  "environment": "server",
+  "depends": {
+    "minecraft": ">=1.19 <1.20",
+    "fabricloader": ">=0.14.19",
+    "patchouli": ">=1.1"
+  },
+  "recommends": {
+    "fabric-api": ">0.81"
+  },
+  "contributors": [
+    "Matyrobbrt",
+    "Paint_Ninja",
+    "lukebemish",
+    "Thanks to the mods.groovy contributors"
+  ],
+  "mixins": [
+    "no.mixin.json"
+  ]
+}

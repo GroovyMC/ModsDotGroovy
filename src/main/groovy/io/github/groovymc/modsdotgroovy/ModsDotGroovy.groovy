@@ -63,11 +63,18 @@ class ModsDotGroovy implements Plugin<Project> {
                                     arguments.set(ext.arguments.get())
                                     catalogs.set(ext.catalogs.get())
                                 }
+                                break
+                            case MDGExtension.Platform.FABRIC:
+                                makeAndAppendFabricTask(modsGroovy, project).with {
+                                    arguments.set(ext.arguments.get())
+                                    catalogs.set(ext.catalogs.get())
+                                }
                         }
                     } else {
                         final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
                         final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'quilt' }]
                         final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'forge' }]
+                        final fabric = ext.multiloader.isPresent() ? ext.multiloader.get().fabric : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'fabric' }]
 
                         if (common === null)
                             throw new IllegalArgumentException(
@@ -103,6 +110,14 @@ class ModsDotGroovy implements Plugin<Project> {
                                 catalogs.set(ext.catalogs.get())
                             }
                         }
+                        fabric.each {
+                            makeAndAppendFabricTask(modsGroovy, it).with{
+                                it.dependsOn(commonConfiguration)
+                                dslClasspath.from(commonConfiguration)
+                                arguments.set(ext.arguments.get())
+                                catalogs.set(ext.catalogs.get())
+                            }
+                        }
                     }
                 }
             }
@@ -125,6 +140,20 @@ class ModsDotGroovy implements Plugin<Project> {
 
     static ConvertToQuiltJsonTask makeAndAppendQuiltTask(FileWithSourceSet modsGroovy, Project project) {
         final convertTask = project.getTasks().create('modsDotGroovyToQuiltJson', ConvertToQuiltJsonTask) {
+            it.getInput().set(modsGroovy.file)
+        }
+        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+            dependsOn(convertTask)
+            from(convertTask.output.get().asFile) {
+                into ''
+            }
+        }
+        return convertTask
+    }
+
+    static ConvertToFabricJsonTask makeAndAppendFabricTask(FileWithSourceSet modsGroovy, Project project) {
+        final convertTask = project.getTasks().create('modsDotGroovyToFabricJson', ConvertToFabricJsonTask) {
             it.getInput().set(modsGroovy.file)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
