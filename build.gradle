@@ -11,13 +11,15 @@ buildscript {
 plugins {
     id 'idea'
     id 'groovy'
+    id 'signing'
     id 'maven-publish'
     id 'groovy-gradle-plugin'
     id 'com.gradle.plugin-publish' version '0.18.0'
     id 'org.cadixdev.licenser' version '0.6.1'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.3.0'
 }
 
-group = 'io.github.groovymc.modsdotgroovy'
+group = 'org.groovymc.modsdotgroovy'
 archivesBaseName = 'modsdotgroovy'
 
 repositories {
@@ -40,6 +42,7 @@ dependencies {
 }
 
 pluginBundle {
+    tags = ['groovy', 'forge', 'quilt', 'fabric', 'minecraft']
     website = 'https://github.com/GroovyMC/ModsDotGroovy'
     vcsUrl = 'https://github.com/BrassMC/ModsDotGroovy'
 }
@@ -47,7 +50,7 @@ pluginBundle {
 gradlePlugin {
     plugins {
         modsdotgroovy {
-            id = 'io.github.groovymc.modsdotgroovy'
+            id = 'org.groovymc.modsdotgroovy'
             displayName = 'ModsDotGroovy'
             description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
             implementationClass = 'io.github.groovymc.modsdotgroovy.ModsDotGroovy'
@@ -107,32 +110,75 @@ tasks.withType(GroovyCompile).configureEach {
     groovyOptions.optimizationOptions.indy = true
 }
 
-tasks.create('publishPluginToInquisitionMaven') {
-    it.group = 'publishing'
-    it.dependsOn(
-            'publishPluginMavenPublicationToModdingInquisitionMavenRepoRepository',
-            'publishModsdotgroovyPluginMarkerMavenPublicationToModdingInquisitionMavenRepoRepository'
-    )
-}
-
 publishing {
     publications {
         mavenDsl(MavenPublication) {
-            groupId = 'io.github.groovymc.modsdotgroovy'
+            groupId = 'org.groovymc.modsdotgroovy'
             artifactId = 'dsl'
             version = project.dsl_version
 
             artifacts = [dslJar, dslSources, groovydocJar]
-        }
-    }
-    repositories {
-        maven {
-            name = 'ModdingInquisitionMavenRepo'
-            url = 'https://maven.moddinginquisition.org/releases'
-            credentials {
-                username = findProperty('inquisitionMavenUser') ?: ''
-                password = findProperty('inquisitionMavenPassword') ?: ''
+
+            pom {
+                name = "ModsDotGroovy DSL"
+                description = "The ModsDotGroovy DSL"
+                url = "https://github.com/Groovymc/modsdotgroovy"
+                licenses {
+                    license {
+                        name = "MIT"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "groovymc"
+                        name = "GroovyMC"
+                        email = "holdings@groovymc.org"
+                    }
+                }
+                scm {
+                    connection = "https://github.com/Groovymc/modsdotgroovy.git"
+                    url = "https://github.com/Groovymc/modsdotgroovy"
+                }
             }
         }
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username.set(System.getenv('SONATYPE_USER') ?: '')
+            password.set(System.getenv('SONATYPE_PASSWORD') ?: '')
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+        }
+    }
+}
+
+signing {
+    final signingKey = System.getenv('SIGNING_KEY') ?: ''
+    final signingPassword = System.getenv('SIGNING_PASSWORD') ?: ''
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenDsl
+}
+
+project.tasks.register('configureTeamCityPlugin') {
+    it.setOnlyIf {
+        System.getenv('TEAMCITY_VERSION')
+    }
+    // Print the marker lines into the log which configure the pipeline
+    it.doLast {
+        project.getLogger().lifecycle('Setting project variables and parameters.')
+        println "##teamcity[buildNumber 'P: ${project.version}']"
+    }
+}
+
+project.tasks.register('configureTeamCityDSL') {
+    it.setOnlyIf {
+        System.getenv('TEAMCITY_VERSION')
+    }
+    // Print the marker lines into the log which configure the pipeline
+    it.doLast {
+        project.getLogger().lifecycle('Setting project variables and parameters.')
+        println "##teamcity[buildNumber 'DSL: ${project.dsl_version}']"
     }
 }

@@ -3,21 +3,20 @@
 [![DSL Version](https://img.shields.io/badge/dynamic/xml?style=for-the-badge&color=blue&label=Latest%20DSL%20Version&prefix=v&query=metadata%2F%2Flatest&url=https%3A%2F%2Fmaven.moddinginquisition.org%2Freleases%2Fio%2Fgithub%2Fgroovymc%2Fmodsdotgroovy%2Fdsl%2Fmaven-metadata.xml)](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/dsl)
 
 ModsDotGroovy is a Gradle plugin which allows writing the Forge `mods.toml` in a Groovy script, which will be compiled down to a `mods.toml` when the mod is built.
+
+## Plugin Portal and Central
+**Note**: Starting with plugin version `1.3.0` and DSL version `1.4.0`, the plugin is on the Gradle Plugin Portal, and the DSL is on Maven Central.  
+This means that the group has also changed from `io.github.groovymc` to `org.groovymc`, so the following restrictions are in place:
+- plugin version `1.2.0` or earlier may only use DSL version `1.3.0` or earlier;
+- plugin version `1.3.0` or later may only use DSL version `1.4.0` or later.  
+We recommend migrating to the Plugin Portal version and DSL `>=1.4.0`.
+
 ## Installation
-In order to install the plugin, we first add the Modding Inquisition repository to the `settings.gradle` file:
-```gradle
-pluginManagement {
-    repositories {
-        // Other repositories here
-        maven { url = 'https://maven.moddinginquisition.org/releases' }
-    }
-}
-```
-Now, we apply the plugin:
+YOu can install the plugin via the following block in the `build.gradle` file. The plugin is published to the Gradle Plugin Portal.
 ```gradle
 plugins {
     // Other plugins here
-    id 'io.github.groovymc.modsdotgroovy' version '1.3.0' // Version can be replaced with any existing plugin version
+    id 'org.groovymc.modsdotgroovy' version '1.3.0' // Version can be replaced with any existing plugin version
 }
 ```
 Then, you need to decide on a ModsDotGroovy DSL version which you want to use. You can browse all available versions [here](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/dsl).

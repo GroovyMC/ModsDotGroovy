@@ -37,7 +37,7 @@ abstract class MDGExtension {
 
     String mdgDsl(String version = null) {
         version = version ?: getDslVersion().get()
-        return "io.github.groovymc.modsdotgroovy:dsl:$version"
+        return "org.groovymc.modsdotgroovy:dsl:$version"
     }
 
     void platform(String name) {

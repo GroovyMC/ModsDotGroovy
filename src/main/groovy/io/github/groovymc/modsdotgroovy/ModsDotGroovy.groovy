@@ -30,10 +30,7 @@ class ModsDotGroovy implements Plugin<Project> {
         project.getPlugins().apply('java')
 
         project.afterEvaluate {
-            project.repositories.maven { MavenArtifactRepository repo ->
-                repo.name = 'Modding Inquisition Releases'
-                repo.url = 'https://maven.moddinginquisition.org/releases'
-            }
+            project.repositories.mavenCentral()
 
             configuration.dependencies.add(project.dependencies.create(ext.mdgDsl()))
 
