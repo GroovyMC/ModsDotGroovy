@@ -85,11 +85,11 @@ ModsDotGroovy.make {
             onFabric {
                 main = 'mymod.Hi'
             }
-            client 'test.no.NoClient'
+            client = 'test.no.NoClient'
         }
     }
 
     onFabricAndQuilt {
-        mixin 'no.mixin.json'
+        mixin = 'no.mixin.json'
     }
 }

@@ -16,12 +16,12 @@ class EntrypointsBuilder {
     Map entrypoints = [:]
 
     void propertyMissing(String name, value) {
-        final oldVal = entrypoints[name]
+        final oldVal = this.entrypoints[name]
         if (oldVal === null) {
             if (value instanceof List) {
-                entrypoints[name] = value.toList()
+                this.entrypoints[name] = value.toList()
             } else {
-                entrypoints[name] = [value]
+                this.entrypoints[name] = [value]
             }
         } else {
             (oldVal as List).add(value)
@@ -38,27 +38,51 @@ class EntrypointsBuilder {
     }
 
     /**
-     * Adds a client entrypoint.
-     * @param args either the single value of the entrypoint or a list of values.
+     * Adds client entrypoints.
+     * @param entrypoints either the entrypoints to add
      */
-    void client(args) {
-        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'client_init' : 'client', args)
+    void setClient(List<String> entrypoints) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'client_init' : 'client', entrypoints)
+    }
+
+    /**
+     * Adds server entrypoints.
+     * @param entrypoints either the entrypoints to add
+     */
+    void setServer(List<String> entrypoints) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'server_init' : 'server', entrypoints)
+    }
+
+    /**
+     * Adds main entrypoints.
+     * @param entrypoints either the entrypoints to add
+     */
+    void setMain(List<String> entrypoints) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'init' : 'main', entrypoints)
+    }
+
+    /**
+     * Adds a client entrypoint.
+     * @param entrypoint either the entrypoint
+     */
+    void setClient(String entrypoint) {
+        setClient([entrypoint])
     }
 
     /**
      * Adds a server entrypoint.
-     * @param args either the single value of the entrypoint or a list of values.
+     * @param entrypoint either the entrypoint
      */
-    void server(args) {
-        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'server_init' : 'server', args)
+    void setServer(String entrypoint) {
+        setServer([entrypoint])
     }
 
     /**
      * Adds a main entrypoint.
-     * @param args either the single value of the entrypoint or a list of values.
+     * @param entrypoint either the entrypoint
      */
-    void main(args) {
-        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'init' : 'main', args)
+    void setMain(String entrypoint) {
+        setMain([entrypoint])
     }
 
     Map adapted(@DelegatesTo(value = AdaptedBuilder, strategy = DELEGATE_FIRST)

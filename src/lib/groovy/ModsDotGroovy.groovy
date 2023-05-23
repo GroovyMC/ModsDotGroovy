@@ -35,7 +35,7 @@ class ModsDotGroovy {
                 this.data = ["schema_version": 1, "quilt_loader": [:]]
                 break
             case Platform.FABRIC:
-                this.data = ['schema_version': 1]
+                this.data = ['schemaVersion': 1]
                 break
             case Platform.FORGE:
                 this.data = [:]
@@ -340,9 +340,17 @@ class ModsDotGroovy {
 
     /**
      * Declare a mixin config. Only works on Fabric or Quilt.
+     * @param mixins the mixin config to declare
+     */
+    void setMixin(String mixin) {
+        setMixin([mixin])
+    }
+
+    /**
+     * Declare a mixin config. Only works on Fabric or Quilt.
      * @param mixins the mixin configs to declare
      */
-    void mixin(String... mixins) {
+    void setMixin(List<String> mixins) {
         if (platform === Platform.FABRIC) {
             this.data = merge(this.data, ['mixins': mixins.toList()])
         } else if (platform === Platform.QUILT) {
