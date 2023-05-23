@@ -39,7 +39,7 @@ class EntrypointsBuilder {
 
     /**
      * Adds client entrypoints.
-     * @param entrypoints either the entrypoints to add
+     * @param entrypoints the entrypoints to add
      */
     void setClient(List<String> entrypoints) {
         propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'client_init' : 'client', entrypoints)
@@ -47,7 +47,7 @@ class EntrypointsBuilder {
 
     /**
      * Adds server entrypoints.
-     * @param entrypoints either the entrypoints to add
+     * @param entrypoints the entrypoints to add
      */
     void setServer(List<String> entrypoints) {
         propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'server_init' : 'server', entrypoints)
@@ -55,7 +55,7 @@ class EntrypointsBuilder {
 
     /**
      * Adds main entrypoints.
-     * @param entrypoints either the entrypoints to add
+     * @param entrypoints the entrypoints to add
      */
     void setMain(List<String> entrypoints) {
         propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'init' : 'main', entrypoints)
@@ -63,7 +63,7 @@ class EntrypointsBuilder {
 
     /**
      * Adds a client entrypoint.
-     * @param entrypoint either the entrypoint
+     * @param entrypoint the entrypoint to add
      */
     void setClient(String entrypoint) {
         setClient([entrypoint])
@@ -71,7 +71,7 @@ class EntrypointsBuilder {
 
     /**
      * Adds a server entrypoint.
-     * @param entrypoint either the entrypoint
+     * @param entrypoint the entrypoint to add
      */
     void setServer(String entrypoint) {
         setServer([entrypoint])
@@ -79,7 +79,7 @@ class EntrypointsBuilder {
 
     /**
      * Adds a main entrypoint.
-     * @param entrypoint either the entrypoint
+     * @param entrypoint the entrypoint to add
      */
     void setMain(String entrypoint) {
         setMain([entrypoint])
