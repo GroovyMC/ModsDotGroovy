@@ -90,6 +90,10 @@ class VersionRange {
         return versions.collect {it.toQuilt()}
     }
 
+    String toFabric() {
+        return versions.collect { it.toQuilt() }.join(' ')
+    }
+
     static VersionRange of(String version) {
         if (version.contains('[') || version.contains(']') || version.contains('(') || version.contains(')')) {
             return ofMaven(version)

@@ -3,6 +3,7 @@ ModsDotGroovy.make {
     loaderVersion = '[1,'
 
     license = 'MIT'
+    sourcesUrl = 'https://github.com/GroovyMC/ModsDotGroovy'
 
     mod {
         modId = 'examplemod'
@@ -12,8 +13,8 @@ ModsDotGroovy.make {
                 Owner: ['GroovyMC'],
                 Author: ['Matyrobbrt', 'Paint_Ninja', 'lukebemish']
         ]
+        description = 'A very nice example mod'
 
-        contact.source = 'https://github.com/GroovyMC/ModsDotGroovy'
         credits = "${buildProperties.credits}"
 
         // for testing the inferred updateJsonUrl feature - issueTrackerUrl and links to GitHub repos are also supported by this feature
@@ -22,13 +23,18 @@ ModsDotGroovy.make {
         displayTest = DisplayTest.IGNORE_SERVER_VERSION
 
         onForge {
-            customProperty = 'hello'
+            customProperty = 'hello_forge'
+        }
+
+        onFabricAndQuilt {
+            customProperty = 'hello_quabric'
         }
 
         dependencies {
             minecraft = 1.19..1.20 // equivalent to `minecraft = '[1.19,1.20)'`
             forge = '[43.0.0,)' // equivalent to `forge { versionRange = '[43.0.0,)' }`
             quiltLoader = '>=0.17.3'
+            fabricLoader = '[0.14.19,)'
 
             onForge {
                 mod {
@@ -48,6 +54,14 @@ ModsDotGroovy.make {
                 }
             }
 
+            onFabric {
+                mod {
+                    modId = 'fabric-api'
+                    versionRange = '>0.81'
+                    mandatory = false
+                }
+            }
+
             mod {
                 modId = 'patchouli'
                 versionRange = '[1.1,)'
@@ -61,16 +75,21 @@ ModsDotGroovy.make {
             intermediate_mappings = "net.fabricmc:intermediary"
         }
 
-        // Quilt entrypoints
+        // Quabric entrypoints
         entrypoints {
-            init = adapted {
-                value = 'test.no.No'
+            onQuilt {
+                init = adapted {
+                    value = 'test.no.No'
+                }
             }
-            client_init = 'test.no.NoClient'
+            onFabric {
+                main = 'mymod.Hi'
+            }
+            client 'test.no.NoClient'
         }
     }
 
-    onQuilt {
-        mixin = "no.mixin.json"
+    onFabricAndQuilt {
+        mixin 'no.mixin.json'
     }
 }

@@ -17,14 +17,14 @@ Now, we apply the plugin:
 ```gradle
 plugins {
     // Other plugins here
-    id 'io.github.groovymc.modsdotgroovy' version '1.2.0' // Version can be replaced with any existing plugin version
+    id 'io.github.groovymc.modsdotgroovy' version '1.3.0' // Version can be replaced with any existing plugin version
 }
 ```
 Then, you need to decide on a ModsDotGroovy DSL version which you want to use. You can browse all available versions [here](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/dsl).
 Add the following line in your `build.gradle`, to do so:
 ```gradle
 modsDotGroovy {
-    dslVersion = '1.3.0' // Can be replaced with any existing DSL version
+    dslVersion = '1.4.0' // Can be replaced with any existing DSL version
     platform 'forge'
 }
 ```
@@ -77,16 +77,29 @@ ModsDotGroovy.make {
 The DSL is documented with JavaDocs which should be browsable in your IDE.
 
 ## Loader Support
-The plugin can additionally be used to configure the `quilt.mod.json` file in a Quilt project, or both files in a multiloader
-project. To configure the plugin for Quilt, add the following to your `build.gradle`:
+The plugin can additionally be used to configure the `quilt.mod.json` file in a Quilt project, the `fabric.mod.json` file in a Fabric project, or all three files in a multiloader
+project.  
+To configure the plugin for Quilt, add the following to your `build.gradle`:
 ```gradle
 modsDotGroovy {
     //...
     platform 'quilt'
 }
 ```
-Certain quilt-specific DSL elements exist; the `this.quiltLoaderVersion` property can be used to get the version of quilt loader
-present in the project. To configure the plugin for a multiloader project instead, insert the following into your root project's
+Certain Quilt-specific DSL elements exist; the `this.quiltLoaderVersion` property can be used to get the version of quilt-loader
+present in the project.  
+
+To configure the plugin for Fabric, add the following to your `build.gradle`:
+```gradle
+modsDotGroovy {
+    //...
+    platform 'fabric'
+}
+```
+Certain Fabric-specific DSL elements exist; the `this.fabricLoaderVersion` property can be used to get the version of fabric-loader
+present in the project.  
+
+To configure the plugin for a multiloader project instead, insert the following into your root project's
 `build.gradle`:
 ```gradle
 modsDotGroovy {
@@ -94,17 +107,18 @@ modsDotGroovy {
     platform 'multiloader'
 }
 ```
-The plugin assumes that your subprojects for Quilt, Forge, and common code are called `Quilt`, `Forge`, and `Common` respectively.
+The plugin assumes that your subprojects for Quilt, Fabric, Forge, and common code are called `Quilt`, `Fabric`, `Forge`, and `Common` respectively.
 If this is not the case, it can be configured as follows:
 ```gradle
 modsDotGroovy {
     //...
     platform 'multiloader'
-    multiloader {
+    multiloader { // You do not need to have subprojects for all mod loaders
         common = project(':common')
         quilt = [project(':quilt')]
         forge = [project(':forge')]
+        fabric = [project(':fabric')]
     }
 }
 ```
-The common project provides the `mods.groovy` file, which is then used to generate both a `mods.toml` and `quilt.mod.json` file.
+The common project provides the `mods.groovy` file, which is then used to generate a `mods.toml`, `quilt.mod.json` and `fabric.mod.json` file.

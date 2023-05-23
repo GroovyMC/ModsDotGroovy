@@ -74,6 +74,12 @@ abstract class MDGExtension {
                 return 'forge'
             }
         },
+        FABRIC {
+            @Override
+            String toString() {
+                return 'fabric'
+            }
+        },
         MULTILOADER {
             @Override
             String toString() {
@@ -87,6 +93,8 @@ abstract class MDGExtension {
                     return QUILT
                 case 'forge':
                     return FORGE
+                case 'fabric':
+                    return FABRIC
                 case 'multiloader':
                     return MULTILOADER
                 default:
@@ -99,5 +107,6 @@ abstract class MDGExtension {
         Project common
         List<Project> forge = []
         List<Project> quilt = []
+        List<Project> fabric = []
     }
 }

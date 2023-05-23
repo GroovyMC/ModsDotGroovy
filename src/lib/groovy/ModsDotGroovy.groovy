@@ -20,6 +20,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.regex.Matcher
+import java.util.stream.Collectors
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
@@ -33,6 +34,9 @@ class ModsDotGroovy {
             case Platform.QUILT:
                 this.data = ["schema_version": 1, "quilt_loader": [:]]
                 break
+            case Platform.FABRIC:
+                this.data = ['schema_version': 1]
+                break
             case Platform.FORGE:
                 this.data = [:]
         }
@@ -42,6 +46,10 @@ class ModsDotGroovy {
 
     protected static void setPlatform(String name) {
         platform = Platform.valueOf(name.toUpperCase(Locale.ROOT))
+    }
+
+    static Platform getPlatform() {
+        return platform
     }
 
     void propertyMissing(String name, Object value) {
@@ -73,12 +81,33 @@ class ModsDotGroovy {
     }
 
     /**
+     * Run a given block only if the plugin is configuring the fabric.mod.json file for Fabric.
+     */
+    void onFabric(Closure closure) {
+        if (platform == Platform.FABRIC) {
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call()
+        }
+    }
+
+    /**
+     * Run a given block only if the plugin is configuring the fabric.mod.json file for Fabric or the quilt.mod.json file for Quilt.
+     */
+    void onFabricAndQuilt(Closure closure) {
+        if (platform == Platform.FABRIC || platform == Platform.QUILT) {
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call()
+        }
+    }
+
+    /**
      * The license for your mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.<br>
      * Review your options at <a href="https://choosealicense.com/">https://choosealicense.com/</a>. <br>
      * All rights reserved is the default copyright stance, and is thus the default here.
      */
     void setLicense(String license) {
         switch (platform) {
+            case Platform.FABRIC:
             case Platform.FORGE:
                 put 'license', license
                 break
@@ -97,6 +126,22 @@ class ModsDotGroovy {
                 break
             case Platform.QUILT:
                 this.data = merge(this.data, ["quilt_loader": ["metadata": ["contact": ["issues": issueTrackerUrl]]]])
+                break
+            case Platform.FABRIC:
+                this.data = merge(this.data, ["contact": ["issues": issueTrackerUrl]])
+        }
+    }
+
+    /**
+     * A URL pointing to your mod's sources repository. Ignored on Forge.
+     */
+    void setSourcesUrl(String sourcesURL) {
+        switch (platform) {
+            case Platform.QUILT:
+                this.data = merge(this.data, ["quilt_loader": ["metadata": ["contact": ["sources": sourcesURL]]]])
+                break
+            case Platform.FABRIC:
+                this.data = merge(this.data, ["contact": ["sources": sourcesURL]])
         }
     }
 
@@ -244,6 +289,64 @@ class ModsDotGroovy {
                 quiltMetadata['contributors'] = quiltContributors
                 quiltModData['metadata'] = quiltMetadata
                 this.data = merge(this.data, ["quilt_loader": quiltModData])
+                break
+            case Platform.FABRIC:
+                if (modInfo.customProperties !== null && !modInfo.customProperties.isEmpty())
+                    this.data = merge(this.data, ['custom': modInfo.customProperties])
+
+                if (this.data.id !== null) {
+                    throw new UnsupportedOperationException('fabric.mod.json does not support more than one mod!')
+                }
+
+                put 'id', modInfo.modId
+                put 'version', modInfo.version
+                put 'name', modInfo.displayName
+                put 'description', modInfo.description
+                put 'icon', modInfo.logoFile
+
+                put 'entrypoints', modInfo.entrypoints
+                put 'authors', modInfo.authors.unique(false) + modInfo.quiltModInfo.contributors.getOrDefault('Owner', [])
+                this.data = merge(this.data, ['contact': ['homepage': modInfo.displayUrl] + modInfo.quiltModInfo.contact])
+
+                switch (modInfo.displayTest) {
+                    case DisplayTest.MATCH_VERSION:
+                        put 'environment', '*'
+                        break
+                    case DisplayTest.IGNORE_SERVER_VERSION:
+                        put 'environment', 'server'
+                        break
+                    case DisplayTest.IGNORE_ALL_VERSION:
+                        put 'environment', 'client'
+                }
+
+                final depends = [:]
+                final recommends = [:]
+                modInfo.dependencies.each {
+                    if (it.mandatory) {
+                        depends[it.modId] = it.versionRange.toFabric()
+                    } else {
+                        recommends[it.modId] = it.versionRange.toFabric()
+                    }
+                }
+                put 'depends', depends
+                put 'recommends', recommends
+                put 'contributors', modInfo.quiltModInfo.contributors.entrySet().stream().filter { it.key != 'Owner' }.flatMap { it.value.stream() }.collect(Collectors.toCollection { new ArrayList<>() })
+
+                if (modInfo.credits) {
+                    (this.data['contributors'] as List).add(modInfo.credits)
+                }
+        }
+    }
+
+    /**
+     * Declare a mixin config. Only works on Fabric or Quilt.
+     * @param mixins the mixin configs to declare
+     */
+    void mixin(String... mixins) {
+        if (platform === Platform.FABRIC) {
+            this.data = merge(this.data, ['mixins': mixins.toList()])
+        } else if (platform === Platform.QUILT) {
+            this.data = merge(this.data, ['mixin': mixins.toList()])
         }
     }
 
@@ -376,9 +479,6 @@ class ModsDotGroovy {
                 } catch (final IOException ignored) {}
             }
         }
-
-        // todo: create a web service that returns the projectId from a given slug and use that to avoid the need for
-        // explicitly specifying the projectId in the displayUrl
 
         // determine if the displayUrl is a GitHub URL and if so, see if it has an updates.json file next to the mods.groovy
         // example in: https://github.com/PaintNinja/Ninjas-Cash

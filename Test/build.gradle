@@ -6,8 +6,8 @@ plugins {
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 modsDotGroovy {
-    dslVersion = '1.3.0'
-    platforms 'forge', 'quilt'
+    dslVersion = '1.4.0'
+    platforms 'forge', 'quilt', 'fabric'
 }
 
 repositories {

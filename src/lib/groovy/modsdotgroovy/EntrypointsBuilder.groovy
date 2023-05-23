@@ -16,10 +16,15 @@ class EntrypointsBuilder {
     Map entrypoints = [:]
 
     void propertyMissing(String name, value) {
-        if (value instanceof List) {
-            entrypoints[name] = value.toList()
+        final oldVal = entrypoints[name]
+        if (oldVal === null) {
+            if (value instanceof List) {
+                entrypoints[name] = value.toList()
+            } else {
+                entrypoints[name] = [value]
+            }
         } else {
-            entrypoints[name] = [value]
+            (oldVal as List).add(value)
         }
     }
 
@@ -30,6 +35,30 @@ class EntrypointsBuilder {
      */
     void entrypoint(String name, args) {
         propertyMissing(name, args)
+    }
+
+    /**
+     * Adds a client entrypoint.
+     * @param args either the single value of the entrypoint or a list of values.
+     */
+    void client(args) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'client_init' : 'client', args)
+    }
+
+    /**
+     * Adds a server entrypoint.
+     * @param args either the single value of the entrypoint or a list of values.
+     */
+    void server(args) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'server_init' : 'server', args)
+    }
+
+    /**
+     * Adds a main entrypoint.
+     * @param args either the single value of the entrypoint or a list of values.
+     */
+    void main(args) {
+        propertyMissing(ModsDotGroovy.platform === Platform.QUILT ? 'init' : 'main', args)
     }
 
     Map adapted(@DelegatesTo(value = AdaptedBuilder, strategy = DELEGATE_FIRST)

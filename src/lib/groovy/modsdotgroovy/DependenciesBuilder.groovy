@@ -110,6 +110,25 @@ class DependenciesBuilder extends HashMap {
         }
     }
 
+    void fabricLoader(@DelegatesTo(value = FabricLoaderDependency, strategy = DELEGATE_FIRST)
+                     @ClosureParams(value = SimpleType, options = 'modsdotgroovy.FabricLoaderDependency') final Closure closure) {
+        if (platform == Platform.FABRIC) {
+            final quiltLoaderDependency = new FabricLoaderDependency()
+            closure.delegate = quiltLoaderDependency
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call(quiltLoaderDependency)
+            dependencies << quiltLoaderDependency.copy()
+        }
+    }
+
+    void setFabricLoader(final String versionRange) {
+        if (platform == Platform.FABRIC) {
+            final quiltLoaderDependency = new FabricLoaderDependency()
+            quiltLoaderDependency.versionRange = versionRange
+            dependencies << quiltLoaderDependency.copy()
+        }
+    }
+
     void methodMissing(String name,
                        @DelegatesTo(value = Dependency, strategy = DELEGATE_FIRST)
                        @ClosureParams(value = SimpleType, options = 'modsdotgroovy.Dependency') final Closure closure) {
