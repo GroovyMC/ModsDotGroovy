@@ -1,0 +1,45 @@
+modLoader = "gml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+  modId = "examplemod"
+  version = "1.0.0"
+  displayName = "Examplemod"
+  displayTest = "IGNORE_SERVER_VERSION"
+  displayURL = "https://curseforge.com/minecraft/mc-mods/spammycombat"
+  updateJSONURL = "https://forge.curseupdate.com/623297/spammycombat"
+  credits = "Thanks to the mods.groovy contributors"
+  description = ""
+  authors = "GroovyMC, Matyrobbrt, Paint_Ninja and lukebemish"
+
+    [[dependencies.examplemod]]
+      mandatory = true
+      versionRange = "[1.1,)"
+      ordering = "AFTER"
+      side = "BOTH"
+      modId = "patchouli"
+
+    [[dependencies.examplemod]]
+      mandatory = true
+      versionRange = "[1.0.1,)"
+      ordering = "NONE"
+      side = "CLIENT"
+      modId = "dynamic_asset_generator"
+
+    [[dependencies.examplemod]]
+      mandatory = true
+      versionRange = "[43.0.0,)"
+      ordering = "NONE"
+      side = "BOTH"
+      modId = "forge"
+
+    [[dependencies.examplemod]]
+      mandatory = true
+      versionRange = "[1.19,1.20)"
+      ordering = "NONE"
+      side = "BOTH"
+      modId = "minecraft"
+
+    [modproperties.examplemod]
+      customProperty = "hello"

@@ -1,3 +1,5 @@
+import io.github.groovymc.modsdotgroovy.AbstractConvertTask
+
 plugins {
     id 'java'
     id 'io.github.groovymc.modsdotgroovy' version '1.2.0'
@@ -12,4 +14,8 @@ modsDotGroovy {
 
 repositories {
     mavenLocal()
+}
+
+tasks.withType(AbstractConvertTask).configureEach {
+    it.output.set(file("demo/${it.output.get().asFile.name}"))
 }
