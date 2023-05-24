@@ -102,10 +102,10 @@ object GroovyMC_ModsDotGroovy_BuildPlugin : BuildType({
             name = "Configure TC information"
             tasks = "configureTeamCityPlugin"
         }
-        gradle {
-            name = "Publish Gradle Plugin"
-            tasks = "clean publishPlugins"
-        }
+//        gradle {
+//            name = "Publish Gradle Plugin"
+//            tasks = "clean publishPlugins"
+//        }
         gradle {
             name = "Publish Inquisition"
             tasks = "publishPluginMavenPublicationToModdingInquisitionMavenRepoRepository publishModsdotgroovyPluginMarkerMavenPublicationToModdingInquisitionMavenRepoRepository"
