@@ -13,7 +13,7 @@ YOu can install the plugin via the following block in the `build.gradle` file. T
 ```gradle
 plugins {
     // Other plugins here
-    id 'org.groovymc.modsdotgroovy' version '1.3.0' // Version can be replaced with any existing plugin version
+    id 'org.groovymc.modsdotgroovy' version '1.3.1' // Version can be replaced with any existing plugin version
 }
 ```
 Then, you need to decide on a ModsDotGroovy DSL version which you want to use. You can browse all available versions [here](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/dsl).
