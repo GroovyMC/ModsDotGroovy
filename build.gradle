@@ -164,6 +164,12 @@ nexusPublishing {
     }
 }
 
+afterEvaluate {
+    tasks.named('publishMavenDslPublicationToSonatypeRepository').configure {
+        it.dependsOn('sign')
+    }
+}
+
 signing {
     final signingKey = System.getenv('SIGNING_KEY') ?: ''
     final signingPassword = System.getenv('SIGNING_PASSWORD') ?: ''
