@@ -37,7 +37,8 @@ abstract class MDGExtension {
 
     String mdgDsl(String version = null) {
         version = version ?: getDslVersion().get()
-        return "io.github.groovymc.modsdotgroovy:dsl:$version"
+        final spl = version.split('\\.', 2)
+        return "${spl.length >= 2 ? (spl[1].toInteger() >= 4 ? 'org' : 'io.github') : 'io.github'}.groovymc.modsdotgroovy:dsl:$version"
     }
 
     void platform(String name) {

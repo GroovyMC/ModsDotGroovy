@@ -33,7 +33,11 @@ class ModsDotGroovy implements Plugin<Project> {
             project.repositories.maven { MavenArtifactRepository repo ->
                 repo.name = 'Modding Inquisition Releases'
                 repo.url = 'https://maven.moddinginquisition.org/releases'
+                repo.mavenContent {
+                    includeModule('io.github.groovymc.modsdotgroovy', 'dsl')
+                }
             }
+            project.repositories.mavenCentral()
 
             configuration.dependencies.add(project.dependencies.create(ext.mdgDsl()))
 
