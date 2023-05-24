@@ -104,7 +104,7 @@ object GroovyMC_ModsDotGroovy_BuildPlugin : BuildType({
         }
         gradle {
             name = "Publish Gradle Plugin"
-            tasks = "clean publish publishPlugins"
+            tasks = "clean publishPlugins"
         }
         gradle {
             name = "Publish Inquisition"
