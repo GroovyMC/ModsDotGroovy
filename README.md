@@ -13,15 +13,15 @@ YOu can install the plugin via the following block in the `build.gradle` file. T
 ```gradle
 plugins {
     // Other plugins here
-    id 'org.groovymc.modsdotgroovy' version '1.3.1' // Version can be replaced with any existing plugin version
+    id 'org.groovymc.modsdotgroovy' version '1.4.0' // Version can be replaced with any existing plugin version
 }
 ```
 Then, you need to decide on a ModsDotGroovy DSL version which you want to use. You can browse all available versions [here](https://maven.moddinginquisition.org/#/releases/io/github/groovymc/modsdotgroovy/dsl).
 Add the following line in your `build.gradle`, to do so:
 ```gradle
 modsDotGroovy {
-    dslVersion = '1.4.0' // Can be replaced with any existing DSL version
-    platform 'forge'
+    dslVersion = '1.5.0' // Can be replaced with any existing DSL version
+    platform = 'forge'
 }
 ```
 ## Usage
@@ -79,7 +79,7 @@ To configure the plugin for Quilt, add the following to your `build.gradle`:
 ```gradle
 modsDotGroovy {
     //...
-    platform 'quilt'
+    platform = 'quilt'
 }
 ```
 Certain Quilt-specific DSL elements exist; the `this.quiltLoaderVersion` property can be used to get the version of quilt-loader
@@ -89,7 +89,7 @@ To configure the plugin for Fabric, add the following to your `build.gradle`:
 ```gradle
 modsDotGroovy {
     //...
-    platform 'fabric'
+    platform = 'fabric'
 }
 ```
 Certain Fabric-specific DSL elements exist; the `this.fabricLoaderVersion` property can be used to get the version of fabric-loader
@@ -100,7 +100,7 @@ To configure the plugin for a multiloader project instead, insert the following 
 ```gradle
 modsDotGroovy {
     //...
-    platform 'multiloader'
+    platform = 'multiloader'
 }
 ```
 The plugin assumes that your subprojects for Quilt, Fabric, Forge, and common code are called `Quilt`, `Fabric`, `Forge`, and `Common` respectively.
@@ -108,7 +108,7 @@ If this is not the case, it can be configured as follows:
 ```gradle
 modsDotGroovy {
     //...
-    platform 'multiloader'
+    platform = 'multiloader'
     multiloader { // You do not need to have subprojects for all mod loaders
         common = project(':common')
         quilt = [project(':quilt')]
