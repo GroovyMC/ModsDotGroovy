@@ -4,6 +4,7 @@ import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -14,12 +15,15 @@ import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.file.FileTreeElement
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.annotations.Nullable
+
+import javax.inject.Inject
 
 class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     public static final String CONFIGURATION_NAME_ROOT = 'mdgRuntime'
@@ -80,6 +84,12 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                                     catalogs.set(ext.catalogs.get())
                                 }
                                 break
+                            case MDGExtension.Platform.FABRIC:
+                                makeAndAppendFabricTask(modsGroovy, project).with {
+                                    arguments.set(ext.arguments.get())
+                                    catalogs.set(ext.catalogs.get())
+                                }
+                                break
                             case MDGExtension.Platform.QUILT:
                                 makeAndAppendQuiltTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
@@ -92,8 +102,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         if (common === null)
                             throw new IllegalArgumentException("Specified platform 'multiloader' but missing common subproject")
 
-                        final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { name.equalsIgnoreCase('quilt') }]
                         final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { name.equalsIgnoreCase('forge') }]
+                        final fabric = ext.multiloader.isPresent() ? ext.multiloader.get().fabric : [project.subprojects.find { name.equalsIgnoreCase('fabric') }]
+                        final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { name.equalsIgnoreCase('quilt') }]
 
                         final SourceSetContainer commonSrcSets = common.extensions.getByType(JavaPluginExtension).sourceSets
                         final commonSrcSet = ext.source.isPresent() ? ext.source.get() : browse(commonSrcSets) { new File(it, 'mods.groovy') }
@@ -112,6 +123,13 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
                         forge.each {
                             makeAndAppendForgeTask(modsGroovy, it).with {
+                                dslConfiguration.set(commonConfiguration)
+                                arguments.set(ext.arguments.get())
+                                catalogs.set(ext.catalogs.get())
+                            }
+                        }
+                        fabric.each {
+                            makeAndAppendFabricTask(modsGroovy, it).with {
                                 dslConfiguration.set(commonConfiguration)
                                 arguments.set(ext.arguments.get())
                                 catalogs.set(ext.catalogs.get())
@@ -148,6 +166,24 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         return convertTask
     }
 
+    static ConvertToFabricJsonTask makeAndAppendFabricTask(FileWithSourceSet modsGroovy, Project project) {
+        final convertTask = project.getTasks().create('modsDotGroovyToFabricJson', ConvertToFabricJsonTask) {
+            notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
+            input.set(modsGroovy.file)
+            dependsOn project.configurations.named(CONFIGURATION_NAME_ROOT)
+            dependsOn project.configurations.named(CONFIGURATION_NAME_FRONTEND)
+            dependsOn project.configurations.named(CONFIGURATION_NAME_PLUGIN)
+        }
+        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+            dependsOn convertTask
+            from(convertTask.output.get().asFile) {
+                into ''
+            }
+        }
+        return convertTask
+    }
+
     static ConvertToQuiltJsonTask makeAndAppendQuiltTask(FileWithSourceSet modsGroovy, Project project) {
         final convertTask = project.getTasks().create('modsDotGroovyToQuiltJson', ConvertToQuiltJsonTask) {
             notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
@@ -158,7 +194,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-            dependsOn(convertTask)
+            dependsOn convertTask
             from(convertTask.output.get().asFile) {
                 into ''
             }

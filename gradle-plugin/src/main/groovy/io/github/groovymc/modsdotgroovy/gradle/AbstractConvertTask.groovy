@@ -168,9 +168,9 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     }
 
     private static List<File> collectFilesFromConfigurations(final Configuration[] configurations) {
-        List<File> files = []
+        final List<File> files = []
         for (configuration in configurations) {
-            configuration.resolvedConfiguration.resolvedArtifacts.each { files += it.file }
+            configuration.resolvedConfiguration.resolvedArtifacts.each { files.add(it.file) }
         }
         return files
     }
@@ -178,10 +178,6 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     @SuppressWarnings('GrDeprecatedAPIUsage')
     Map from(File script) {
         final bindings = new Binding(arguments.get())
-//        final actualDsl = (dslConfiguration.getOrNull() ?: project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_FRONTEND))
-//                .resolvedConfiguration.resolvedArtifacts.collect {
-//            it.file
-//        }
 
         final List<File> classpathFiles = collectFilesFromConfigurations(
                 project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_ROOT),

@@ -15,7 +15,7 @@ dependencies {
 }
 
 modsDotGroovy {
-    //platforms 'forge', 'quilt'
-    platform = 'forge'
+    platforms = ['forge', 'fabric', 'quilt']
+    //platform = 'forge'
     //setupDsl = false
 }

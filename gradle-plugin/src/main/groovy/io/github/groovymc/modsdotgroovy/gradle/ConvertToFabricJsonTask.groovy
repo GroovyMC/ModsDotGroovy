@@ -7,16 +7,15 @@ package io.github.groovymc.modsdotgroovy.gradle
 
 import com.google.gson.GsonBuilder
 
-abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
+abstract class ConvertToFabricJsonTask extends AbstractConvertTask {
     @Override
     protected String getOutputName() {
-        return 'quilt.mod.json'
+        return 'fabric.mod.json'
     }
 
     @Override
     protected void setupPlatformSpecificArguments() {
-        final mcDependency = project.configurations.findByName('minecraft')
-                ?.getDependencies()?.find()
+        final mcDependency = project.configurations.findByName('minecraft')?.getDependencies()?.find()
         if (mcDependency !== null) {
             arg('minecraftVersion', mcDependency.version)
 
@@ -28,10 +27,10 @@ abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
                 } catch (Exception ignored) {}
             }
         }
-        final quiltLoaderDependency = project.configurations.findByName('modImplementation')?.dependencies
-                ?.find {it.name == 'quilt-loader' && it.group == 'org.quiltmc'}
-        if (quiltLoaderDependency !== null) {
-            arg('quiltLoaderVersion', quiltLoaderDependency.version)
+        final fabricLoaderDependency = project.configurations.findByName('modImplementation')?.dependencies
+                ?.find {it.name == 'fabric-loader' && it.group == 'net.fabricmc'}
+        if (fabricLoaderDependency !== null) {
+            arg('fabricLoaderVersion', fabricLoaderDependency.version)
         }
     }
 
@@ -51,6 +50,6 @@ abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
 
     @Override
     protected String getPlatform() {
-        return 'quilt'
+        return 'fabric'
     }
 }

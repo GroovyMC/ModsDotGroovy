@@ -17,8 +17,7 @@ abstract class ConvertToTomlTask extends AbstractConvertTask {
 
     @Override
     protected void setupPlatformSpecificArguments() {
-        final mcDependency = project.configurations.findByName('minecraft')
-                ?.getDependencies()?.find()
+        final mcDependency = project.configurations.findByName('minecraft')?.getDependencies()?.find()
         if (mcDependency !== null) {
             final version = mcDependency.version.split('-')
             arg('minecraftVersion', version[0])

@@ -9,18 +9,19 @@ import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.gradle.api.Project
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.SourceSet
 
+import javax.inject.Inject
+
 @CompileStatic
 abstract class MDGExtension {
     public static final String NAME = 'modsDotGroovy'
 
-    abstract Property<String> getDslVersion()
     abstract Property<Boolean> getAutomaticConfiguration()
-    abstract ListProperty<Platform> getPlatforms()
     abstract Property<SourceSet> getSource()
     abstract Property<MultiloaderConfiguration> getMultiloader()
     abstract MapProperty<String, Object> getArguments()
@@ -29,17 +30,18 @@ abstract class MDGExtension {
 
     protected final Project project
 
-    MDGExtension(final Project project) {
+    private final ObjectFactory objectFactory
+    private final ListProperty<Platform> platforms = objectFactory.listProperty(Platform)
+
+    @Inject
+    MDGExtension(final Project project, final ObjectFactory objectFactory) {
         this.project = project
+        this.objectFactory = objectFactory
         automaticConfiguration.set(true)
         platforms.set([Platform.FORGE])
         arguments.set([:])
         catalogs.set(['libs'])
         setupDsl.set(true)
-    }
-
-    void platform(final String name) {
-        this.setPlatform(name)
     }
 
     void setPlatform(final String name) {
@@ -50,16 +52,16 @@ abstract class MDGExtension {
         this.platforms.set([platform])
     }
 
-    void platforms(final List<String> platforms) {
+    ListProperty<Platform> getPlatforms() {
+        return this.platforms
+    }
+
+    void setPlatforms(final List<String> platforms) {
         this.platforms.set(platforms.collect {Platform.byName(it)})
     }
 
-    void platforms(final String[] platforms) {
-        this.platforms(Arrays.asList(platforms))
-    }
-
-    void setPlatforms(final ListProperty<Platform> platforms) {
-        this.platforms.set(platforms)
+    void setPlatforms(final String[] platforms) {
+        this.setPlatforms(platforms as List<String>)
     }
 
     void multiloader(@DelegatesTo(value = MultiloaderConfiguration, strategy = Closure.DELEGATE_FIRST)
@@ -72,16 +74,22 @@ abstract class MDGExtension {
     }
 
     enum Platform {
-        QUILT {
-            @Override
-            String toString() {
-                return 'quilt'
-            }
-        },
         FORGE {
             @Override
             String toString() {
                 return 'forge'
+            }
+        },
+        FABRIC {
+            @Override
+            String toString() {
+                return 'fabric'
+            }
+        },
+        QUILT {
+            @Override
+            String toString() {
+                return 'quilt'
             }
         },
         MULTILOADER {
@@ -96,6 +104,7 @@ abstract class MDGExtension {
         static Platform byName(String name) {
             switch (name.toLowerCase(Locale.ROOT)) {
                 case 'forge': return FORGE
+                case 'fabric': return FABRIC
                 case 'quilt': return QUILT
                 case 'multiloader': return MULTILOADER
                 default: throw new IllegalArgumentException("Unknown project platform: $name")
@@ -106,6 +115,7 @@ abstract class MDGExtension {
     static class MultiloaderConfiguration {
         Project common
         List<Project> forge = []
+        List<Project> fabric = []
         List<Project> quilt = []
     }
 }
