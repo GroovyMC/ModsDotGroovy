@@ -11,11 +11,11 @@ repositories {
 
 dependencies {
     compileOnly localGroovy()
-    modsDotGroovy('io.github.groovymc.modsdotgroovy:frontend-dsl')
+    //mdgFrontend 'io.github.groovymc.modsdotgroovy:frontend-dsl'
 }
 
 modsDotGroovy {
     //platforms 'forge', 'quilt'
-    platform 'forge'
-    setupDsl = false
+    platform = 'forge'
+    //setupDsl = false
 }

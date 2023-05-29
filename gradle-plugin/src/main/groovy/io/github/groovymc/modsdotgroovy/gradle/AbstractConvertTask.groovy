@@ -11,6 +11,7 @@ import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ResolvedConfiguration
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.CopySpec
@@ -99,6 +100,8 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     }
 
     protected static Map versionCatalogToMap(VersionCatalog catalog) {
+        if (catalog === null)
+            return [:]
         Map out = [:]
         Map versions = [:]
         Map plugins = [:]
@@ -106,8 +109,6 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         out.versions = versions
         out.plugins = plugins
         out.bundles = bundles
-        if (catalog === null)
-            return [:]
         catalog.versionAliases.each {
             var val = catalog.findVersion(it)
             if (val.isPresent())
@@ -166,15 +167,30 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
         Files.writeString(outPath, writeData(data))
     }
 
+    private static List<File> collectFilesFromConfigurations(final Configuration[] configurations) {
+        List<File> files = []
+        for (configuration in configurations) {
+            configuration.resolvedConfiguration.resolvedArtifacts.each { files += it.file }
+        }
+        return files
+    }
+
     @SuppressWarnings('GrDeprecatedAPIUsage')
     Map from(File script) {
         final bindings = new Binding(arguments.get())
-        final actualDsl = (dslConfiguration.getOrNull() ?: project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME))
-                .resolvedConfiguration.resolvedArtifacts.collect {
-            it.file
-        }
+//        final actualDsl = (dslConfiguration.getOrNull() ?: project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_FRONTEND))
+//                .resolvedConfiguration.resolvedArtifacts.collect {
+//            it.file
+//        }
+
+        final List<File> classpathFiles = collectFilesFromConfigurations(
+                project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_ROOT),
+                project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_FRONTEND),
+                project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_PLUGIN),
+        )
+
         final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
-            final List<String> classpath = actualDsl.collect {it.toString()}
+            final List<String> classpath = classpathFiles.collect { it.toString() }
             @Override
             List<String> getClasspath() {
                 return classpath
@@ -186,12 +202,11 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
 
     @SuppressWarnings('unused')
     void configureForSourceSet(SourceSet sourceSet, String fileName = 'mods.groovy') {
-        final modsToml = ModsDotGroovyGradlePlugin.browse(sourceSet)
-                { new File(it, fileName) }
+        final modsToml = ModsDotGroovyGradlePlugin.browse(sourceSet) { new File(it, fileName) }
         if (modsToml === null) throw new IllegalArgumentException("Cannot find '$fileName' file in source set $sourceSet")
         input.set(modsToml)
         project.configurations.named(sourceSet.compileOnlyConfigurationName) {
-            extendsFrom project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME)
+            extendsFrom project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_ROOT)
         }
 
         project.tasks.named(sourceSet.processResourcesTaskName, ProcessResources).configure {

@@ -5,5 +5,5 @@ import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 @CompileStatic
 abstract class ModsDotGroovyFrontend {
-    protected final ModsDotGroovyCore core = new ModsDotGroovyCore()
+    final ModsDotGroovyCore core = new ModsDotGroovyCore()
 }

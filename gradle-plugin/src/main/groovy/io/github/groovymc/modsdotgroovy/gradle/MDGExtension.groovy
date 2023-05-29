@@ -38,14 +38,6 @@ abstract class MDGExtension {
         setupDsl.set(true)
     }
 
-    String frontendDsl(final String dep = "io.github.groovymc.modsdotgroovy:dsl:${getDslVersion().getOrElse('2.0.0')}") {
-        return dep
-    }
-
-    List<String> mdgPlugins(final List<String> deps = ["io.github.groovymc.modsdotgroovy:plugins:2.0.0"]) {
-        return deps
-    }
-
     void platform(final String name) {
         this.setPlatform(name)
     }
@@ -64,6 +56,10 @@ abstract class MDGExtension {
 
     void platforms(final String[] platforms) {
         this.platforms(Arrays.asList(platforms))
+    }
+
+    void setPlatforms(final ListProperty<Platform> platforms) {
+        this.platforms.set(platforms)
     }
 
     void multiloader(@DelegatesTo(value = MultiloaderConfiguration, strategy = Closure.DELEGATE_FIRST)
@@ -99,14 +95,10 @@ abstract class MDGExtension {
 
         static Platform byName(String name) {
             switch (name.toLowerCase(Locale.ROOT)) {
-                case 'quilt':
-                    return QUILT
-                case 'forge':
-                    return FORGE
-                case 'multiloader':
-                    return MULTILOADER
-                default:
-                    throw new IllegalArgumentException("Unknown project platform: $name")
+                case 'forge': return FORGE
+                case 'quilt': return QUILT
+                case 'multiloader': return MULTILOADER
+                default: throw new IllegalArgumentException("Unknown project platform: $name")
             }
         }
     }

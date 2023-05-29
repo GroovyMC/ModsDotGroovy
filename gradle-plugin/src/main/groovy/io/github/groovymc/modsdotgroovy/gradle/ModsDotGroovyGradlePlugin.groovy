@@ -6,6 +6,7 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.attributes.Bundling
 import org.gradle.api.attributes.Category
@@ -15,22 +16,36 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.annotations.Nullable
 
 class ModsDotGroovyGradlePlugin implements Plugin<Project> {
-    public static final String CONFIGURATION_NAME = 'modsDotGroovy'
+    public static final String CONFIGURATION_NAME_ROOT = 'mdgRuntime'
+    public static final String CONFIGURATION_NAME_PLUGIN = 'mdgPlugin'
+    public static final String CONFIGURATION_NAME_FRONTEND = 'mdgFrontend'
 
     @Override
     void apply(Project project) {
         final ext = project.extensions.create(MDGExtension.NAME, MDGExtension)
-        final configuration = project.configurations.create(CONFIGURATION_NAME)
-        configuration.canBeConsumed = false
-        configuration.attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category, Category.LIBRARY))
-        configuration.attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling, Bundling.EXTERNAL))
-        configuration.attributes.attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(TargetJvmEnvironment, TargetJvmEnvironment.STANDARD_JVM))
-        configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, Usage.JAVA_RUNTIME))
-        configuration.attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements, LibraryElements.JAR))
+
+        final rootConfiguration = project.configurations.register(CONFIGURATION_NAME_ROOT) {
+            canBeConsumed = false
+            attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category, Category.LIBRARY))
+            attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling, Bundling.EXTERNAL))
+            attributes.attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(TargetJvmEnvironment, TargetJvmEnvironment.STANDARD_JVM))
+            attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, Usage.JAVA_RUNTIME))
+            attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements, LibraryElements.JAR))
+        }.get()
+
+        final pluginConfiguration = project.configurations.register(CONFIGURATION_NAME_PLUGIN) {
+            extendsFrom project.configurations.named(CONFIGURATION_NAME_ROOT).get()
+        }
+
+        final frontendConfiguration = project.configurations.register(CONFIGURATION_NAME_FRONTEND) {
+            extendsFrom project.configurations.named(CONFIGURATION_NAME_ROOT).get()
+        }
 
         project.getPlugins().apply('java')
 
@@ -40,15 +55,14 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                     repo.name = 'Modding Inquisition Releases'
                     repo.url = 'https://maven.moddinginquisition.org/releases'
                 }
-                configuration.dependencies.add(project.dependencies.create(ext.frontendDsl()))
-                //ext.mdgPlugins().each { configuration.dependencies.add(project.dependencies.create(it)) }
+                rootConfiguration.dependencies.add(project.dependencies.create('io.github.groovymc.modsdotgroovy:frontend-dsl'))
             }
 
             if (ext.automaticConfiguration.get()) {
                 final List<MDGExtension.Platform> platforms = ext.platforms.get()
                 for (MDGExtension.Platform platform : platforms.unique(false)) {
-                    if (platform != MDGExtension.Platform.MULTILOADER) {
-                        final srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
+                    if (platform !== MDGExtension.Platform.MULTILOADER) {
+                        final SourceSetContainer srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
                         final srcSet = ext.source.isPresent() ? ext.source.get() : browse(srcSets) { new File(it, 'mods.groovy')}
                                 .map((FileWithSourceSet fileWithSourceSet) -> fileWithSourceSet.sourceSet)
                                 .orElseGet(() -> srcSets.named('main').get())
@@ -56,7 +70,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         final modsGroovy = new FileWithSourceSet(srcSet, new File(srcSet.resources.srcDirs.find(), 'mods.groovy'))
 
                         project.configurations.named(modsGroovy.sourceSet.compileOnlyConfigurationName) {
-                            extendsFrom configuration
+                            extendsFrom rootConfiguration
                         }
 
                         switch (platform) {
@@ -81,17 +95,19 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { name.equalsIgnoreCase('quilt') }]
                         final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { name.equalsIgnoreCase('forge') }]
 
-                        final commonSrcSets = common.extensions.getByType(JavaPluginExtension).sourceSets
+                        final SourceSetContainer commonSrcSets = common.extensions.getByType(JavaPluginExtension).sourceSets
                         final commonSrcSet = ext.source.isPresent() ? ext.source.get() : browse(commonSrcSets) { new File(it, 'mods.groovy') }
                                 .map((FileWithSourceSet fileWithSourceSet) -> fileWithSourceSet.sourceSet)
                                 .orElseGet(() -> commonSrcSets.named('main').get())
 
                         final modsGroovy = new FileWithSourceSet(commonSrcSet, new File(commonSrcSet.resources.srcDirs.find(), 'mods.groovy'))
 
-                        final commonConfiguration = common.configurations.findByName(CONFIGURATION_NAME) ?: common.configurations.create(CONFIGURATION_NAME)
-                        commonConfiguration.dependencies.add(common.dependencies.create(ext.frontendDsl()))
+                        final commonConfiguration = common.configurations.named(CONFIGURATION_NAME_ROOT) ?: common.configurations.register(CONFIGURATION_NAME_ROOT)
+//                        commonConfiguration.configure {
+//                            dependencies.add(common.dependencies.create(ext.frontendDsl()))
+//                        }
                         common.configurations.named(modsGroovy.sourceSet.compileOnlyConfigurationName) {
-                            extendsFrom configuration, commonConfiguration
+                            extendsFrom rootConfiguration, commonConfiguration.get()
                         }
 
                         forge.each {
@@ -118,11 +134,13 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
             notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
             input.set(modsGroovy.file)
-            dependsOn(project.configurations.getByName(CONFIGURATION_NAME))
+            dependsOn project.configurations.named(CONFIGURATION_NAME_ROOT)
+            dependsOn project.configurations.named(CONFIGURATION_NAME_FRONTEND)
+            dependsOn project.configurations.named(CONFIGURATION_NAME_PLUGIN)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
-            dependsOn(convertTask)
+            dependsOn convertTask
             from(convertTask.output.get().asFile) {
                 into 'META-INF'
             }
@@ -134,7 +152,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         final convertTask = project.getTasks().create('modsDotGroovyToQuiltJson', ConvertToQuiltJsonTask) {
             notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
             input.set(modsGroovy.file)
-            dependsOn(project.configurations.getByName(CONFIGURATION_NAME))
+            dependsOn project.configurations.named(CONFIGURATION_NAME_ROOT)
+            dependsOn project.configurations.named(CONFIGURATION_NAME_FRONTEND)
+            dependsOn project.configurations.named(CONFIGURATION_NAME_PLUGIN)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
