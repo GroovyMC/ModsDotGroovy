@@ -34,6 +34,7 @@ final mdg = ModsDotGroovy.make {
             mod('exampledep') {
                 versionRange = '[1,)'
                 side = DependencySide.CLIENT
+                mandatory = false
             }
 
             exampledep2 = '[1,)'

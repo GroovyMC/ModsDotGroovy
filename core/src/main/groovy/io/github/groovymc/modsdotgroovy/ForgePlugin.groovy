@@ -83,19 +83,21 @@ class ForgePlugin extends ModsDotGroovyPlugin {
                 // https://github.com/MinecraftForge/MinecraftForge/blob/4b813e4319fbd4e7f1ea2a7edaedc82ba617f797/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModInfo.java#L32
                 if (!modId.matches(/^[a-z][a-z0-9_]{3,63}\u0024/)) {
                     // if the modId is invalid, do a bunch of checks to generate a more helpful error message
-                    final StringBuilder errorMsg = new StringBuilder('modId must match the regex /^[a-z][a-z0-9_]{3,63}$/.')
+                    final StringBuilder errorMsg = new StringBuilder('modId must match the regex /^[a-z][a-z0-9_]{3,63}$/.').with {
+                        if (modId.contains('-') || modId.contains(' '))
+                            append '\nDashes and spaces are not allowed in modId as per the JPMS spec. Use underscores instead.'
+                        if (PluginUtils.startsWithNumber(modId))
+                            append '\nmodId cannot start with a number.'
+                        if (modId != modId.toLowerCase(Locale.ROOT))
+                            append '\nmodId must be lowercase.'
 
-                    if (modId.contains('-') || modId.contains(' '))
-                        errorMsg.append('\nDashes and spaces are not allowed in modId as per the JPMS spec. Use underscores instead.')
-                    if (PluginUtils.startsWithNumber(modId))
-                        errorMsg.append('\nmodId cannot start with a number.')
-                    if (modId != modId.toLowerCase(Locale.ROOT))
-                        errorMsg.append('\nmodId must be lowercase.')
+                        if (modId.length() < 4)
+                            append '\nmodId must be at least 4 characters long to avoid conflicts.'
+                        else if (modId.length() > 64)
+                            append '\nmodId cannot be longer than 64 characters.'
 
-                    if (modId.length() < 4)
-                        errorMsg.append('\nmodId must be at least 4 characters long to avoid conflicts.')
-                    else if (modId.length() > 64)
-                        errorMsg.append('\nmodId cannot be longer than 64 characters.')
+                        return it
+                    }
 
                     throw new PluginResult.MDGPluginException(errorMsg.toString())
                 }
@@ -162,7 +164,8 @@ class ForgePlugin extends ModsDotGroovyPlugin {
                         if (this.versionRange === null)
                             throw new PluginResult.MDGPluginException("dependency \"${this.modId}\" is missing a versionRange")
 
-                        value['mandatory'] ?= true
+                        if (value['mandatory'] === null)
+                            value['mandatory'] = true
 
                         dependencies.add(value)
                         return PluginResult.remove()
