@@ -36,7 +36,7 @@ license = "MIT"
 
     [[dependencies.examplemod]]
       mandatory = true
-      versionRange = "[1.19.4,1.20.0)"
+      versionRange = "[1.19.4,1.20)"
       ordering = "NONE"
       side = "BOTH"
       modId = "minecraft"

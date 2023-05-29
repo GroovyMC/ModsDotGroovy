@@ -62,10 +62,16 @@ class DependenciesBuilder extends HashMap {
 
     void setMinecraft(final NumberRange versionRange) {
         final minecraftDependency = new MinecraftDependency()
-        final String mavenVersionRange = "${versionRange.from}".startsWith('1.')
-                ? "[${versionRange.from},${versionRange.to})"
-                : "[1.${versionRange.from},1.${versionRange.to})"
-        minecraftDependency.versionRange = mavenVersionRange
+
+        String fromVersion = "${versionRange.from}"
+        if (!fromVersion.startsWith('1.')) fromVersion = '1.' + fromVersion
+        if (fromVersion.endsWith('.0')) fromVersion = fromVersion[0..-3]
+
+        String toVersion = "${versionRange.to}"
+        if (!toVersion.startsWith('1.')) toVersion = '1.' + toVersion
+        if (toVersion.endsWith('.0')) toVersion = toVersion[0..-3]
+
+        minecraftDependency.versionRange = "[$fromVersion,$toVersion)"
         dependencies << minecraftDependency.copy()
     }
 
