@@ -74,7 +74,7 @@ class ModsDotGroovy {
      * Run a given block only if the plugin is configuring the quilt.mod.json file for quilt.
      */
     void onQuilt(Closure closure) {
-        if (platform == Platform.QUILT) {
+        if (platform === Platform.QUILT) {
             closure.resolveStrategy = DELEGATE_FIRST
             closure.call()
         }
@@ -84,7 +84,7 @@ class ModsDotGroovy {
      * Run a given block only if the plugin is configuring the fabric.mod.json file for Fabric.
      */
     void onFabric(Closure closure) {
-        if (platform == Platform.FABRIC) {
+        if (platform === Platform.FABRIC) {
             closure.resolveStrategy = DELEGATE_FIRST
             closure.call()
         }
@@ -94,7 +94,7 @@ class ModsDotGroovy {
      * Run a given block only if the plugin is configuring the fabric.mod.json file for Fabric or the quilt.mod.json file for Quilt.
      */
     void onFabricAndQuilt(Closure closure) {
-        if (platform == Platform.FABRIC || platform == Platform.QUILT) {
+        if (platform === Platform.FABRIC || platform === Platform.QUILT) {
             closure.resolveStrategy = DELEGATE_FIRST
             closure.call()
         }
@@ -371,8 +371,8 @@ class ModsDotGroovy {
                 break
             default:
                 parts.eachWithIndex { String entry, int i ->
-                    if (i == 0) fullString = entry
-                    else if (i == parts.size() - 1) fullString += ' and ' + entry
+                    if (i === 0) fullString = entry
+                    else if (i === parts.size() - 1) fullString += ' and ' + entry
                     else fullString += ', ' + entry
                 }
                 break

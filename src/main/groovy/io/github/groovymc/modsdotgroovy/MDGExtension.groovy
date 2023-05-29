@@ -35,21 +35,24 @@ abstract class MDGExtension {
         catalogs.set(['libs'])
     }
 
-    String mdgDsl(String version = null) {
-        version = version ?: getDslVersion().get()
+    String mdgDsl(final String version = getDslVersion().get()) {
         final spl = version.split('\\.', 3)
         return "${spl.length >= 2 ? (spl[1].toInteger() >= 4 ? 'org' : 'io.github') : 'io.github'}.groovymc.modsdotgroovy:dsl:$version"
     }
 
-    void platform(String name) {
+    void platform(final String name) {
         this.platforms.set([Platform.byName(name)])
     }
 
-    void platforms(List<String> platforms) {
+    void setPlatform(final String name) {
+        this.platform(name)
+    }
+
+    void platforms(final List<String> platforms) {
         this.platforms.set(platforms.collect {Platform.byName(it)})
     }
 
-    void platforms(String[] platforms) {
+    void platforms(final String[] platforms) {
         this.platforms(Arrays.asList(platforms))
     }
 

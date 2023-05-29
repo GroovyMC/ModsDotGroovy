@@ -112,7 +112,7 @@ tasks.withType(GroovyCompile).configureEach {
 
 publishing {
     publications {
-        mavenDsl(MavenPublication) {
+        register('mavenDsl', MavenPublication) {
             groupId = project.hasProperty('inquisitionPublish') ? 'io.github.groovymc.modsdotgroovy' : 'org.groovymc.modsdotgroovy'
             artifactId = 'dsl'
             version = project.dsl_version
