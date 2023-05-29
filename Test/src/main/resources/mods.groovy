@@ -31,7 +31,8 @@ ModsDotGroovy.make {
         }
 
         dependencies {
-            minecraft = 1.19..1.20 // equivalent to `minecraft = '[1.19,1.20)'`
+            //minecraft = 1.19..1.20 // equivalent to `minecraft = '[1.19,1.20)'`
+            minecraft = 19.4..20.0 // equivalent to `minecraft = '[1.19.4,1.20)'`
             forge = '[43.0.0,)' // equivalent to `forge { versionRange = '[43.0.0,)' }`
             quiltLoader = '>=0.17.3'
             fabricLoader = '[0.14.19,)'

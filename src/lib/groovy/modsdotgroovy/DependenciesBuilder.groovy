@@ -62,7 +62,9 @@ class DependenciesBuilder extends HashMap {
 
     void setMinecraft(final NumberRange versionRange) {
         final minecraftDependency = new MinecraftDependency()
-        final String mavenVersionRange = "[${versionRange.from},${versionRange.to})"
+        final String mavenVersionRange = "${versionRange.from}".startsWith('1.')
+                ? "[${versionRange.from},${versionRange.to})"
+                : "[1.${versionRange.from},1.${versionRange.to})"
         minecraftDependency.versionRange = mavenVersionRange
         dependencies << minecraftDependency.copy()
     }
@@ -74,7 +76,7 @@ class DependenciesBuilder extends HashMap {
 
     void forge(@DelegatesTo(value = ForgeDependency, strategy = DELEGATE_FIRST)
                @ClosureParams(value = SimpleType, options = 'modsdotgroovy.ForgeDependency') final Closure closure) {
-        if (platform == Platform.FORGE) {
+        if (platform === Platform.FORGE) {
             final forgeDependency = new ForgeDependency()
             closure.delegate = forgeDependency
             closure.resolveStrategy = DELEGATE_FIRST
@@ -84,7 +86,7 @@ class DependenciesBuilder extends HashMap {
     }
 
     void setForge(final String versionRange) {
-        if (platform == Platform.FORGE) {
+        if (platform === Platform.FORGE) {
             final forgeDependency = new ForgeDependency()
             forgeDependency.versionRange = versionRange
             dependencies << forgeDependency.copy()
@@ -93,7 +95,7 @@ class DependenciesBuilder extends HashMap {
 
     void quiltLoader(@DelegatesTo(value = QuiltLoaderDependency, strategy = DELEGATE_FIRST)
                      @ClosureParams(value = SimpleType, options = 'modsdotgroovy.QuiltLoaderDependency') final Closure closure) {
-        if (platform == Platform.QUILT) {
+        if (platform === Platform.QUILT) {
             final quiltLoaderDependency = new QuiltLoaderDependency()
             closure.delegate = quiltLoaderDependency
             closure.resolveStrategy = DELEGATE_FIRST
@@ -103,7 +105,7 @@ class DependenciesBuilder extends HashMap {
     }
 
     void setQuiltLoader(final String versionRange) {
-        if (platform == Platform.QUILT) {
+        if (platform === Platform.QUILT) {
             final quiltLoaderDependency = new QuiltLoaderDependency()
             quiltLoaderDependency.versionRange = versionRange
             dependencies << quiltLoaderDependency.copy()
@@ -112,7 +114,7 @@ class DependenciesBuilder extends HashMap {
 
     void fabricLoader(@DelegatesTo(value = FabricLoaderDependency, strategy = DELEGATE_FIRST)
                      @ClosureParams(value = SimpleType, options = 'modsdotgroovy.FabricLoaderDependency') final Closure closure) {
-        if (platform == Platform.FABRIC) {
+        if (platform === Platform.FABRIC) {
             final quiltLoaderDependency = new FabricLoaderDependency()
             closure.delegate = quiltLoaderDependency
             closure.resolveStrategy = DELEGATE_FIRST
@@ -122,7 +124,7 @@ class DependenciesBuilder extends HashMap {
     }
 
     void setFabricLoader(final String versionRange) {
-        if (platform == Platform.FABRIC) {
+        if (platform === Platform.FABRIC) {
             final quiltLoaderDependency = new FabricLoaderDependency()
             quiltLoaderDependency.versionRange = versionRange
             dependencies << quiltLoaderDependency.copy()
