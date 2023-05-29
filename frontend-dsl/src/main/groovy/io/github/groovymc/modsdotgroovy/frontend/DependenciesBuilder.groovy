@@ -40,6 +40,19 @@ class DependenciesBuilder implements MapClosureInterceptor {
         core.pop()
     }
 
+    void mod(final String modId,
+             @DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)
+             @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependencyBuilder') Closure closure) {
+        log.debug "mod(string, closure)"
+        core.push('dependency')
+        final dependencyBuilder = new DependencyBuilder(core)
+        core.put('modId', modId)
+        closure.delegate = dependencyBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(dependencyBuilder)
+        core.pop()
+    }
+
     @CompileDynamic
     void setProperty(final String name, final def value) {
         mod {

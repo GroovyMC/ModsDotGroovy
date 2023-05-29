@@ -10,9 +10,9 @@ import groovy.util.logging.Log4j2
 @Log4j2(category = 'MDG - Frontend')
 trait PropertyInterceptor {
     @CompileDynamic
-    void setProperty(final String name, final def value) {
+    void setProperty(final String name, def value) {
         log.debug "setProperty(name: $name, value: $value) stack: ${core.getStack()}"
-        if (this.hasProperty(name)) this.@"$name" = value
+        //if (this.hasProperty(name)) this.@"$name" = value
         core.put(name, value)
     }
 }

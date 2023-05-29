@@ -148,8 +148,6 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 //                    final newStack = new ArrayDeque<String>(stack)
 //                    newStack.addLast('dependency')
 //                    return new PluginResult.Change(newLocation: newStack, newValue: [modId: name, versionRange: value])
-//
-//                    // todo: support `modId { versionRange = '...'; side = DependencySide.CLIENT; ... }` syntax
 //                }
 
                 class Dependency {
@@ -237,7 +235,7 @@ class ForgePlugin extends ModsDotGroovyPlugin {
             final jsonSlurper = new JsonSlurper().setType(JsonParserType.INDEX_OVERLAY)
 
             List<String> updateJsonUrls = []
-            if (cfMatcher.groupCount() == 3) { // whole string, slug, project ID
+            if (cfMatcher.groupCount() === 3) { // whole string, slug, project ID
                 // determine the modId first from the modId, falling back to the slug in the URL if that fails
                 final String updateJsonUrlRoot = "https://forge.curseupdate.com/${cfMatcher.group(2)}/"
                 updateJsonUrls.add(updateJsonUrlRoot + modId)

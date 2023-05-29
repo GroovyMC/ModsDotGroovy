@@ -31,13 +31,11 @@ final mdg = ModsDotGroovy.make {
                 side = DependencySide.BOTH
             }
 
-            // todo: support this in the ForgePlugin
-            exampledep {
+            mod('exampledep') {
                 versionRange = '[1,)'
                 side = DependencySide.CLIENT
             }
 
-            // todo: support this, too
             exampledep2 = '[1,)'
         }
     }
