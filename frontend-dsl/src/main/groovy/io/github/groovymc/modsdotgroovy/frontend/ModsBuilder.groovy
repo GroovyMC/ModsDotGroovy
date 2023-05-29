@@ -13,8 +13,6 @@ import static groovy.lang.Closure.DELEGATE_ONLY
 class ModsBuilder implements PropertyInterceptor, MapClosureInterceptor {
     private final ModsDotGroovyCore core
 
-    boolean insideModsBuilder = true
-
     void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_ONLY)
                  @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
                  final Closure closure) {

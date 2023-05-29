@@ -18,6 +18,7 @@ class DependenciesBuilder implements MapClosureInterceptor {
     @Nullable String forge
     @Nullable String minecraft
 
+    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
     DependenciesBuilder() {
         log.debug "new io.github.groovymc.modsdotgroovy.frontend.DependenciesBuilder()"
         this.core = null

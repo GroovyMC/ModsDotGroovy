@@ -94,10 +94,8 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
         core.pop()
     }
 
-    static synchronized ModsDotGroovy make(
-            @DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-            @ClosureParams(value = SimpleType, options = 'ModsDotGroovy')
-            final Closure closure) {
+    static ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+                              @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') final Closure closure) {
         final ModsDotGroovy val = new ModsDotGroovy()
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val

@@ -1,6 +1,7 @@
 package io.github.groovymc.modsdotgroovy.frontend
 
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 
 /**
@@ -8,6 +9,7 @@ import groovy.util.logging.Log4j2
  * Useful for allowing the frontend to still delegate unrecognised nests to the backend to be handled by plugins.<br>
  * Classes that use this trait to need to implement a non-null {@code private final ModsDotGroovyCore core}.
  */
+@CompileStatic
 @Log4j2(category = 'MDG - Frontend')
 trait MapClosureInterceptor {
     @CompileDynamic

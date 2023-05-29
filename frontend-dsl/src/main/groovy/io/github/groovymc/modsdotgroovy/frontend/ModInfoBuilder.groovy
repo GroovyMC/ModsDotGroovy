@@ -76,6 +76,7 @@ class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
      */
     String author = ''
 
+    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
     ModInfoBuilder() {
         log.debug "new io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder()"
         this.core = null

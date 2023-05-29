@@ -34,6 +34,7 @@ class DependencyBuilder implements PropertyInterceptor, MapClosureInterceptor {
      */
     String side = 'BOTH'
 
+    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
     DependencyBuilder() {
         log.debug "new io.github.groovymc.modsdotgroovy.frontend.DependencyBuilder()"
         this.core = null
