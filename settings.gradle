@@ -6,6 +6,12 @@ pluginManagement {
 
 rootProject.name = 'ModsDotGroovy'
 
+buildCache {
+    remote(HttpBuildCache) {
+        url = 'https://gradlecache.groovymc.org/cache/'
+    }
+}
+
 enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 

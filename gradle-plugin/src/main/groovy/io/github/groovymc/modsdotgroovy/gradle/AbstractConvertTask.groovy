@@ -11,7 +11,6 @@ import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ResolvedConfiguration
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.CopySpec
@@ -27,7 +26,9 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import javax.inject.Inject
 import java.nio.file.Files
 
+@CacheableTask
 abstract class AbstractConvertTask extends DefaultTask {
+    @Classpath
     @InputFile
     abstract RegularFileProperty getInput()
 
@@ -35,8 +36,8 @@ abstract class AbstractConvertTask extends DefaultTask {
     @OutputFile
     abstract RegularFileProperty getOutput()
 
-    @Optional
     @Input
+    @Optional
     abstract Property<Configuration> getDslConfiguration()
 
     @Input
@@ -46,6 +47,10 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Input
     @Optional
     abstract ListProperty<String> getCatalogs()
+
+    @Classpath
+    @InputFiles
+    abstract ListProperty<File> getMdgRuntimeFiles()
 
     @Internal
     protected abstract String getOutputName()
@@ -62,10 +67,10 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Internal
     protected final String getScriptHeader() {
         return """
-if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
-    ModsDotGroovy.setPlatform('${getPlatform()}')
-}
-"""
+            if (ModsDotGroovy.metaClass.respondsTo(null, 'setPlatform')) {
+                ModsDotGroovy.setPlatform('${getPlatform()}')
+            }
+        """.stripIndent().trim()
     }
 
     @Inject
@@ -136,7 +141,7 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
 
     protected static void writeByPartwise(Map root, String path, Object value) {
         List<String> parts = path.split(/\./).collect {it.trim()}.findAll {!it.isEmpty()}
-        if (parts.size() == 1)
+        if (parts.size() === 1)
             root[parts[0]] = value
         else if (parts.size() >= 1) {
             Object inner = root.computeIfAbsent(parts[0], {[:]})
@@ -154,39 +159,26 @@ if (ModsDotGroovy.metaClass.respondsTo(null,'setPlatform')) {
     }
 
     @TaskAction
+    @CompileStatic
     void run() {
         final input = getInput().asFile.get()
         if (!input.exists()) {
             logger.warn("Input file {} for task '{}' could not be found!", input, getName())
             return
         }
-        final data = from(input)
+        final Map data = from(input)
         final outPath = getOutput().get().asFile.toPath()
         if (outPath.parent !== null && !Files.exists(outPath.parent)) Files.createDirectories(outPath.parent)
         Files.deleteIfExists(outPath)
         Files.writeString(outPath, writeData(data))
     }
 
-    private static List<File> collectFilesFromConfigurations(final Configuration[] configurations) {
-        final List<File> files = []
-        for (configuration in configurations) {
-            configuration.resolvedConfiguration.resolvedArtifacts.each { files.add(it.file) }
-        }
-        return files
-    }
-
-    @SuppressWarnings('GrDeprecatedAPIUsage')
+    @CompileStatic
     Map from(File script) {
         final bindings = new Binding(arguments.get())
 
-        final List<File> classpathFiles = collectFilesFromConfigurations(
-                project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_ROOT),
-                project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_FRONTEND),
-                project.configurations.getByName(ModsDotGroovyGradlePlugin.CONFIGURATION_NAME_PLUGIN),
-        )
-
         final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
-            final List<String> classpath = classpathFiles.collect { it.toString() }
+            final List<String> classpath = mdgRuntimeFiles.get().collect { it.toString() }
             @Override
             List<String> getClasspath() {
                 return classpath

@@ -8,4 +8,10 @@ pluginManagement {
 
 rootProject.name = 'ModsDotGroovy-Test'
 
+buildCache {
+    remote(HttpBuildCache) {
+        url = 'https://gradlecache.groovymc.org/cache/'
+    }
+}
+
 includeBuild('../')

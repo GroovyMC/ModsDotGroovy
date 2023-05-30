@@ -7,7 +7,9 @@ package io.github.groovymc.modsdotgroovy.gradle
 
 import com.moandjiezana.toml.TomlWriter
 import groovy.transform.CompileStatic
+import org.gradle.api.tasks.CacheableTask
 
+@CacheableTask
 @CompileStatic
 abstract class ConvertToTomlTask extends AbstractConvertTask {
     @Override

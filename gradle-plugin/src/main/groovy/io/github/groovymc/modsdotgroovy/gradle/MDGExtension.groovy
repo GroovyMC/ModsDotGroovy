@@ -37,11 +37,11 @@ abstract class MDGExtension {
     MDGExtension(final Project project, final ObjectFactory objectFactory) {
         this.project = project
         this.objectFactory = objectFactory
-        automaticConfiguration.set(true)
-        platforms.set([Platform.FORGE])
-        arguments.set([:])
-        catalogs.set(['libs'])
-        setupDsl.set(true)
+        automaticConfiguration.convention(true)
+        platforms.convention([Platform.FORGE])
+        arguments.convention([:])
+        catalogs.convention(['libs'])
+        setupDsl.convention(true)
     }
 
     void setPlatform(final String name) {

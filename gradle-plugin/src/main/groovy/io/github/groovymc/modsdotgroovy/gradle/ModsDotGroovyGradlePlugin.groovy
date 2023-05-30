@@ -41,14 +41,14 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             attributes.attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(TargetJvmEnvironment, TargetJvmEnvironment.STANDARD_JVM))
             attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, Usage.JAVA_RUNTIME))
             attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements, LibraryElements.JAR))
-        }.get()
+        }
 
         final pluginConfiguration = project.configurations.register(CONFIGURATION_NAME_PLUGIN) {
-            extendsFrom project.configurations.named(CONFIGURATION_NAME_ROOT).get()
+            extendsFrom rootConfiguration.get()
         }
 
         final frontendConfiguration = project.configurations.register(CONFIGURATION_NAME_FRONTEND) {
-            extendsFrom project.configurations.named(CONFIGURATION_NAME_ROOT).get()
+            extendsFrom rootConfiguration.get()
         }
 
         project.getPlugins().apply('java')
@@ -59,7 +59,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                     repo.name = 'Modding Inquisition Releases'
                     repo.url = 'https://maven.moddinginquisition.org/releases'
                 }
-                rootConfiguration.dependencies.add(project.dependencies.create('io.github.groovymc.modsdotgroovy:frontend-dsl'))
+                rootConfiguration.get().dependencies.add(project.dependencies.create('io.github.groovymc.modsdotgroovy:frontend-dsl'))
             }
 
             if (ext.automaticConfiguration.get()) {
@@ -74,7 +74,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         final modsGroovy = new FileWithSourceSet(srcSet, new File(srcSet.resources.srcDirs.find(), 'mods.groovy'))
 
                         project.configurations.named(modsGroovy.sourceSet.compileOnlyConfigurationName) {
-                            extendsFrom rootConfiguration
+                            extendsFrom rootConfiguration.get()
                         }
 
                         switch (platform) {
@@ -118,7 +118,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 //                            dependencies.add(common.dependencies.create(ext.frontendDsl()))
 //                        }
                         common.configurations.named(modsGroovy.sourceSet.compileOnlyConfigurationName) {
-                            extendsFrom rootConfiguration, commonConfiguration.get()
+                            extendsFrom rootConfiguration.get(), commonConfiguration.get()
                         }
 
                         forge.each {
@@ -148,6 +148,14 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         }
     }
 
+    private static List<File> collectFilesFromConfigurations(final Configuration[] configurations) {
+        final List<File> files = []
+        for (configuration in configurations) {
+            configuration.resolvedConfiguration.resolvedArtifacts.each { files.add(it.file) }
+        }
+        return files.unique().toSorted(Comparator.comparing(File::getAbsolutePath))
+    }
+
     static ConvertToTomlTask makeAndAppendForgeTask(FileWithSourceSet modsGroovy, Project project) {
         final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
             notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
@@ -155,6 +163,11 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             dependsOn project.configurations.named(CONFIGURATION_NAME_ROOT)
             dependsOn project.configurations.named(CONFIGURATION_NAME_FRONTEND)
             dependsOn project.configurations.named(CONFIGURATION_NAME_PLUGIN)
+            mdgRuntimeFiles.set(collectFilesFromConfigurations(
+                    project.configurations.getByName(CONFIGURATION_NAME_ROOT),
+                    project.configurations.getByName(CONFIGURATION_NAME_FRONTEND),
+                    project.configurations.getByName(CONFIGURATION_NAME_PLUGIN),
+            ))
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
@@ -173,6 +186,11 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             dependsOn project.configurations.named(CONFIGURATION_NAME_ROOT)
             dependsOn project.configurations.named(CONFIGURATION_NAME_FRONTEND)
             dependsOn project.configurations.named(CONFIGURATION_NAME_PLUGIN)
+            mdgRuntimeFiles.set(collectFilesFromConfigurations(
+                    project.configurations.getByName(CONFIGURATION_NAME_ROOT),
+                    project.configurations.getByName(CONFIGURATION_NAME_FRONTEND),
+                    project.configurations.getByName(CONFIGURATION_NAME_PLUGIN),
+            ))
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
@@ -191,6 +209,11 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             dependsOn project.configurations.named(CONFIGURATION_NAME_ROOT)
             dependsOn project.configurations.named(CONFIGURATION_NAME_FRONTEND)
             dependsOn project.configurations.named(CONFIGURATION_NAME_PLUGIN)
+            mdgRuntimeFiles.set(collectFilesFromConfigurations(
+                    project.configurations.getByName(CONFIGURATION_NAME_ROOT),
+                    project.configurations.getByName(CONFIGURATION_NAME_FRONTEND),
+                    project.configurations.getByName(CONFIGURATION_NAME_PLUGIN),
+            ))
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
             exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
