@@ -15,7 +15,7 @@ import java.lang.reflect.Modifier
 @CompileStatic
 @Log4j2(category = 'MDG - Core')
 final class ModsDotGroovyCore {
-    private final PluginRegistry plugins = new PluginRegistry(this)
+    private final PluginRegistry plugins = new PluginRegistry()
 
     @Delegate
     final StackAwareObservableMap backingData = new StackAwareObservableMap()
