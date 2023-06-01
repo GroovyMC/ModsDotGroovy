@@ -76,9 +76,9 @@ class ModsDotGroovy implements Plugin<Project> {
                         }
                     } else {
                         final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
-                        final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'quilt' }]
-                        final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'forge' }]
-                        final fabric = ext.multiloader.isPresent() ? ext.multiloader.get().fabric : [project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'fabric' }]
+                        final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : project.subprojects.findAll { it.name.toLowerCase(Locale.ROOT) == 'quilt' }
+                        final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : project.subprojects.findAll { it.name.toLowerCase(Locale.ROOT) == 'forge' }
+                        final fabric = ext.multiloader.isPresent() ? ext.multiloader.get().fabric : project.subprojects.findAll { it.name.toLowerCase(Locale.ROOT) == 'fabric' }
 
                         if (common === null)
                             throw new IllegalArgumentException(
