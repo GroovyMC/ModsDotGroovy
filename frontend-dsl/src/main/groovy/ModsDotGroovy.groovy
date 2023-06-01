@@ -43,11 +43,10 @@ import org.jetbrains.annotations.Nullable
 @CompileStatic
 @Log4j2(category = 'MDG - Frontend')
 class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
-//    @CompileDynamic
-//    void methodMissing(String name, @Nullable def args) {
-//        log.debug "methodMissing(name: $name, args: $args)"
-//        core.rootMap."$name" = args
-//    }
+    /**@
+     * If running in a Gradle environment, this will be populated with the {@code build.properties}.
+     */
+    public final Map<String, ?> buildProperties = [:]
 
     /**@
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
@@ -76,27 +75,50 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
      * Alias for <code>mods { modInfo {} }</code>
      * @param closure
      */
-    void mod(@DelegatesTo(value = ModInfoBuilder, strategy = Closure.DELEGATE_ONLY)
+    void mod(@DelegatesTo(value = ModInfoBuilder, strategy = Closure.DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
              final Closure closure) {
         mods { modInfo(closure) }
     }
 
-    void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_ONLY)
+    void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModsBuilder')
               final Closure closure) {
         log.debug "mods(closure)"
         core.push('mods')
         final modsBuilder = new ModsBuilder(core)
-        closure.resolveStrategy = Closure.DELEGATE_ONLY
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
         core.pop()
     }
 
+    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
+    ModsDotGroovy() {
+        super([:])
+    }
+
+    private ModsDotGroovy(final Map<String, ?> environment) {
+        super(environment)
+        if (environment.containsKey('buildProperties'))
+            this.@buildProperties.putAll(environment.buildProperties as Map<String, ?>)
+    }
+
     static ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
                               @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') final Closure closure) {
-        final ModsDotGroovy val = new ModsDotGroovy()
+        return make(closure, [:])
+    }
+
+    static ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+                              @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') final Closure closure,
+                              final Binding scriptBinding) {
+        return make(closure, scriptBinding.variables)
+    }
+
+    static ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+                              @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') final Closure closure,
+                              final Map<String, ?> environment) {
+        final ModsDotGroovy val = new ModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)

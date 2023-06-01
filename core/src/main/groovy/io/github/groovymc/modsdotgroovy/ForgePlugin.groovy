@@ -21,6 +21,11 @@ import java.util.regex.Matcher
 @Log4j2(category = 'MDG - ForgePlugin')
 class ForgePlugin extends ModsDotGroovyPlugin {
 
+    @Override
+    void init(final Map<String, ?> environment) {
+        log.debug "Environment: ${environment}"
+    }
+
     // note: void methods are executed and treated as PluginResult.VALIDATE
     void setModLoader(final String modLoader) {
         log.debug "modLoader: ${modLoader}"

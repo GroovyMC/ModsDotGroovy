@@ -20,9 +20,8 @@ final class ModsDotGroovyCore {
     @Delegate
     final StackAwareObservableMap backingData = new StackAwareObservableMap()
 
-    ModsDotGroovyCore() {
-        plugins*.init()
-        log.debug "Initialised plugins: ${plugins*.name}"
+    ModsDotGroovyCore(final Map<String, ?> environment) {
+        plugins*.init(environment.asImmutable())
 
         // Setup backingData event listeners
         backingData.getRootMap().addPropertyChangeListener(this.&listenPropertyChangeEvent)

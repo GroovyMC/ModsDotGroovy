@@ -41,7 +41,7 @@ class PluginResult {
 
     /**
      * Represents an error in validation that occurred during the plugin's execution. If this exception is thrown, the
-     * plugin is assumed to be in a recoverable state - it just recieved invalid data.
+     * plugin is assumed to be in a recoverable state - it just received invalid data.
      */
     static class MDGPluginException extends RuntimeException {
         MDGPluginException(final String message) {

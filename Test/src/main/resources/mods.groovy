@@ -18,7 +18,7 @@ final mdg = ModsDotGroovy.make {
         displayUrl = 'https://curseforge.com/minecraft/mc-mods/spammycombat'
         // updateJsonUrl = 'https://forge.curseupdate.com/623297/spammycombat'
 
-        credits = 'Example Mod Credits'
+        credits = buildProperties['credits']
         displayTest = DisplayTest.MATCH_VERSION
         dependencies {
             forge = "[44,)"

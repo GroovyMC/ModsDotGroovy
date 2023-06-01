@@ -5,5 +5,9 @@ import io.github.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 @CompileStatic
 abstract class ModsDotGroovyFrontend {
-    final ModsDotGroovyCore core = new ModsDotGroovyCore()
+    final ModsDotGroovyCore core
+
+    ModsDotGroovyFrontend(final Map<String, ?> environment) {
+        this.core = new ModsDotGroovyCore(environment)
+    }
 }

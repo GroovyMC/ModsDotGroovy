@@ -7,7 +7,10 @@ package io.github.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.CompileStatic
 import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
+import io.github.groovymc.modsdotgroovy.transform.MDGBindingAdder
 import org.codehaus.groovy.control.CompilerConfiguration
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
+import org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -28,6 +31,11 @@ import java.nio.file.Files
 
 @CacheableTask
 abstract class AbstractConvertTask extends DefaultTask {
+    private static final CompilerConfiguration MDG_COMPILER_CONFIG = new CompilerConfiguration().tap {
+        targetBytecode = JDK17
+        optimizationOptions['indy'] = true
+    }
+
     @Classpath
     @InputFile
     abstract RegularFileProperty getInput()
@@ -177,14 +185,12 @@ abstract class AbstractConvertTask extends DefaultTask {
     Map from(File script) {
         final bindings = new Binding(arguments.get())
 
-        final shell = new GroovyShell(getClass().classLoader, bindings, new DelegateConfig(CompilerConfiguration.DEFAULT) {
-            final List<String> classpath = mdgRuntimeFiles.get().collect { it.toString() }
-            @Override
-            List<String> getClasspath() {
-                return classpath
-            }
-        })
+        final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
+        compilerConfig.classpathList = mdgRuntimeFiles.get().collect { it.toString() }
+
+        final shell = new GroovyShell(getClass().classLoader, bindings, compilerConfig)
         shell.evaluate(getScriptHeader())
+        compilerConfig.addCompilationCustomizers(new ASTTransformationCustomizer(MDGBindingAdder))
         return ((ModsDotGroovyFrontend) shell.evaluate(script)).core.build()
     }
 
@@ -204,15 +210,5 @@ abstract class AbstractConvertTask extends DefaultTask {
                 spec.into getOutputDir()
             }
         }
-    }
-
-    @CompileStatic
-    static class DelegateConfig extends CompilerConfiguration {
-        DelegateConfig(CompilerConfiguration configuration) {
-            this.configuration = configuration
-        }
-
-        @Delegate
-        final CompilerConfiguration configuration
     }
 }
