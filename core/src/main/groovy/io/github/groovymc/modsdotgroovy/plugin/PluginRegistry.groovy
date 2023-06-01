@@ -21,6 +21,6 @@ final class PluginRegistry {
         // Load plugins
         plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).toList())
         plugins << new ForgePlugin()
-        log.info "Loaded plugins: ${plugins*.name}"
+        log.info "Loaded plugins: ${Writer writer -> writer << plugins.collect {"[${it.name} v${it.version.toString()}]" }.join(', ')}"
     }
 }
