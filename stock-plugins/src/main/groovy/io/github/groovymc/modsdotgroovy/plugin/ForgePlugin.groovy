@@ -223,7 +223,7 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 
     @Nullable
     private static String inferUpdateJsonUrl(final String modId, @Nullable final String displayUrl, @Nullable final String issueTrackerUrl) {
-        final String displayOrIssueTrackerUrl = displayUrl ?: issueTrackerUrl ?: '';
+        final String displayOrIssueTrackerUrl = displayUrl ?: issueTrackerUrl ?: ''
         if (displayOrIssueTrackerUrl.isBlank())
             return null
 

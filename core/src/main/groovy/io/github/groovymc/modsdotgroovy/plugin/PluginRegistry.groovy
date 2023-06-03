@@ -3,8 +3,6 @@ package io.github.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 
-import static java.util.ServiceLoader.Provider
-
 @CompileStatic
 @Log4j2(category = 'MDG - PluginRegistry')
 final class PluginRegistry {
@@ -19,8 +17,8 @@ final class PluginRegistry {
 
     PluginRegistry() {
         // Load plugins
-        final ServiceLoader<ModsDotGroovyPlugin> serviceLoader = ServiceLoader.load(ModsDotGroovyPlugin)
-        plugins.addAll(serviceLoader.stream().map(Provider::get).toList() as List<ModsDotGroovyPlugin>)
+        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).asCollection())
+        if (plugins.isEmpty()) throw new IllegalStateException('No plugins found!')
         log.info "Loaded plugins: ${Writer writer -> writer << plugins.collect {"[${it.name} v${it.version.toString()}]" }.join(', ')}"
     }
 }

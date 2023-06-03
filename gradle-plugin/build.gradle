@@ -19,6 +19,7 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
     implementation projects.core
+    implementation projects.stockPlugins
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
 }
 
