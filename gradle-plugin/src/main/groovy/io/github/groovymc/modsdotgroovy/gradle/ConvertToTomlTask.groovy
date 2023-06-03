@@ -7,6 +7,7 @@ package io.github.groovymc.modsdotgroovy.gradle
 
 import com.moandjiezana.toml.TomlWriter
 import groovy.transform.CompileStatic
+import io.github.groovymc.modsdotgroovy.core.Platform
 import org.gradle.api.tasks.CacheableTask
 
 @CacheableTask
@@ -50,7 +51,7 @@ abstract class ConvertToTomlTask extends AbstractConvertTask {
     }
 
     @Override
-    protected String getPlatform() {
-        return 'forge'
+    protected Platform getPlatform() {
+        return Platform.FORGE
     }
 }

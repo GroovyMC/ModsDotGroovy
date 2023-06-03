@@ -1,13 +1,10 @@
-package io.github.groovymc.modsdotgroovy
+package io.github.groovymc.modsdotgroovy.plugin
 
 import groovy.json.JsonParserType
 import groovy.json.JsonSlurper
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
-import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
-import io.github.groovymc.modsdotgroovy.plugin.PluginResult
-import io.github.groovymc.modsdotgroovy.plugin.PluginUtils
 import org.apache.logging.log4j.core.Logger
 import org.jetbrains.annotations.Nullable
 
@@ -23,7 +20,7 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 
     @Override
     void init(final Map<String, ?> environment) {
-        log.debug "Environment: ${environment}"
+        log.info "Environment: ${environment}"
     }
 
     // note: void methods are executed and treated as PluginResult.VALIDATE

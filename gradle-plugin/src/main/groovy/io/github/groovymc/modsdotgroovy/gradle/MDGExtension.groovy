@@ -6,8 +6,10 @@
 package io.github.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import io.github.groovymc.modsdotgroovy.core.Platform
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
@@ -19,7 +21,7 @@ import javax.inject.Inject
 
 @CompileStatic
 abstract class MDGExtension {
-    public static final String NAME = 'modsDotGroovy'
+    @PackageScope static final String NAME = 'modsDotGroovy'
 
     abstract Property<Boolean> getAutomaticConfiguration()
     abstract Property<SourceSet> getSource()
@@ -45,7 +47,7 @@ abstract class MDGExtension {
     }
 
     void setPlatform(final String name) {
-        this.platforms.set([Platform.byName(name)])
+        this.platforms.set([Platform.of(name)])
     }
 
     void setPlatform(final Platform platform) {
@@ -57,7 +59,7 @@ abstract class MDGExtension {
     }
 
     void setPlatforms(final List<String> platforms) {
-        this.platforms.set(platforms.collect {Platform.byName(it)})
+        this.platforms.set(platforms.collect { Platform.of(it) })
     }
 
     void setPlatforms(final String[] platforms) {
@@ -71,45 +73,6 @@ abstract class MDGExtension {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.call(conf)
         multiloader.set(conf)
-    }
-
-    enum Platform {
-        FORGE {
-            @Override
-            String toString() {
-                return 'forge'
-            }
-        },
-        FABRIC {
-            @Override
-            String toString() {
-                return 'fabric'
-            }
-        },
-        QUILT {
-            @Override
-            String toString() {
-                return 'quilt'
-            }
-        },
-        MULTILOADER {
-            @Override
-            String toString() {
-                return 'multiloader'
-            }
-        }
-
-        Platform() {}
-
-        static Platform byName(String name) {
-            switch (name.toLowerCase(Locale.ROOT)) {
-                case 'forge': return FORGE
-                case 'fabric': return FABRIC
-                case 'quilt': return QUILT
-                case 'multiloader': return MULTILOADER
-                default: throw new IllegalArgumentException("Unknown project platform: $name")
-            }
-        }
     }
 
     static class MultiloaderConfiguration {

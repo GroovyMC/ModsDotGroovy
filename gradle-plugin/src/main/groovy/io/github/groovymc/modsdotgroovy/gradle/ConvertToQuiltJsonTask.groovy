@@ -7,6 +7,7 @@ package io.github.groovymc.modsdotgroovy.gradle
 
 import com.google.gson.GsonBuilder
 import groovy.transform.CompileStatic
+import io.github.groovymc.modsdotgroovy.core.Platform
 import org.gradle.api.tasks.CacheableTask
 
 @CacheableTask
@@ -54,7 +55,7 @@ abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
     }
 
     @Override
-    protected String getPlatform() {
-        return 'quilt'
+    protected Platform getPlatform() {
+        return Platform.QUILT
     }
 }

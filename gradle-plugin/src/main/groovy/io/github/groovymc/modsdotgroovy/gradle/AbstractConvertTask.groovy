@@ -6,11 +6,11 @@
 package io.github.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.CompileStatic
+import io.github.groovymc.modsdotgroovy.core.Platform
 import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import io.github.groovymc.modsdotgroovy.transform.MDGBindingAdder
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
-import org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -70,16 +70,7 @@ abstract class AbstractConvertTask extends DefaultTask {
     protected abstract String getOutputDir()
 
     @Internal
-    protected abstract String getPlatform()
-
-    @Internal
-    protected final String getScriptHeader() {
-        return """
-            if (ModsDotGroovy.metaClass.respondsTo(null, 'setPlatform')) {
-                ModsDotGroovy.setPlatform('${getPlatform()}')
-            }
-        """.stripIndent().trim()
-    }
+    protected abstract Platform getPlatform()
 
     @Inject
     protected abstract ProjectLayout getProjectLayout()
@@ -98,7 +89,7 @@ abstract class AbstractConvertTask extends DefaultTask {
                 arg(it, versionCatalogToMap(getLibsExtension(project, it)))
             }
             arg('version', project.version)
-            arg('platform', getPlatform())
+            arg('platform', getPlatform() ?: Platform.UNKNOWN)
             arg('group', project.group)
             setupPlatformSpecificArguments()
         }
@@ -183,14 +174,12 @@ abstract class AbstractConvertTask extends DefaultTask {
 
     @CompileStatic
     Map from(File script) {
-        final bindings = new Binding(arguments.get())
-
         final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
         compilerConfig.classpathList = mdgRuntimeFiles.get().collect { it.toString() }
-
-        final shell = new GroovyShell(getClass().classLoader, bindings, compilerConfig)
-        shell.evaluate(getScriptHeader())
         compilerConfig.addCompilationCustomizers(new ASTTransformationCustomizer(MDGBindingAdder))
+
+        final bindings = new Binding(arguments.get())
+        final shell = new GroovyShell(getClass().classLoader, bindings, compilerConfig)
         return ((ModsDotGroovyFrontend) shell.evaluate(script)).core.build()
     }
 

@@ -2,9 +2,10 @@ package io.github.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
-import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
+import io.github.groovymc.modsdotgroovy.core.Platform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -15,20 +16,16 @@ import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.file.FileTreeElement
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.annotations.Nullable
 
-import javax.inject.Inject
-
 class ModsDotGroovyGradlePlugin implements Plugin<Project> {
-    public static final String CONFIGURATION_NAME_ROOT = 'mdgRuntime'
-    public static final String CONFIGURATION_NAME_PLUGIN = 'mdgPlugin'
-    public static final String CONFIGURATION_NAME_FRONTEND = 'mdgFrontend'
+    @PackageScope static final String CONFIGURATION_NAME_ROOT = 'mdgRuntime'
+    @PackageScope static final String CONFIGURATION_NAME_PLUGIN = 'mdgPlugin'
+    @PackageScope static final String CONFIGURATION_NAME_FRONTEND = 'mdgFrontend'
 
     @Override
     void apply(Project project) {
@@ -63,9 +60,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             }
 
             if (ext.automaticConfiguration.get()) {
-                final List<MDGExtension.Platform> platforms = ext.platforms.get()
-                for (MDGExtension.Platform platform : platforms.unique(false)) {
-                    if (platform !== MDGExtension.Platform.MULTILOADER) {
+                final List<Platform> platforms = ext.platforms.get()
+                for (Platform platform : platforms.unique(false)) {
+//                    if (platform !== Platform.MULTILOADER) {
                         final SourceSetContainer srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
                         final srcSet = ext.source.isPresent() ? ext.source.get() : browse(srcSets) { new File(it, 'mods.groovy')}
                                 .map((FileWithSourceSet fileWithSourceSet) -> fileWithSourceSet.sourceSet)
@@ -78,71 +75,71 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         }
 
                         switch (platform) {
-                            case MDGExtension.Platform.FORGE:
+                            case Platform.FORGE:
                                 makeAndAppendForgeTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
                                     catalogs.set(ext.catalogs.get())
                                 }
                                 break
-                            case MDGExtension.Platform.FABRIC:
+                            case Platform.FABRIC:
                                 makeAndAppendFabricTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
                                     catalogs.set(ext.catalogs.get())
                                 }
                                 break
-                            case MDGExtension.Platform.QUILT:
+                            case Platform.QUILT:
                                 makeAndAppendQuiltTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
                                     catalogs.set(ext.catalogs.get())
                                 }
                         }
-                    } else {
-                        final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { name.equalsIgnoreCase('common') }
-
-                        if (common === null)
-                            throw new IllegalArgumentException("Specified platform 'multiloader' but missing common subproject")
-
-                        final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { name.equalsIgnoreCase('forge') }]
-                        final fabric = ext.multiloader.isPresent() ? ext.multiloader.get().fabric : [project.subprojects.find { name.equalsIgnoreCase('fabric') }]
-                        final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { name.equalsIgnoreCase('quilt') }]
-
-                        final SourceSetContainer commonSrcSets = common.extensions.getByType(JavaPluginExtension).sourceSets
-                        final commonSrcSet = ext.source.isPresent() ? ext.source.get() : browse(commonSrcSets) { new File(it, 'mods.groovy') }
-                                .map((FileWithSourceSet fileWithSourceSet) -> fileWithSourceSet.sourceSet)
-                                .orElseGet(() -> commonSrcSets.named('main').get())
-
-                        final modsGroovy = new FileWithSourceSet(commonSrcSet, new File(commonSrcSet.resources.srcDirs.find(), 'mods.groovy'))
-
-                        final commonConfiguration = common.configurations.named(CONFIGURATION_NAME_ROOT) ?: common.configurations.register(CONFIGURATION_NAME_ROOT)
-//                        commonConfiguration.configure {
-//                            dependencies.add(common.dependencies.create(ext.frontendDsl()))
+//                    } else {
+//                        final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { name.equalsIgnoreCase('common') }
+//
+//                        if (common === null)
+//                            throw new IllegalArgumentException("Specified platform 'multiloader' but missing common subproject")
+//
+//                        final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : [project.subprojects.find { name.equalsIgnoreCase('forge') }]
+//                        final fabric = ext.multiloader.isPresent() ? ext.multiloader.get().fabric : [project.subprojects.find { name.equalsIgnoreCase('fabric') }]
+//                        final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : [project.subprojects.find { name.equalsIgnoreCase('quilt') }]
+//
+//                        final SourceSetContainer commonSrcSets = common.extensions.getByType(JavaPluginExtension).sourceSets
+//                        final commonSrcSet = ext.source.isPresent() ? ext.source.get() : browse(commonSrcSets) { new File(it, 'mods.groovy') }
+//                                .map((FileWithSourceSet fileWithSourceSet) -> fileWithSourceSet.sourceSet)
+//                                .orElseGet(() -> commonSrcSets.named('main').get())
+//
+//                        final modsGroovy = new FileWithSourceSet(commonSrcSet, new File(commonSrcSet.resources.srcDirs.find(), 'mods.groovy'))
+//
+//                        final commonConfiguration = common.configurations.named(CONFIGURATION_NAME_ROOT) ?: common.configurations.register(CONFIGURATION_NAME_ROOT)
+////                        commonConfiguration.configure {
+////                            dependencies.add(common.dependencies.create(ext.frontendDsl()))
+////                        }
+//                        common.configurations.named(modsGroovy.sourceSet.compileOnlyConfigurationName) {
+//                            extendsFrom rootConfiguration.get(), commonConfiguration.get()
 //                        }
-                        common.configurations.named(modsGroovy.sourceSet.compileOnlyConfigurationName) {
-                            extendsFrom rootConfiguration.get(), commonConfiguration.get()
-                        }
-
-                        forge.each {
-                            makeAndAppendForgeTask(modsGroovy, it).with {
-                                dslConfiguration.set(commonConfiguration)
-                                arguments.set(ext.arguments.get())
-                                catalogs.set(ext.catalogs.get())
-                            }
-                        }
-                        fabric.each {
-                            makeAndAppendFabricTask(modsGroovy, it).with {
-                                dslConfiguration.set(commonConfiguration)
-                                arguments.set(ext.arguments.get())
-                                catalogs.set(ext.catalogs.get())
-                            }
-                        }
-                        quilt.each {
-                            makeAndAppendQuiltTask(modsGroovy, it).with {
-                                dslConfiguration.set(commonConfiguration)
-                                arguments.set(ext.arguments.get())
-                                catalogs.set(ext.catalogs.get())
-                            }
-                        }
-                    }
+//
+//                        forge.each {
+//                            makeAndAppendForgeTask(modsGroovy, it).with {
+//                                dslConfiguration.set(commonConfiguration)
+//                                arguments.set(ext.arguments.get())
+//                                catalogs.set(ext.catalogs.get())
+//                            }
+//                        }
+//                        fabric.each {
+//                            makeAndAppendFabricTask(modsGroovy, it).with {
+//                                dslConfiguration.set(commonConfiguration)
+//                                arguments.set(ext.arguments.get())
+//                                catalogs.set(ext.catalogs.get())
+//                            }
+//                        }
+//                        quilt.each {
+//                            makeAndAppendQuiltTask(modsGroovy, it).with {
+//                                dslConfiguration.set(commonConfiguration)
+//                                arguments.set(ext.arguments.get())
+//                                catalogs.set(ext.catalogs.get())
+//                            }
+//                        }
+//                    }
                 }
             }
         }
@@ -153,7 +150,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         for (configuration in configurations) {
             configuration.resolvedConfiguration.resolvedArtifacts.each { files.add(it.file) }
         }
-        return files.unique().toSorted(Comparator.comparing(File::getAbsolutePath))
+        return files.unique({ File a, File b -> (a.absolutePath == b.absolutePath) ? 0 : 1 }).toSorted(Comparator.comparing(File::getAbsolutePath))
     }
 
     static ConvertToTomlTask makeAndAppendForgeTask(FileWithSourceSet modsGroovy, Project project) {
