@@ -11,12 +11,13 @@ repositories {
 
 dependencies {
     compileOnly localGroovy()
-    mdgPlugin 'io.github.groovymc.modsdotgroovy:stock-plugins'
-    mdgFrontend 'io.github.groovymc.modsdotgroovy:frontend-dsl'
+//    mdgPlugin 'io.github.groovymc.modsdotgroovy:stock-plugins'
+//    mdgFrontend 'io.github.groovymc.modsdotgroovy:frontend-dsl'
 }
 
-modsDotGroovy {
-    //platforms = ['forge', 'fabric', 'quilt']
-    platform = 'forge'
-    setupDsl = false
-}
+//modsDotGroovy {
+//    platforms = ['forge', 'fabric', 'quilt']
+//    platform = 'forge'
+//    setupDsl = false
+//    setupPlugins = false
+//}

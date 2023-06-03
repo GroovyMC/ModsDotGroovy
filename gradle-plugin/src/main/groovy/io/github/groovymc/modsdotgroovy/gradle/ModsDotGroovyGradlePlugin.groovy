@@ -51,16 +51,32 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         project.getPlugins().apply('java')
 
         project.afterEvaluate {
-            if (ext.setupDsl.get()) {
+            final List<Platform> platforms = ext.platforms.get().unique(false)
+
+            if (ext.setupDsl.get() || ext.setupPlugins.get()) {
                 project.repositories.maven { MavenArtifactRepository repo ->
                     repo.name = 'Modding Inquisition Releases'
                     repo.url = 'https://maven.moddinginquisition.org/releases'
                 }
-                rootConfiguration.get().dependencies.add(project.dependencies.create('io.github.groovymc.modsdotgroovy:frontend-dsl'))
+
+                if (ext.setupDsl.get()) {
+                    if (platforms.contains(Platform.FORGE)) {
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('io.github.groovymc.modsdotgroovy:frontend-dsl'))
+                    } else {
+                        throw new UnsupportedOperationException("""
+                            There is no stock frontend DSL available for ${platforms} on this version of ModsDotGroovy.
+                            Possible solutions:
+                            - Check for updates to ModsDotGroovy
+                            - Use a custom frontend by setting the 'setupDsl' property to false and adding an mdgFrontend dependency
+                        """.stripIndent().strip())
+                    }
+                }
+
+                if (ext.setupPlugins.get())
+                    rootConfiguration.get().dependencies.add(project.dependencies.create('io.github.groovymc.modsdotgroovy:stock-plugins'))
             }
 
             if (ext.automaticConfiguration.get()) {
-                final List<Platform> platforms = ext.platforms.get()
                 for (Platform platform : platforms.unique(false)) {
 //                    if (platform !== Platform.MULTILOADER) {
                         final SourceSetContainer srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets

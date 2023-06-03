@@ -29,6 +29,7 @@ abstract class MDGExtension {
     abstract MapProperty<String, Object> getArguments()
     abstract ListProperty<String> getCatalogs()
     abstract Property<Boolean> getSetupDsl()
+    abstract Property<Boolean> getSetupPlugins()
 
     protected final Project project
 
@@ -44,6 +45,7 @@ abstract class MDGExtension {
         arguments.convention([:])
         catalogs.convention(['libs'])
         setupDsl.convention(true)
+        setupPlugins.convention(true)
     }
 
     void setPlatform(final String name) {
