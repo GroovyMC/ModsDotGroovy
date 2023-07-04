@@ -358,6 +358,18 @@ class ModsDotGroovy {
         }
     }
 
+    /**
+     * Sets the path of the access widener of the mod. Only works on Fabric or Quilt.
+     * @param aw the path to the AW
+     */
+    void setAccessWidener(String aw) {
+        if (platform === Platform.FABRIC) {
+            this.data = merge(this.data, ['accessWidener': aw])
+        } else if (platform === Platform.QUILT) {
+            this.data = merge(this.data, ['access_widener': aw])
+        }
+    }
+
     private static String combineAsString(List<String> parts) {
         String fullString = ''
         switch (parts.size()) {

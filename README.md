@@ -20,7 +20,7 @@ Then, you need to decide on a ModsDotGroovy DSL version which you want to use. Y
 Add the following line in your `build.gradle`, to do so:
 ```gradle
 modsDotGroovy {
-    dslVersion = '1.5.0' // Can be replaced with any existing DSL version
+    dslVersion = '1.5.1' // Can be replaced with any existing DSL version
     platform = 'forge'
 }
 ```
