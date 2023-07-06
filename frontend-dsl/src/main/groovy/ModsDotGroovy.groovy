@@ -1,15 +1,14 @@
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
-import groovy.transform.stc.FromString
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
-import io.github.groovymc.modsdotgroovy.core.Platform
-import io.github.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
-import io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder
-import io.github.groovymc.modsdotgroovy.frontend.ModsBuilder
-import io.github.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
-import io.github.groovymc.modsdotgroovy.frontend.PropertyInterceptor
+import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
+import org.groovymc.modsdotgroovy.frontend.ModInfoBuilder
+import org.groovymc.modsdotgroovy.frontend.ModsBuilder
+import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
+import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.jetbrains.annotations.Nullable
 
 /**
@@ -80,13 +79,13 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
      * @param closure
      */
     void mod(@DelegatesTo(value = ModInfoBuilder, strategy = Closure.DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
+             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
              final Closure closure) {
         mods { modInfo(closure) }
     }
 
     void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_FIRST)
-              @ClosureParams(value = SimpleType, options = 'io.github.groovymc.modsdotgroovy.frontend.ModsBuilder')
+              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModsBuilder')
               final Closure closure) {
         log.debug "mods(closure)"
         core.push('mods')

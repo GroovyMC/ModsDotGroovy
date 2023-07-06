@@ -8,7 +8,7 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.18.0'
 }
 
-group = 'io.github.groovymc.modsdotgroovy'
+group = 'org.groovymc.modsdotgroovy'
 archivesBaseName = 'modsdotgroovy'
 
 repositories {
@@ -30,10 +30,10 @@ pluginBundle {
 gradlePlugin {
     plugins {
         modsdotgroovy {
-            id = 'io.github.groovymc.modsdotgroovy'
+            id = 'org.groovymc.modsdotgroovy'
             displayName = 'ModsDotGroovy'
             description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
-            implementationClass = 'io.github.groovymc.modsdotgroovy.gradle.ModsDotGroovyGradlePlugin'
+            implementationClass = 'org.groovymc.modsdotgroovy.gradle.ModsDotGroovyGradlePlugin'
         }
     }
 }
@@ -60,7 +60,7 @@ publishing {
     repositories {
         maven {
             name = 'ModdingInquisitionMavenRepo'
-            url = 'https://maven.moddinginquisition.org/releases'
+            url = 'https://maven.moddinginquisition.org/snapshots'
             credentials {
                 username = findProperty('inquisitionMavenUser') ?: ''
                 password = findProperty('inquisitionMavenPassword') ?: ''

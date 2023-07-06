@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'io.github.groovymc.modsdotgroovy'
+    id 'org.groovymc.modsdotgroovy' version '2.0.0-SNAPSHOT'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -11,8 +11,8 @@ repositories {
 
 dependencies {
     compileOnly localGroovy()
-//    mdgPlugin 'io.github.groovymc.modsdotgroovy:stock-plugins'
-//    mdgFrontend 'io.github.groovymc.modsdotgroovy:frontend-dsl'
+//    mdgPlugin 'org.groovymc.modsdotgroovy:stock-plugins'
+//    mdgFrontend 'org.groovymc.modsdotgroovy:frontend-dsl'
 }
 
 //modsDotGroovy {

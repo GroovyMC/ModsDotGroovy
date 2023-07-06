@@ -36,7 +36,7 @@ publishing {
     repositories {
         maven {
             name = 'ModdingInquisitionMavenRepo'
-            url = 'https://maven.moddinginquisition.org/releases'
+            url = 'https://maven.moddinginquisition.org/snapshots'
             credentials {
                 username = findProperty('inquisitionMavenUser') ?: ''
                 password = findProperty('inquisitionMavenPassword') ?: ''
