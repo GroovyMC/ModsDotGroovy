@@ -77,7 +77,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             }
 
             if (ext.automaticConfiguration.get()) {
-                for (Platform platform : platforms.unique(false)) {
+                for (Platform platform : platforms) {
 //                    if (platform !== Platform.MULTILOADER) {
                         final SourceSetContainer srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
                         final srcSet = ext.source.isPresent() ? ext.source.get() : browse(srcSets) { new File(it, 'mods.groovy')}
@@ -161,6 +161,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         }
     }
 
+    @CompileStatic
     private static List<File> collectFilesFromConfigurations(final Configuration[] configurations) {
         final List<File> files = []
         for (configuration in configurations) {
@@ -238,6 +239,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         return convertTask
     }
 
+    @CompileStatic
     static Optional<FileWithSourceSet> browse(final Collection<SourceSet> sourceSet, @ClosureParams(value = SimpleType, options = 'java.io.File') Closure<File> finder) {
         sourceSet.stream()
                 .sorted { SourceSet it1, SourceSet it2 ->

@@ -24,11 +24,13 @@ final mdg = ModsDotGroovy.make {
             forge = "[44,)"
             minecraft = '[1.19.3]'
 
-            mod {
-                modId = 'patchouli'
-                versionRange = '[1.1,)'
-                ordering = DependencyOrdering.AFTER
-                side = DependencySide.BOTH
+            onForge {
+                mod {
+                    modId = 'patchouli'
+                    versionRange = '[1.1,)'
+                    ordering = DependencyOrdering.AFTER
+                    side = DependencySide.BOTH
+                }
             }
 
             mod('exampledep') {
@@ -43,6 +45,7 @@ final mdg = ModsDotGroovy.make {
 
     unrecognisedByFrontend {
         hello = 'world'
+        x = 24
 
         nest {
             asDeepAsYouWant {

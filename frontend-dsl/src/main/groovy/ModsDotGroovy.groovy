@@ -1,7 +1,10 @@
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
+import groovy.transform.stc.FromString
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
+import io.github.groovymc.modsdotgroovy.core.Platform
 import io.github.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import io.github.groovymc.modsdotgroovy.frontend.ModInfoBuilder
 import io.github.groovymc.modsdotgroovy.frontend.ModsBuilder
@@ -40,6 +43,7 @@ import org.jetbrains.annotations.Nullable
 /**
  * This is the frontend layer
  */
+@PackageScope
 @CompileStatic
 @Log4j2(category = 'MDG - Frontend')
 class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
@@ -91,6 +95,12 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
         core.pop()
+    }
+
+    void onForge(final Closure closure) {
+        log.debug "onForge(closure)"
+        if (platform === Platform.FORGE)
+            closure.call()
     }
 
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure

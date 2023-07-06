@@ -44,17 +44,17 @@ class MDGBindingAdderASTTransformation extends AbstractASTTransformation {
             targetClass = targetNode as ClassNode
         } else {
             targetClass = null // to make the compiler happy
-            addError("The @MDGBindingAdder annotation can only be used on classes.", targetNode)
+            addError('The @MDGBindingAdder annotation can only be used on classes.', targetNode)
             return
         }
 
         // and only applied to scripts
         final MethodNode scriptBody = targetClass.getMethod('run', Parameter.EMPTY_ARRAY)
         if (scriptBody === null) {
-            addError("The @MDGBindingAdder annotation can only be used on classes with a run() method.", targetNode)
+            addError('The @MDGBindingAdder annotation can only be used on classes with a run() method.', targetNode)
             return
         } else if (!scriptBody.isScriptBody()) {
-            addError("The @MDGBindingAdder annotation can only be used on script classes.", targetNode)
+            addError('The @MDGBindingAdder annotation can only be used on script classes.', targetNode)
             return
         }
 

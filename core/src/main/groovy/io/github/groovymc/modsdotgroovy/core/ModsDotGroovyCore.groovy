@@ -8,6 +8,7 @@ import io.github.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import io.github.groovymc.modsdotgroovy.plugin.NestKey
 import io.github.groovymc.modsdotgroovy.plugin.PluginRegistry
 import io.github.groovymc.modsdotgroovy.plugin.PluginResult
+import org.codehaus.groovy.runtime.StringGroovyMethods
 
 import java.beans.PropertyChangeEvent
 import java.lang.reflect.Modifier
@@ -196,7 +197,7 @@ final class ModsDotGroovyCore {
         @Override
         String toString() {
             // converts to camelCase
-            final String str = name().toLowerCase(Locale.ROOT).split('_').collect {it.capitalize()}.join('')
+            final String str = name().toLowerCase(Locale.ROOT).split('_').collect(StringGroovyMethods.&capitalize).join('')
             final String firstChar = str.take(1)
             return str.replaceFirst(firstChar, firstChar.toLowerCase(Locale.ROOT))
         }
