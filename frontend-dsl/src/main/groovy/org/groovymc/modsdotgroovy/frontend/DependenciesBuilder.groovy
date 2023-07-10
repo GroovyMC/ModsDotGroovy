@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
+import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.jetbrains.annotations.Nullable
 
 import static groovy.lang.Closure.DELEGATE_FIRST
@@ -12,7 +13,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @CompileStatic
 @Log4j2(category = 'MDG - Frontend')
 class DependenciesBuilder implements MapClosureInterceptor {
-    private final org.groovymc.modsdotgroovy.core.ModsDotGroovyCore core
+    private final ModsDotGroovyCore core
 
     @Nullable String forge
     @Nullable String minecraft
@@ -23,7 +24,7 @@ class DependenciesBuilder implements MapClosureInterceptor {
         this.core = null
     }
 
-    DependenciesBuilder(final org.groovymc.modsdotgroovy.core.ModsDotGroovyCore core) {
+    DependenciesBuilder(final ModsDotGroovyCore core) {
         log.debug "new org.groovymc.modsdotgroovy.frontend.DependenciesBuilder(core: $core)"
         this.core = core
     }
@@ -42,7 +43,7 @@ class DependenciesBuilder implements MapClosureInterceptor {
 
     void mod(final String modId,
              @DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependencyBuilder') Closure closure) {
+             @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependencyBuilder') final Closure closure) {
         log.debug "mod(string, closure)"
         core.push('dependency')
         final dependencyBuilder = new DependencyBuilder(core)

@@ -98,4 +98,16 @@ class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
         closure.call(dependenciesBuilder)
         core.pop()
     }
+
+    void features(@DelegatesTo(value = FeaturesBuilder, strategy = DELEGATE_FIRST)
+                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.FeaturesBuilder')
+                  final Closure closure) {
+        log.debug "features(closure)"
+        core.push('features')
+        final featuresBuilder = new FeaturesBuilder(core)
+        closure.delegate = featuresBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(featuresBuilder)
+        core.pop()
+    }
 }

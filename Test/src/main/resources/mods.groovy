@@ -41,6 +41,11 @@ final mdg = ModsDotGroovy.make {
 
             exampledep2 = '[1,)'
         }
+
+        features {
+            openGLVersion = '[3.2,)'
+            javaVersion = '[17,)' // for testing features that mods.groovy doesn't recognise yet
+        }
     }
 
     unrecognisedByFrontend {

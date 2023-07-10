@@ -174,6 +174,13 @@ class ForgePlugin extends ModsDotGroovyPlugin {
                     }
                 }
             }
+
+            class Features {
+                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                    log.debug "mods.modInfo.features.onNestLeave"
+                    return PluginResult.move(['features'], ModInfo.this.modId, value)
+                }
+            }
         }
     }
 
