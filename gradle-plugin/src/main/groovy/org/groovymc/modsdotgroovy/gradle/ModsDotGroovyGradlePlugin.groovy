@@ -66,6 +66,8 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 if (ext.setupDsl.get()) {
                     if (platforms.contains(Platform.FORGE)) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:frontend-dsl'))
+                    } else if (platforms.contains(Platform.FABRIC)) {
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:frontend-dsl-fabric'))
                     } else {
                         throw new UnsupportedOperationException("""
                             There is no stock frontend DSL available for ${platforms} on this version of ModsDotGroovy.

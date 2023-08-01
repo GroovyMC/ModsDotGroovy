@@ -1,0 +1,59 @@
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation localGroovy()
+    implementation projects.core
+    compileOnly 'org.jetbrains:annotations:24.0.1'
+}
+
+java {
+    withSourcesJar()
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.optimizationOptions.indy = true
+    groovyOptions.optimizationOptions.groovyDoc = true
+    groovyOptions.optimizationOptions.runtimeGroovydoc = true
+    options.incremental = true
+}
+
+groovydoc {
+    use = true
+    source = sourceSets.main.allSource
+    docTitle = "ModsDotGroovy v${project.version} - Frontend Fabric DSL"
+}
+
+tasks.register('groovydocJar', Jar) {
+    archiveClassifier.set('javadoc')
+    from groovydoc.destinationDir
+    dependsOn groovydoc
+}
+
+publishing {
+    publications {
+        register('frontendDslFabric', MavenPublication) {
+            artifactId = 'dsl'
+            version = project.version
+
+            artifacts = [jar, sourcesJar, groovydocJar]
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'ModdingInquisitionMavenRepo'
+            url = 'https://maven.moddinginquisition.org/snapshots'
+            credentials {
+                username = findProperty('inquisitionMavenUser') ?: ''
+                password = findProperty('inquisitionMavenPassword') ?: ''
+            }
+        }
+    }
+}

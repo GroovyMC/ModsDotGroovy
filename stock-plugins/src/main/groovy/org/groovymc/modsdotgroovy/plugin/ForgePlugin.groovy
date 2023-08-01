@@ -222,8 +222,9 @@ class ForgePlugin extends ModsDotGroovyPlugin {
     @Nullable
     Map build(Map buildingMap) {
         return [
-            modLoader: 'javafml',
-            loaderVersion: '[1,)',
+                // TODO Only add these when on Forge
+//            modLoader: 'javafml',
+//            loaderVersion: '[1,)',
             license: 'All Rights Reserved'
         ]
     }
