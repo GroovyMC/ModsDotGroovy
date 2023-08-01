@@ -10,6 +10,8 @@ import org.groovymc.modsdotgroovy.core.Platform
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 @Log4j2(category = 'MDG - FabricPlugin')
 class FabricPlugin extends ModsDotGroovyPlugin {
+    // From https://emailregex.com/
+    private static final String EMAIL_REGEX = "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)])" 
 
     @Override
     void init(final Map<String, ?> environment) {
@@ -32,9 +34,50 @@ class FabricPlugin extends ModsDotGroovyPlugin {
         return PluginResult.of(environment.value)
     }
 
-    @Override
-    Map build(Map buildingMap) {
-        return !buildingMap.containsKey("license") ? [license: "All Rights Reserved"] : [:]
+    PluginResult setId(final String id) {
+        log.debug "id: ${id}"
+        // See https://github.com/FabricMC/fabric-loader/blob/67bf49ca39e313aeb3476bb6015352fd5284d49b/src/main/java/net/fabricmc/loader/impl/metadata/MetadataVerifier.java#L36
+        if (!id.matches("[a-z][a-z0-9-_]{1,63}")) {
+            // if the id is invalid, do a bunch of checks to generate a more helpful error message
+            final StringBuilder errorMsg = new StringBuilder('id must match the regex /^[a-z][a-z0-9_]{3,63}$/.').with {
+                if (id[0] < 'a' || id[0] > 'z')
+                    append "\nid starts with an invalid character '${id[0]}' (it must be a lowercase a-z - uppercase isn't allowed anywhere in the ID)"
+                else if (id.length() < 2)
+                    append '\nid must be at least 2 characters long.'
+                else if (id.length() > 64)
+                    append '\nid cannot be longer than 64 characters.'
+
+                return it
+            }
+
+            throw new PluginResult.MDGPluginException(errorMsg.toString())
+        }
+        return new PluginResult.Validate()
+    }
+
+    void setIcon(final String icon) {
+        log.debug "icon: ${icon}"
+        if (!icon.contains('.'))
+            throw new PluginResult.MDGPluginException('icon is missing a file extension. Did you forget to put ".png" at the end?')
+    }
+
+    class Icon {
+        private final Map icons = [:]
+
+        def onNestLeave(final Deque<String> stack, final Map value) {
+            log.debug "icon.onNestLeave: ${value}"
+            value.each { key, val ->
+                if (!val.toString().contains('.'))
+                    throw new PluginResult.MDGPluginException("icon of size ${key} is missing a file extension. Did you forget to put \".png\" at the end?")
+            }
+            icons.putAll(value)
+            return icons
+        }
+
+        def onNestEnter(final Deque<String> stack, final Map value) {
+            log.debug "icon.onNestEnter: ${value}"
+            return new PluginResult.Validate()
+        }
     }
 
     class Entrypoints {
@@ -76,6 +119,26 @@ class FabricPlugin extends ModsDotGroovyPlugin {
         }
     }
 
+    class Contact {
+        void setEmail(final String email) {
+            log.debug "contact.email: ${email}"
+            if (!email.matches(EMAIL_REGEX))
+                throw new PluginResult.MDGPluginException('Invalid contact email.')
+        }
+
+        void setHomepage(final String homepage) {
+            log.debug "contact.homepage: ${homepage}"
+            if (!PluginUtils.isValidHttpUrl(homepage))
+                throw new PluginResult.MDGPluginException('homepage must start with http:// or https://')
+        }
+
+        void setIssues(final String issues) {
+            log.debug "contact.issues: ${issues}"
+            if (!PluginUtils.isValidHttpUrl(issues))
+                throw new PluginResult.MDGPluginException('issues must start with http:// or https://')
+        }
+    }
+
     class Jars {
         private final List jars = []
 
@@ -95,6 +158,8 @@ class FabricPlugin extends ModsDotGroovyPlugin {
 
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 log.debug "jars.jar.onNestLeave: ${value}"
+                if (!file.contains('.'))
+                    throw new PluginResult.MDGPluginException("jar ${file} is missing a file extension. Did you forget to put \".jar\" at the end?")
                 jars.add(value)
                 return PluginResult.remove()
             }

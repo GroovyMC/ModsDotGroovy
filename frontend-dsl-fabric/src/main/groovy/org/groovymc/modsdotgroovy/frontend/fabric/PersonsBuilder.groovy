@@ -27,8 +27,8 @@ class PersonsBuilder {
 
     void person(final String name,
                 @DelegatesTo(value = ContactBuilder, strategy = Closure.DELEGATE_FIRST)
-                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.ContactBuilder')
-                final Closure contact = null) {
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.PersonBuilder')
+                final Closure contact = {}) {
         log.debug "${fieldName}(name: $name)"
         core.push(fieldName)
         core.put('name', name)

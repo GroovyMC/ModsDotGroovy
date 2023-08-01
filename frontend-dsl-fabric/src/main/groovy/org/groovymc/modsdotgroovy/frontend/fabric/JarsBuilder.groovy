@@ -5,10 +5,11 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class JarsBuilder {
+class JarsBuilder implements PropertyInterceptor {
     private final ModsDotGroovyCore core
 
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure

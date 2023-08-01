@@ -1,3 +1,4 @@
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
@@ -8,6 +9,7 @@ import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.groovymc.modsdotgroovy.frontend.fabric.*
+import org.jetbrains.annotations.Nullable
 
 /**
  * This is the Fabric frontend layer
@@ -34,42 +36,42 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
     String id = "examplemod"
 
     /**@
-     * Defines the user-friendly mod's name. If not present, assume it matches id.
-     */
-    String name = "Example Mod"
-
-    /**@
-     * Defines the mod's description. If not present, assume empty string.
-     */
-    String description = "This is an example description! Tell everyone what your mod is about!"
-
-    /**@
      * Defines the mod's version - a string value, optionally matching the <a href="https://semver.org/">Semantic Versioning 2.0.0</a> specification.
      * Mandatory
      */
     String version = "1.0.0"
 
     /**@
+     * Defines the user-friendly mod's name. If not present, assume it matches id.
+     */
+    @Nullable String name = null
+
+    /**@
+     * Defines the mod's description. If not present, assume empty string.
+     */
+    @Nullable String description = null
+
+    /**@
      * Defines the list of ids of mod. It can be seen as the aliases of the mod. Fabric Loader will treat these ids as mods that exist.
      * If there are other mods using that id, they will not be loaded.
      */
-    List<String> provides = []
+    @Nullable List<String> provides = null
 
     /**@
      * Defines where mod runs: only on the client side (client mod), only on the server side (plugin) or on both sides (regular mod). Contains the environment identifier:
      */
-    Environment environment = Environment.ANY
+    @Nullable Environment environment = null
 
-//    /**@
-//     * Defines the mod's icon. Icons are square PNG files.
-//     * (Minecraft resource packs use 128×128, but that is not a hard requirement - a power of two is, however, recommended.)
-//     * Can be provided in one of two forms:
-//     * <ul>
-//     *     <li>A path to a single PNG file.</li>
-//     *     <li>A dictionary of images widths to their files' paths.</li>
-//     * </ul>
-//     */
-//    List<String> icon = []
+    /**@
+     * Defines the mod's icon. Icons are square PNG files.
+     * (Minecraft resource packs use 128×128, but that is not a hard requirement - a power of two is, however, recommended.)
+     * Can be provided in one of two forms:
+     * <ul>
+     *     <li>A path to a single PNG file.</li>
+     *     <li>A dictionary of images widths to their files' paths.</li>
+     * </ul>
+     */
+    @Nullable String icon = null
 
     /**@
      * Defines the licensing information.
@@ -79,8 +81,28 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
      * serves primarily as a kind of hint, and does not prevent you from granting additional rights/licenses on a case-by-case basis.
      * To aid automated tools, it is recommended to use <a href="https://spdx.org/licenses/">SPDX License Identifiers</a> for open-source licenses.
      */
-    // TODO Fix ARR being added by Forge plugin
-    def license
+    @Nullable def license = null
+
+    @Nullable String accessWidener = null
+
+    @CompileDynamic
+    void icon(final int size, final String path) {
+        icon {
+            it."${size}" = path
+        }
+    }
+
+    void icon(@DelegatesTo(value = SimpleBuilder, strategy = Closure.DELEGATE_FIRST)
+              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.SimpleBuilder')
+              final Closure closure) {
+        log.debug "icon(closure)"
+        core.push('icon')
+        final customFieldsBuilder = new SimpleBuilder(core)
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = customFieldsBuilder
+        closure.call(customFieldsBuilder)
+        core.pop()
+    }
 
     /**@
      * Defines main classes of your mod, that will be loaded. Each entry point can contain any number of classes to load.

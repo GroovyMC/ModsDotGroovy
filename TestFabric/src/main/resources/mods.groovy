@@ -8,6 +8,12 @@ final mdg = FabricModsDotGroovy.make {
     environment = Environment.ANY
     license = ["MIT", "CC0-1.0"]
 
+    icon {
+        it."16" = "small.png"
+        it."32" = "medium.png"
+    }
+    icon 64, "large.png"
+
     entrypoints {
         main "net.fabricmc.example.ExampleMod"
         main {
@@ -87,7 +93,7 @@ final mdg = FabricModsDotGroovy.make {
             }
         }
     }
-    
+
     contributors {
         person "Maty"
     }
