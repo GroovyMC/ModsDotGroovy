@@ -3,6 +3,7 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.Platform
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
@@ -15,6 +16,8 @@ abstract class ModsDotGroovyPlugin {
     byte getPriority() {
         return 0
     }
+
+    abstract EnumSet<Platform> getPlatforms()
 
     /**
      * The name of the plugin, used for logging and debugging purposes.

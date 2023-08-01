@@ -33,25 +33,25 @@ class PersonsBuilder {
         core.push(fieldName)
         core.put('name', name)
         if (contact != null) {
-            final authorBuilder = new AuthorBuilder(core)
+            final personBuilder = new PersonBuilder(core)
             core.push("contact")
             contact.resolveStrategy = Closure.DELEGATE_FIRST
-            contact.delegate = authorBuilder
-            contact.call(authorBuilder)
+            contact.delegate = personBuilder
+            contact.call(personBuilder)
             core.pop()
         }
         core.pop()
     }
 
-    void person(@DelegatesTo(value = AuthorBuilder, strategy = Closure.DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.AuthorBuilder')
-             final Closure closure) {
+    void person(@DelegatesTo(value = PersonBuilder, strategy = Closure.DELEGATE_FIRST)
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.PersonBuilder')
+                final Closure closure) {
         log.debug "${fieldName}(closure)"
         core.push(fieldName)
-        final authorBuilder = new AuthorBuilder(core)
+        final personBuilder = new PersonBuilder(core)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.delegate = authorBuilder
-        closure.call(authorBuilder)
+        closure.delegate = personBuilder
+        closure.call(personBuilder)
         core.pop()
     }
 }

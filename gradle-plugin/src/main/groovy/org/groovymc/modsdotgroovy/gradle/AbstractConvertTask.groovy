@@ -176,7 +176,13 @@ abstract class AbstractConvertTask extends DefaultTask {
     Map from(File script) {
         final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
         compilerConfig.classpathList = mdgRuntimeFiles.get().collect { it.toString() }
-        compilerConfig.addCompilationCustomizers(new ASTTransformationCustomizer(MDGBindingAdder))
+
+        final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingAdder)
+        final Platform platform = arguments.get()['platform'] as Platform
+        if (platform !== Platform.FORGE)
+            bindingAdderTransform.annotationParameters = [className: "${platform.toString()}ModsDotGroovy"] as Map<String, Object>
+
+        compilerConfig.addCompilationCustomizers(bindingAdderTransform)
 
         final bindings = new Binding(arguments.get())
         final shell = new GroovyShell(getClass().classLoader, bindings, compilerConfig)

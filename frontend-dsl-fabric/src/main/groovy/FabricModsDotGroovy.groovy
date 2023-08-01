@@ -15,7 +15,7 @@ import org.groovymc.modsdotgroovy.frontend.fabric.*
 @PackageScope
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class ModsDotGroovyFrontendFabric extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
+class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * If running in a Gradle environment, this will be populated with the {@code build.properties}.
      */
@@ -259,11 +259,11 @@ class ModsDotGroovyFrontendFabric extends ModsDotGroovyFrontend implements Prope
 
     @SuppressWarnings('GroovyUnusedDeclaration')
     // Used by the Groovy compiler for coercing an implicit `it` closure
-    ModsDotGroovyFrontendFabric() {
+    FabricModsDotGroovy() {
         super([:])
     }
 
-    private ModsDotGroovyFrontendFabric(final Map<String, ?> environment) {
+    private FabricModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
         if (environment.containsKey('buildProperties'))
             this.@buildProperties.putAll(environment.buildProperties as Map<String, ?>)
@@ -282,21 +282,21 @@ class ModsDotGroovyFrontendFabric extends ModsDotGroovyFrontend implements Prope
         core.pop()
     }
 
-    static ModsDotGroovyFrontendFabric make(@DelegatesTo(value = ModsDotGroovyFrontendFabric, strategy = Closure.DELEGATE_FIRST)
+    static FabricModsDotGroovy make(@DelegatesTo(value = FabricModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
                                             @ClosureParams(value = SimpleType, options = 'ModsDotGroovyFrontendFabric') final Closure closure) {
         return make(closure, [:])
     }
 
-    static ModsDotGroovyFrontendFabric make(@DelegatesTo(value = ModsDotGroovyFrontendFabric, strategy = Closure.DELEGATE_FIRST)
+    static FabricModsDotGroovy make(@DelegatesTo(value = FabricModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
                                             @ClosureParams(value = SimpleType, options = 'ModsDotGroovyFrontendFabric') final Closure closure,
-                                            final Binding scriptBinding) {
+                                    final Binding scriptBinding) {
         return make(closure, scriptBinding.variables)
     }
 
-    static ModsDotGroovyFrontendFabric make(@DelegatesTo(value = ModsDotGroovyFrontendFabric, strategy = Closure.DELEGATE_FIRST)
+    static FabricModsDotGroovy make(@DelegatesTo(value = FabricModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
                                             @ClosureParams(value = SimpleType, options = 'ModsDotGroovyFrontendFabric') final Closure closure,
-                                            final Map<String, ?> environment) {
-        final ModsDotGroovyFrontendFabric val = new ModsDotGroovyFrontendFabric(environment)
+                                    final Map<String, ?> environment) {
+        final FabricModsDotGroovy val = new FabricModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)

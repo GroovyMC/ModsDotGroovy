@@ -1,4 +1,4 @@
-final mdg = ModsDotGroovyFrontendFabric.make {
+final mdg = FabricModsDotGroovy.make {
     schemaVersion = 1
     id = "examplemod"
     name = "Example Mod"

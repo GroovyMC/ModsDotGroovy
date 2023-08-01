@@ -4,11 +4,10 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.jetbrains.annotations.Nullable
+import org.groovymc.modsdotgroovy.core.Platform
 
 @CompileStatic
-@SuppressWarnings('GroovyUnusedDeclaration')
-// All these methods are dynamically called by ModsDotGroovyCore
+@SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 @Log4j2(category = 'MDG - FabricPlugin')
 class FabricPlugin extends ModsDotGroovyPlugin {
 
@@ -22,10 +21,20 @@ class FabricPlugin extends ModsDotGroovyPlugin {
         return log
     }
 
+    @Override
+    EnumSet<Platform> getPlatforms() {
+        return EnumSet.of(Platform.FABRIC)
+    }
+
     @CompileDynamic
     PluginResult setEnvironment(final def environment) {
         log.debug "environment: ${environment}"
         return PluginResult.of(environment.value)
+    }
+
+    @Override
+    Map build(Map buildingMap) {
+        return !buildingMap.containsKey("license") ? [license: "All Rights Reserved"] : [:]
     }
 
     class Entrypoints {
@@ -148,7 +157,10 @@ class FabricPlugin extends ModsDotGroovyPlugin {
 
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 log.debug "authors.author.onNestLeave: ${value}"
-                if (value["name"] != null && value.size() == 1) {
+
+                if (!value.containsKey("name")) {
+                    throw new PluginResult.MDGPluginException("Author name is required")
+                } else if (value.size() == 1) {
                     authors.add(value["name"])
                 } else {
                     authors.add(value)
@@ -178,7 +190,9 @@ class FabricPlugin extends ModsDotGroovyPlugin {
 
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 log.debug "contributors.contributor.onNestLeave: ${value}"
-                if (value["name"] != null && value.size() == 1) {
+                if (!value.containsKey("name")) {
+                    throw new PluginResult.MDGPluginException("Contributor name is required")
+                } else if (value.size() == 1) {
                     contributors.add(value["name"])
                 } else {
                     contributors.add(value)

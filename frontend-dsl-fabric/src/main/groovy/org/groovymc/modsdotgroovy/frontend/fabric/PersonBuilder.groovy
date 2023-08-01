@@ -5,10 +5,11 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class AuthorBuilder {
+class PersonBuilder implements PropertyInterceptor {
     private final ModsDotGroovyCore core
 
     /**@
@@ -32,13 +33,13 @@ class AuthorBuilder {
     }
 
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    AuthorBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.AuthorBuilder()"
+    PersonBuilder() {
+        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.PersonBuilder()"
         this.core = null
     }
 
-    AuthorBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.AuthorBuilder(core: $core)"
+    PersonBuilder(final ModsDotGroovyCore core) {
+        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.PersonBuilder(core: $core)"
         this.core = core
     }
 }
