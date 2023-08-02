@@ -218,7 +218,7 @@ class FabricPlugin extends ModsDotGroovyPlugin {
 
         class Author {
             String name
-            def contact
+            Contact contact = new Contact()
 
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 log.debug "authors.author.onNestLeave: ${value}"
@@ -251,7 +251,7 @@ class FabricPlugin extends ModsDotGroovyPlugin {
 
         class Contributor {
             String name
-            def contact
+            Contact contact = new Contact()
 
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                 log.debug "contributors.contributor.onNestLeave: ${value}"

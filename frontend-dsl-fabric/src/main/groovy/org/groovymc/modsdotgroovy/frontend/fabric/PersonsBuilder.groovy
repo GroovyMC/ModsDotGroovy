@@ -27,17 +27,17 @@ class PersonsBuilder {
 
     void person(final String name,
                 @DelegatesTo(value = ContactBuilder, strategy = Closure.DELEGATE_FIRST)
-                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.PersonBuilder')
-                final Closure contact = {}) {
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.ContactBuilder')
+                final Closure closure = null) {
         log.debug "${fieldName}(name: $name)"
         core.push(fieldName)
         core.put('name', name)
-        if (contact != null) {
-            final personBuilder = new PersonBuilder(core)
-            core.push("contact")
-            contact.resolveStrategy = Closure.DELEGATE_FIRST
-            contact.delegate = personBuilder
-            contact.call(personBuilder)
+        if (closure != null) {
+            core.push('contact')
+            final contactBuilder = new ContactBuilder(core)
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure.delegate = contactBuilder
+            closure.call(contactBuilder)
             core.pop()
         }
         core.pop()
