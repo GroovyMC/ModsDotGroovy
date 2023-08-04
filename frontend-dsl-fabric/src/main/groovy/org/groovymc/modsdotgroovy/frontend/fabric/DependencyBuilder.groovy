@@ -11,7 +11,13 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 class DependencyBuilder extends DslBuilder implements PropertyInterceptor {
     String modId
 
-    def versionRange
+    void setVersionRange(final String versionRange) {
+        core.put('versionRange', versionRange)
+    }
+
+    void setVersionRange(final List<String> versionRange) {
+        core.put('versionRange', versionRange)
+    }
 
     DependencyBuilder(final ModsDotGroovyCore core) {
         super(core)

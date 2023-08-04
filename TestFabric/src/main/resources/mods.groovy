@@ -10,8 +10,8 @@ final mdg = FabricModsDotGroovy.make {
     accessWidener = "examplemod.accesswidener"
 
     icon {
-        it."16" = "small.png"
-        it."32" = "medium.png"
+        x16 = "small.png"
+        x32 = "medium.png"
     }
     icon 64, "large.png"
 
@@ -23,7 +23,7 @@ final mdg = FabricModsDotGroovy.make {
         }
         client "net.fabricmc.example.ExampleModClient"
         rei = "net.fabricmc.example.ReiPlugin"
-        entrypoint 'fabric:datagen', {
+        entrypoint('fabric:datagen') {
             value = "net.fabricmc.example.ExampleModData"
         }
     }
@@ -91,7 +91,7 @@ final mdg = FabricModsDotGroovy.make {
 
     authors {
         person "Me!"
-        person "You!", {
+        person("You!") {
             email = "you@example.com"
         }
         person {
@@ -103,7 +103,7 @@ final mdg = FabricModsDotGroovy.make {
     }
 
     contributors {
-        person "Maty"
+        person "Su5eD"
     }
 
     custom {

@@ -8,6 +8,7 @@ import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
+
 import org.groovymc.modsdotgroovy.frontend.fabric.*
 import org.jetbrains.annotations.Nullable
 
@@ -85,19 +86,19 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
 
     @Nullable String accessWidener = null
 
-    @CompileDynamic
     void icon(final int size, final String path) {
-        icon {
-            it."${size}" = path
-        }
+        log.debug "icon(int, string)"
+        core.push('icon')
+        core.put(size, path)
+        core.pop()
     }
 
-    void icon(@DelegatesTo(value = SimpleBuilder, strategy = Closure.DELEGATE_FIRST)
-              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.SimpleBuilder')
+    void icon(@DelegatesTo(value = IconBuilder, strategy = Closure.DELEGATE_FIRST)
+              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.IconBuilder')
               final Closure closure) {
         log.debug "icon(closure)"
         core.push('icon')
-        final customFieldsBuilder = new SimpleBuilder(core)
+        final customFieldsBuilder = new IconBuilder(core)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = customFieldsBuilder
         closure.call(customFieldsBuilder)
