@@ -13,4 +13,8 @@ class JarBuilder extends DslBuilder implements PropertyInterceptor {
      * The path to the jar dependency
      */
     String file
+
+    JarBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

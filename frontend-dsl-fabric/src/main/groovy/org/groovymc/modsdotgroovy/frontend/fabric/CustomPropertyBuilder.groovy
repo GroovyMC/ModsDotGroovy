@@ -14,4 +14,8 @@ class CustomPropertyBuilder extends DslBuilder implements PropertyInterceptor {
     void property(final String name, final String value) {
         this."$name" = value
     }
+
+    CustomPropertyBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

@@ -81,4 +81,8 @@ class EntrypointsBuilder extends DslBuilder implements PropertyInterceptor, MapC
             entrypoint(name, args[0] as String)
         }
     }
+
+    EntrypointsBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

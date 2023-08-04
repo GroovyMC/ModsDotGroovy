@@ -9,4 +9,8 @@ import org.jetbrains.annotations.Nullable
 @Log4j2(category = 'MDG - Forge Frontend')
 class FeaturesBuilder extends DslBuilder implements PropertyInterceptor {
     @Nullable String openGLVersion
+
+    FeaturesBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

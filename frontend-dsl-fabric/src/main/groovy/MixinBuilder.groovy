@@ -16,4 +16,8 @@ class MixinBuilder extends DslBuilder implements PropertyInterceptor {
      * The same as upper level environment field.
      */
     Environment environment = Environment.ANY
+
+    MixinBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

@@ -12,19 +12,6 @@ class PersonsBuilder {
     private final ModsDotGroovyCore core
     private final String fieldName
 
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    PersonsBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.PersonsBuilder()"
-        this.core = null
-        this.fieldName = null
-    }
-
-    PersonsBuilder(final ModsDotGroovyCore core, final String fieldName) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.PersonsBuilder(core: $core)"
-        this.core = core
-        this.fieldName = fieldName
-    }
-
     void person(final String name,
                 @DelegatesTo(value = ContactBuilder, strategy = Closure.DELEGATE_FIRST)
                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.ContactBuilder')
@@ -53,5 +40,18 @@ class PersonsBuilder {
         closure.delegate = personBuilder
         closure.call(personBuilder)
         core.pop()
+    }
+
+    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
+    PersonsBuilder() {
+        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.PersonsBuilder()"
+        this.core = null
+        this.fieldName = null
+    }
+
+    PersonsBuilder(final ModsDotGroovyCore core, final String fieldName) {
+        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.PersonsBuilder(core: $core)"
+        this.core = core
+        this.fieldName = fieldName
     }
 }

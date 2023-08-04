@@ -33,4 +33,8 @@ class ContactBuilder extends DslBuilder implements PropertyInterceptor {
      * Project source code repository. Must be a valid URL - it can, however, be a specialized URL for a given VCS (such as Git or Mercurial).
      */
     String sources
+
+    ContactBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

@@ -29,4 +29,8 @@ class JarsBuilder extends DslBuilder implements PropertyInterceptor {
         closure.call(jarBuilder)
         core.pop()
     }
+
+    JarsBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

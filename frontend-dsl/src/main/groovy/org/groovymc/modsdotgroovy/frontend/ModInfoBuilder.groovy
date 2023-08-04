@@ -97,4 +97,8 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
         closure.call(featuresBuilder)
         core.pop()
     }
+
+    ModInfoBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

@@ -9,5 +9,7 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
 class SimpleBuilder extends DslBuilder implements PropertyInterceptor {
-
+    SimpleBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

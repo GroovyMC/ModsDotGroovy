@@ -26,4 +26,8 @@ class DependenciesBuilder extends DslBuilder implements PropertyInterceptor {
         closure.call(dependencyBuilder)
         core.pop()
     }
+
+    DependenciesBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

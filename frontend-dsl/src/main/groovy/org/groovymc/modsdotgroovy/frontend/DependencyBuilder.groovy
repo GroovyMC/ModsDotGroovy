@@ -31,4 +31,8 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapCl
      * Side this dependency is applied on - BOTH, CLIENT or SERVER
      */
     String side = 'BOTH'
+
+    DependencyBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

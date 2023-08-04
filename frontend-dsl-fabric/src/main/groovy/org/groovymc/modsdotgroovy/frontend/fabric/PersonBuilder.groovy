@@ -30,4 +30,8 @@ class PersonBuilder extends DslBuilder implements PropertyInterceptor {
         closure.call(contactBuilder)
         core.pop()
     }
+
+    PersonBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

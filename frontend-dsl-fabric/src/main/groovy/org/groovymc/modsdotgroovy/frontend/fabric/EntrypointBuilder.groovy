@@ -12,4 +12,8 @@ class EntrypointBuilder extends DslBuilder implements PropertyInterceptor {
     String adapter
 
     String value
+
+    EntrypointBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

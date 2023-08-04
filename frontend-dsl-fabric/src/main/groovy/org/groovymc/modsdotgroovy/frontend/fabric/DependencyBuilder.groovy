@@ -12,4 +12,8 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor {
     String modId
 
     def versionRange
+
+    DependencyBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }

@@ -48,4 +48,8 @@ class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
             versionRange = value
         }
     }
+
+    DependenciesBuilder(final ModsDotGroovyCore core) {
+        super(core)
+    }
 }
