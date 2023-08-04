@@ -1,18 +1,16 @@
 package org.groovymc.modsdotgroovy.frontend.fabric
 
-
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class DependenciesBuilder implements PropertyInterceptor {
-    private final ModsDotGroovyCore core
-
+class DependenciesBuilder extends DslBuilder implements PropertyInterceptor {
     void mod(final String modId, final def versionRange) {
         core.put(modId, versionRange)
     }
@@ -27,16 +25,5 @@ class DependenciesBuilder implements PropertyInterceptor {
         closure.delegate = dependencyBuilder
         closure.call(dependencyBuilder)
         core.pop()
-    }
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    DependenciesBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.DependenciesBuilder()"
-        this.core = null
-    }
-
-    DependenciesBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.DependenciesBuilder(core: $core)"
-        this.core = core
     }
 }

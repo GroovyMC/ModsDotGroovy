@@ -3,13 +3,12 @@ package org.groovymc.modsdotgroovy.frontend.fabric
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class ContactBuilder implements PropertyInterceptor {
-    private final ModsDotGroovyCore core
-
+class ContactBuilder extends DslBuilder implements PropertyInterceptor {
     /**@
      * Contact e-mail pertaining to the mod. Must be a valid e-mail address.
      */
@@ -34,15 +33,4 @@ class ContactBuilder implements PropertyInterceptor {
      * Project source code repository. Must be a valid URL - it can, however, be a specialized URL for a given VCS (such as Git or Mercurial).
      */
     String sources
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    ContactBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.ContactBuilder()"
-        this.core = null
-    }
-
-    ContactBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.ContactBuilder(core: $core)"
-        this.core = core
-    }
 }

@@ -3,23 +3,11 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class MixinsBuilder {
-    private final ModsDotGroovyCore core
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    MixinsBuilder() {
-        log.debug "new MixinsBuilder()"
-        this.core = null
-    }
-
-    MixinsBuilder(final ModsDotGroovyCore core) {
-        log.debug "new MixinsBuilder(core: $core)"
-        this.core = core
-    }
-
+class MixinsBuilder extends DslBuilder {
     void mixin(final String config, final def environment = null) {
         log.debug "mixins(config: $config)"
         core.push('mixin')

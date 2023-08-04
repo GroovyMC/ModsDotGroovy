@@ -10,10 +10,8 @@ import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-@Log4j2(category = 'MDG - Frontend')
-class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
-    private final ModsDotGroovyCore core
-
+@Log4j2(category = 'MDG - Forge Frontend')
+class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
     /**
      * The modId of the mod. This should match the value of your mod's {@literal @}GMod/{@literal @}Mod annotated main class.
      */
@@ -75,17 +73,6 @@ class ModInfoBuilder implements PropertyInterceptor, MapClosureInterceptor {
      * An alternative to {@link #authors} for single author mods.
      */
     String author = ''
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    ModInfoBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.ModInfoBuilder()"
-        this.core = null
-    }
-
-    ModInfoBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.ModInfoBuilder(core: $core)"
-        this.core = core
-    }
 
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                       @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.DependenciesBuilder')

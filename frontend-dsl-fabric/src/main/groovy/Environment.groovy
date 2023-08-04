@@ -1,5 +1,3 @@
-
-
 import groovy.transform.CompileStatic
 
 @CompileStatic

@@ -5,10 +5,8 @@ import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 @CompileStatic
-@Log4j2(category = 'MDG - Frontend')
-class DependencyBuilder implements PropertyInterceptor, MapClosureInterceptor {
-    private final ModsDotGroovyCore core
-
+@Log4j2(category = 'MDG - Forge Frontend')
+class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * The ID of the mod this dependency is depending on.
      */
@@ -33,15 +31,4 @@ class DependencyBuilder implements PropertyInterceptor, MapClosureInterceptor {
      * Side this dependency is applied on - BOTH, CLIENT or SERVER
      */
     String side = 'BOTH'
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    DependencyBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.DependencyBuilder()"
-        this.core = null
-    }
-
-    DependencyBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.DependencyBuilder(core: $core)"
-        this.core = core
-    }
 }

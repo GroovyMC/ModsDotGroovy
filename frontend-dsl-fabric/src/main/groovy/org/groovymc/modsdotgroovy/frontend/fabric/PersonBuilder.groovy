@@ -5,13 +5,12 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class PersonBuilder implements PropertyInterceptor {
-    private final ModsDotGroovyCore core
-
+class PersonBuilder extends DslBuilder implements PropertyInterceptor {
     /**@
      * The real name, or username, of the person. Mandatory.
      */
@@ -30,16 +29,5 @@ class PersonBuilder implements PropertyInterceptor {
         closure.delegate = contactBuilder
         closure.call(contactBuilder)
         core.pop()
-    }
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    PersonBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.PersonBuilder()"
-        this.core = null
-    }
-
-    PersonBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.PersonBuilder(core: $core)"
-        this.core = core
     }
 }

@@ -279,12 +279,6 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
             closure.call()
     }
 
-    @SuppressWarnings('GroovyUnusedDeclaration')
-    // Used by the Groovy compiler for coercing an implicit `it` closure
-    FabricModsDotGroovy() {
-        super([:])
-    }
-
     private FabricModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
         if (environment.containsKey('buildProperties'))

@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable
  */
 @PackageScope
 @CompileStatic
-@Log4j2(category = 'MDG - Frontend')
+@Log4j2(category = 'MDG - Forge Frontend')
 class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * If running in a Gradle environment, this will be populated with the {@code build.properties}.
@@ -100,11 +100,6 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
         log.debug "onForge(closure)"
         if (platform === Platform.FORGE)
             closure.call()
-    }
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    ModsDotGroovy() {
-        super([:])
     }
 
     private ModsDotGroovy(final Map<String, ?> environment) {

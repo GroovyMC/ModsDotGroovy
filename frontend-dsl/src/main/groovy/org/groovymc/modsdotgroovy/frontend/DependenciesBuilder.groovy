@@ -11,23 +11,10 @@ import org.jetbrains.annotations.Nullable
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-@Log4j2(category = 'MDG - Frontend')
-class DependenciesBuilder implements MapClosureInterceptor {
-    private final ModsDotGroovyCore core
-
+@Log4j2(category = 'MDG - Forge Frontend')
+class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
     @Nullable String forge
     @Nullable String minecraft
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    DependenciesBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.DependenciesBuilder()"
-        this.core = null
-    }
-
-    DependenciesBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.DependenciesBuilder(core: $core)"
-        this.core = core
-    }
 
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependencyBuilder')

@@ -6,14 +6,13 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class EntrypointsBuilder implements PropertyInterceptor, MapClosureInterceptor {
-    private final ModsDotGroovyCore core
-
+class EntrypointsBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
     void main(@DelegatesTo(value = EntrypointBuilder, strategy = Closure.DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.EntrypointBuilder')
               final Closure closure) {
@@ -81,16 +80,5 @@ class EntrypointsBuilder implements PropertyInterceptor, MapClosureInterceptor {
         if (args.size() > 0 && args[0] instanceof String) {
             entrypoint(name, args[0] as String)
         }
-    }
-
-    @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    EntrypointsBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.EntrypointsBuilder()"
-        this.core = null
-    }
-
-    EntrypointsBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.EntrypointsBuilder(core: $core)"
-        this.core = core
     }
 }
