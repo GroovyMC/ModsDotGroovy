@@ -19,7 +19,7 @@ final class PluginRegistry {
 
     PluginRegistry(@Nullable Platform platform) {
         // Load plugins
-        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).findAll { ModsDotGroovyPlugin plugin -> platform == null || plugin.platforms.contains(platform) }.asCollection())
+        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).findAll { ModsDotGroovyPlugin plugin -> platform === null || plugin.platforms.contains(platform) }.asCollection())
         if (plugins.isEmpty()) throw new IllegalStateException('No plugins found!')
         log.info "Loaded plugins: ${Writer writer -> writer << plugins.collect {"[${it.name} v${it.version.toString()}]" }.join(', ')}"
     }

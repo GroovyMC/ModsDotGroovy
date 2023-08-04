@@ -113,9 +113,42 @@ class FabricPlugin extends ModsDotGroovyPlugin {
             
             def onNestLeave(final Deque<String> stack, final Map value) {
                 log.debug "entrypoints.entrypoint.onNestLeave: ${value}"
+                if (value["replace"] === true) {
+                    entrypoints.removeIf { it["type"] == type }
+                }
                 entrypoints.add(value)
                 return PluginResult.remove()
             }
+        }
+    }
+
+    class Depends {
+        Mod mod = new Mod()
+    }
+
+    class Recommends {
+        Mod mod = new Mod()
+    }
+
+    class Suggests {
+        Mod mod = new Mod()
+    }
+
+    class Breaks {
+        Mod mod = new Mod()
+    }
+
+    class Conflicts {
+        Mod mod = new Mod()
+    }
+
+    class Mod {
+        String modId
+        def versionRange
+
+        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            log.info "mod.onNestLeave: ${value}"
+            return PluginResult.rename(modId, versionRange)
         }
     }
 

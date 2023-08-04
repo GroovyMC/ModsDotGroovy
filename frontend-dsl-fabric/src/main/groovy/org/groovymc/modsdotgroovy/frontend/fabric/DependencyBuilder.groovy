@@ -7,17 +7,21 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
-class SimpleBuilder implements PropertyInterceptor {
+class DependencyBuilder implements PropertyInterceptor {
     private final ModsDotGroovyCore core
 
+    String modId
+
+    def versionRange
+
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
-    SimpleBuilder() {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.SimpleBuilder()"
+    DependencyBuilder() {
+        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.DependencyBuilder()"
         this.core = null
     }
 
-    SimpleBuilder(final ModsDotGroovyCore core) {
-        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.SimpleBuilder(core: $core)"
+    DependencyBuilder(final ModsDotGroovyCore core) {
+        log.debug "new org.groovymc.modsdotgroovy.frontend.fabric.DependencyBuilder(core: $core)"
         this.core = core
     }
 }

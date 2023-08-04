@@ -7,6 +7,7 @@ final mdg = FabricModsDotGroovy.make {
     provides = ["example_mod"]
     environment = Environment.ANY
     license = ["MIT", "CC0-1.0"]
+    accessWidener = "examplemod.accesswidener"
 
     icon {
         it."16" = "small.png"
@@ -52,6 +53,13 @@ final mdg = FabricModsDotGroovy.make {
         minecraft = "~1.20.1"
         java = ">=17"
         it.'fabric-api' = "*"
+
+        mod "another-mod", ">=1.5.0"
+        mod "something-else", [">0.5", '<1.0']
+        mod {
+            modId = "rats"
+            versionRange = "*"
+        }
     }
 
     recommends {
@@ -99,6 +107,7 @@ final mdg = FabricModsDotGroovy.make {
     }
 
     custom {
+        property "fabricMod:foo", "bar"
         it.'fabricMod:hello' = "world"
     }
 

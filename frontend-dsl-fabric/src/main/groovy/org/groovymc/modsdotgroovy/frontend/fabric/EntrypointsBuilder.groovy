@@ -67,7 +67,11 @@ class EntrypointsBuilder implements PropertyInterceptor, MapClosureInterceptor {
 
     @CompileDynamic
     void setProperty(final String name, final def value) {
-        entrypoint(name, value)
+        core.push('entrypoint')
+        core.put('type', name)
+        core.put('value', value)
+        core.put('replace', true)
+        core.pop()
     }
 
     @CompileDynamic
