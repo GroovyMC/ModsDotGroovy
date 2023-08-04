@@ -24,7 +24,7 @@ class MixinsBuilder {
         log.debug "mixins(config: $config)"
         core.push('mixin')
         core.put('config', config)
-        if (environment != null) {
+        if (environment !== null) {
             core.put('environment', environment)
         }
         core.pop()

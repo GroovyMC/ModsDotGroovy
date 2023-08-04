@@ -75,11 +75,11 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
 
     /**@
      * Defines the licensing information.
-     * This should provide the complete set of preferred licenses conveying the entire mod package. In other words,
-     * compliance with all listed licenses should be sufficient for usage, redistribution, etc. of the mod package as a whole.
-     * For cases where a part of code is dual-licensed, choose the preferred license. The list is not exhaustive,
-     * serves primarily as a kind of hint, and does not prevent you from granting additional rights/licenses on a case-by-case basis.
-     * To aid automated tools, it is recommended to use <a href="https://spdx.org/licenses/">SPDX License Identifiers</a> for open-source licenses.
+     * <p>This should provide the complete set of preferred licenses conveying the entire mod package. In other words,
+     * compliance with all listed licenses should be sufficient for usage, redistribution, etc. of the mod package as a whole.</p>
+     * <p>For cases where a part of code is dual-licensed, choose the preferred license. The list is not exhaustive,
+     * serves primarily as a kind of hint, and does not prevent you from granting additional rights/licenses on a case-by-case basis.</p>
+     * <p>To aid automated tools, it is recommended to use <a href="https://spdx.org/licenses/">SPDX License Identifiers</a> for open-source licenses.</p>
      */
     @Nullable def license = null
 

@@ -32,7 +32,7 @@ class PersonsBuilder {
         log.debug "${fieldName}(name: $name)"
         core.push(fieldName)
         core.put('name', name)
-        if (closure != null) {
+        if (closure !== null) {
             core.push('contact')
             final contactBuilder = new ContactBuilder(core)
             closure.resolveStrategy = Closure.DELEGATE_FIRST

@@ -225,7 +225,7 @@ class FabricPlugin extends ModsDotGroovyPlugin {
 
                 if (!value.containsKey("name")) {
                     throw new PluginResult.MDGPluginException("Author name is required")
-                } else if (value.size() == 1) {
+                } else if (value.size() === 1) {
                     authors.add(value["name"])
                 } else {
                     authors.add(value)
@@ -257,7 +257,7 @@ class FabricPlugin extends ModsDotGroovyPlugin {
                 log.debug "contributors.contributor.onNestLeave: ${value}"
                 if (!value.containsKey("name")) {
                     throw new PluginResult.MDGPluginException("Contributor name is required")
-                } else if (value.size() == 1) {
+                } else if (value.size() === 1) {
                     contributors.add(value["name"])
                 } else {
                     contributors.add(value)
