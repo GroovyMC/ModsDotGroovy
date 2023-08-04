@@ -2,6 +2,8 @@ package org.groovymc.modsdotgroovy.plugin
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
+import org.groovymc.modsdotgroovy.core.Platform
+import org.jetbrains.annotations.Nullable
 
 @CompileStatic
 @Log4j2(category = 'MDG - PluginRegistry')
@@ -15,9 +17,9 @@ final class PluginRegistry {
         }
     })
 
-    PluginRegistry() {
+    PluginRegistry(@Nullable Platform platform) {
         // Load plugins
-        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).asCollection())
+        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).findAll { ModsDotGroovyPlugin plugin -> platform === null || plugin.platforms.contains(platform) }.asCollection())
         if (plugins.isEmpty()) throw new IllegalStateException('No plugins found!')
         log.info "Loaded plugins: ${Writer writer -> writer << plugins.collect {"[${it.name} v${it.version.toString()}]" }.join(', ')}"
     }

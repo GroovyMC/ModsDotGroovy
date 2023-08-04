@@ -6,6 +6,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.Platform
 import org.jetbrains.annotations.Nullable
 
 import java.net.http.HttpClient
@@ -21,6 +22,11 @@ class ForgePlugin extends ModsDotGroovyPlugin {
     @Override
     void init(final Map<String, ?> environment) {
         log.info "Environment: ${environment}"
+    }
+
+    @Override
+    EnumSet<Platform> getPlatforms() {
+        return EnumSet.of(Platform.FORGE)
     }
 
     // note: void methods are executed and treated as PluginResult.VALIDATE

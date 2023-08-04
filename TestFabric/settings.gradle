@@ -1,0 +1,17 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
+    }
+    includeBuild('../')
+}
+
+rootProject.name = 'ModsDotGroovy-Test-Fabric'
+
+buildCache {
+    remote(HttpBuildCache) {
+        url = 'https://gradlecache.groovymc.org/cache/'
+    }
+}
+
+includeBuild('../')
