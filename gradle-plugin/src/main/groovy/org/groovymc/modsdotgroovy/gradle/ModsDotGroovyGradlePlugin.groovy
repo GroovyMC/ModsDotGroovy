@@ -64,7 +64,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 }
 
                 if (ext.setupDsl.get()) {
-                    if (platforms.contains(Platform.FORGE)) {
+                    if (platforms.containsAll([Platform.FORGE, Platform.FABRIC])) {
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:frontend-dsl-multiplatform'))
+                    } else if (platforms.contains(Platform.FORGE)) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:frontend-dsl'))
                     } else if (platforms.contains(Platform.FABRIC)) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:frontend-dsl-fabric'))

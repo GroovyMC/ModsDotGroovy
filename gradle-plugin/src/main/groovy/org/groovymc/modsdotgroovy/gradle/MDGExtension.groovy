@@ -62,12 +62,20 @@ abstract class MDGExtension {
         return this.platforms
     }
 
-    void setPlatforms(final List<String> platforms) {
+    void setPlatforms(final ArrayList<String> platforms) {
         this.platforms.set(platforms.collect { Platform.of(it) })
     }
 
+    void setPlatforms(final List<Platform> platforms) {
+        this.platforms.set(platforms)
+    }
+
     void setPlatforms(final String[] platforms) {
-        this.setPlatforms(platforms as List<String>)
+        this.setPlatforms(platforms as ArrayList<String>)
+    }
+
+    void setPlatforms(final Platform[] platforms) {
+        this.platforms.set(platforms as List<Platform>)
     }
 
     ListProperty<String> getEnvironmentBlacklist() {

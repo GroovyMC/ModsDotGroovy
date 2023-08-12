@@ -15,4 +15,4 @@ buildCache {
 enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 
-include 'core', 'gradle-plugin', 'frontend-dsl', 'frontend-dsl-fabric', 'stock-plugins'
+include 'core', 'gradle-plugin', 'frontend-dsl', 'frontend-dsl-fabric', 'frontend-dsl-multiplatform', 'stock-plugins'
