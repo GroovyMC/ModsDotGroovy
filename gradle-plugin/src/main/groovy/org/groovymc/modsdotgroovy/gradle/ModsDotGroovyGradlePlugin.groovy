@@ -101,18 +101,21 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                                 makeAndAppendForgeTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
                                     catalogs.set(ext.catalogs.get())
+                                    environmentBlacklist.set(ext.environmentBlacklist.get())
                                 }
                                 break
                             case Platform.FABRIC:
                                 makeAndAppendFabricTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
                                     catalogs.set(ext.catalogs.get())
+                                    environmentBlacklist.set(ext.environmentBlacklist.get())
                                 }
                                 break
                             case Platform.QUILT:
                                 makeAndAppendQuiltTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
                                     catalogs.set(ext.catalogs.get())
+                                    environmentBlacklist.set(ext.environmentBlacklist.get())
                                 }
                         }
 //                    } else {

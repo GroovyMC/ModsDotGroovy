@@ -35,6 +35,7 @@ abstract class MDGExtension {
 
     private final ObjectFactory objectFactory
     private final ListProperty<Platform> platforms = objectFactory.listProperty(Platform)
+    private final ListProperty<String> environmentBlacklist = objectFactory.listProperty(String)
 
     @Inject
     MDGExtension(final Project project, final ObjectFactory objectFactory) {
@@ -46,6 +47,7 @@ abstract class MDGExtension {
         catalogs.convention(['libs'])
         setupDsl.convention(true)
         setupPlugins.convention(true)
+        environmentBlacklist.convention(['pass', 'password', 'token', 'key', 'secret'])
     }
 
     void setPlatform(final String name) {
@@ -66,6 +68,18 @@ abstract class MDGExtension {
 
     void setPlatforms(final String[] platforms) {
         this.setPlatforms(platforms as List<String>)
+    }
+
+    ListProperty<String> getEnvironmentBlacklist() {
+        return this.environmentBlacklist
+    }
+
+    void setEnvironmentBlacklist(final List<String> blacklist) {
+        this.environmentBlacklist.set(blacklist)
+    }
+
+    void setEnvironmentBlacklist(final String[] blacklist) {
+        this.setEnvironmentBlacklist(blacklist as List<String>)
     }
 
     void multiloader(@DelegatesTo(value = MultiloaderConfiguration, strategy = Closure.DELEGATE_FIRST)

@@ -20,4 +20,5 @@ dependencies {
 //    platform = 'forge'
 //    setupDsl = false
 //    setupPlugins = false
+//    environmentBlacklist = ['credits']
 //}

@@ -60,6 +60,10 @@ abstract class AbstractConvertTask extends DefaultTask {
     @InputFiles
     abstract ListProperty<File> getMdgRuntimeFiles()
 
+    @Input
+    @Optional
+    abstract ListProperty<String> getEnvironmentBlacklist()
+
     @Internal
     protected abstract String getOutputName()
 
@@ -80,11 +84,12 @@ abstract class AbstractConvertTask extends DefaultTask {
 
     AbstractConvertTask() {
         notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
+        environmentBlacklist.convention(['pass', 'password', 'token', 'key', 'secret'])
         output.convention(projectLayout.buildDirectory.dir(name).map {it.file(getOutputName())})
         arguments.convention(objects.mapProperty(String, Object))
         catalogs.convention(['libs'])
         project.afterEvaluate {
-            arguments.put('buildProperties', project.extensions.extraProperties.properties)
+            arguments.put('buildProperties', filterBuildProperties(project.extensions.extraProperties.properties, environmentBlacklist.get()))
             catalogs.get().each {
                 arg(it, versionCatalogToMap(getLibsExtension(project, it)))
             }
@@ -93,6 +98,17 @@ abstract class AbstractConvertTask extends DefaultTask {
             arg('group', project.group)
             setupPlatformSpecificArguments()
         }
+    }
+
+    @CompileStatic
+    protected static Map<String, Object> filterBuildProperties(final Map<String, Object> buildProperties, final List<String> blacklist) {
+        return buildProperties.findAll { entry ->
+            for (String blacklistEntry in blacklist) {
+                if (entry.key.containsIgnoreCase(blacklistEntry))
+                    return false
+            }
+            return true
+        } as Map<String, Object>
     }
 
     protected static VersionCatalog getLibsExtension(Project project, String name) {
