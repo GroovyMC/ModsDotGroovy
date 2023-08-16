@@ -48,9 +48,13 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             extendsFrom rootConfiguration.get()
         }
 
-        project.getPlugins().apply('java')
+        project.plugins.apply('java')
+        project.plugins.apply('groovy')
 
         project.afterEvaluate {
+            // make sure Groovy is loaded into mdgRuntime for IDE support
+            rootConfiguration.get().dependencies.add(project.dependencies.create(project.dependencies.localGroovy()))
+
             final List<Platform> platforms = ext.platforms.get().unique(false)
 
             if (ext.setupDsl.get() || ext.setupPlugins.get()) {

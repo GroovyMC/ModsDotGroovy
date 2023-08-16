@@ -12,7 +12,6 @@ repositories {
 }
 
 dependencies {
-    compileOnly localGroovy()
     mdgPlugin 'org.groovymc.modsdotgroovy:stock-plugins'
     mdgFrontend 'org.groovymc.modsdotgroovy:frontend-dsl-multiplatform'
 }
