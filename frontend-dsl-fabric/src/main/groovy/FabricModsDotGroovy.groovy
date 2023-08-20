@@ -20,11 +20,6 @@ import org.jetbrains.annotations.Nullable
 @Log4j2(category = 'MDG - Fabric Frontend')
 class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
-     * If running in a Gradle environment, this will be populated with the {@code build.properties}.
-     */
-    public final Map<String, ?> buildProperties = [:]
-
-    /**@
      * Needed for internal mechanisms. Must always be 1.
      * Mandatory
      */
@@ -282,8 +277,6 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
 
     private FabricModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
-        if (environment.containsKey('buildProperties'))
-            this.@buildProperties.putAll(environment.buildProperties as Map<String, ?>)
     }
 
     private void dependencyBuilder(final String name,

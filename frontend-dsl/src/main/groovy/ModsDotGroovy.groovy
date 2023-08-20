@@ -47,11 +47,6 @@ import org.jetbrains.annotations.Nullable
 @Log4j2(category = 'MDG - Forge Frontend')
 class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
-     * If running in a Gradle environment, this will be populated with the {@code build.properties}.
-     */
-    public final Map<String, ?> buildProperties = [:]
-
-    /**@
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
      * For GroovyModLoader @GMod mods it should be {@code gml}.
      */
@@ -104,8 +99,6 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
 
     private ModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
-        if (environment.containsKey('buildProperties'))
-            this.@buildProperties.putAll(environment.buildProperties as Map<String, ?>)
     }
 
     static ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)

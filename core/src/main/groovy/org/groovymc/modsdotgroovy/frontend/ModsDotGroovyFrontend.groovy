@@ -9,6 +9,17 @@ abstract class ModsDotGroovyFrontend {
     final ModsDotGroovyCore core
     final Platform platform
 
+    /**@
+     * If running in a Gradle environment, this will be populated with the {@code build.properties}.
+     */
+    public final Map<String, ?> buildProperties = [:]
+
+    /**@
+     * If running in a Gradle environment, this will be populated with
+     * <a href="https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog">version catalogue</a> data
+     */
+    public final VersionCatalogue libs
+
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
     ModsDotGroovyFrontend() {
         this([:])
@@ -19,5 +30,10 @@ abstract class ModsDotGroovyFrontend {
         this.platform = environment.containsKey('environment')
                 ? (environment.platform as Platform)
                 : Platform.UNKNOWN
+
+        if (environment.containsKey('buildProperties'))
+            this.@buildProperties.putAll(environment.buildProperties as Map<String, ?>)
+
+        this.@libs = new VersionCatalogue((environment.libs as Map<String, Map<String, ?>>) ?: [:])
     }
 }
