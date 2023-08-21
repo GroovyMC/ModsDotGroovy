@@ -40,7 +40,7 @@ final mdg = ModsDotGroovy.make {
             }
 
             exampledep2 = '[1,)'
-            exampledep3 = "[${libs.versions.exampledep3},)" as String // to test reading from version catalogues
+            exampledep3 = "[${libs.versions['exampledep3']},)" as String // to test reading from version catalogues
         }
 
         features {

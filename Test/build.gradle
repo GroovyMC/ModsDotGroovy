@@ -3,22 +3,26 @@ plugins {
     id 'org.groovymc.modsdotgroovy' version '2.0.0-SNAPSHOT'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
 repositories {
     mavenCentral()
 }
 
-dependencies {
-    compileOnly localGroovy()
-//    mdgPlugin 'org.groovymc.modsdotgroovy:stock-plugins'
-//    mdgFrontend 'org.groovymc.modsdotgroovy:frontend-dsl'
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.groovymc.modsdotgroovy'
+
+    java.toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+
+    repositories {
+        mavenCentral()
+    }
 }
 
-//modsDotGroovy {
-//    platforms = ['forge', 'fabric', 'quilt']
-//    platform = 'forge'
-//    setupDsl = false
-//    setupPlugins = false
-//    environmentBlacklist = ['credits']
-//}
+modsDotGroovy {
+    automaticConfiguration = false
+}
+
+// To test all platforms at once, run the build task for this root ModsDotGroovy-Test project.
+// To test a specific platform, run the build task for its subproject. For example, forge:build

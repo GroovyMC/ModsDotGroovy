@@ -1,0 +1,2 @@
+// this file is empty because the ModsDotGroovy plugin (applied in the root Test project) defaults to Forge
+// out of the box, so no setup is needed

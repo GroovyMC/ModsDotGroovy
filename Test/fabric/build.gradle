@@ -1,0 +1,5 @@
+import org.groovymc.modsdotgroovy.core.Platform
+
+modsDotGroovy {
+    platform = Platform.FABRIC
+}
