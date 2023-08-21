@@ -7,6 +7,8 @@ subprojects {
     apply plugin: 'groovy'
     apply plugin: 'maven-publish'
 
+    group = 'org.groovymc.modsdotgroovy.frontend-dsl'
+
     java {
         withSourcesJar()
         toolchain {
@@ -53,4 +55,8 @@ subprojects {
             }
         }
     }
+}
+
+tasks.named('jar', Jar).configure {
+    enabled = false
 }

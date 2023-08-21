@@ -70,11 +70,11 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
                 if (ext.setupDsl.get()) {
                     if (platforms.containsAll([Platform.FORGE, Platform.FABRIC])) {
-                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:frontend-dsl-multiplatform'))
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:multiplatform'))
                     } else if (platforms.contains(Platform.FORGE)) {
-                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:frontend-dsl-forge'))
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:forge'))
                     } else if (platforms.contains(Platform.FABRIC)) {
-                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:frontend-dsl-fabric'))
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:fabric'))
                     } else {
                         throw new UnsupportedOperationException("""
                             There is no stock frontend DSL available for ${platforms} on this version of ModsDotGroovy.
@@ -85,8 +85,16 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                     }
                 }
 
-                if (ext.setupPlugins.get())
-                    rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy:stock-plugins'))
+                if (ext.setupPlugins.get()) {
+                    if (platforms.containsAll([Platform.FORGE, Platform.FABRIC]))
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:multiplatform'))
+
+                    if (platforms.contains(Platform.FORGE))
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:forge'))
+
+                    if (platforms.contains(Platform.FABRIC))
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:fabric'))
+                }
             }
 
             if (ext.automaticConfiguration.get()) {

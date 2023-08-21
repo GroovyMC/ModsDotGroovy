@@ -6,7 +6,7 @@ groovydoc {
 publishing {
     publications {
         register('frontendDslForge', MavenPublication) {
-            artifactId = 'dsl'
+            artifactId = 'forge'
             version = project.version
 
             artifacts = [jar, sourcesJar, groovydocJar]

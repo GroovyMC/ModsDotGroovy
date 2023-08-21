@@ -64,7 +64,7 @@ final mdg = MultiplatformModsDotGroovy.make {
 
     unrecognisedByFrontend {
         hello = 'world'
-        x = 24
+        x = 25
 
         nest {
             asDeepAsYouWant {

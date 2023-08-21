@@ -6,7 +6,7 @@ groovydoc {
 publishing {
     publications {
         register('frontendDslFabric', MavenPublication) {
-            artifactId = 'dsl'
+            artifactId = 'fabric'
             version = project.version
 
             artifacts = [jar, sourcesJar, groovydocJar]

@@ -1,12 +1,12 @@
 groovydoc {
     source = sourceSets.main.allSource
-    docTitle = "ModsDotGroovy v${project.version} - Frontend Multiplatform DSL"
+    docTitle = "ModsDotGroovy v${project.version} - Forge plugin"
 }
 
 publishing {
     publications {
-        register('frontendDslMultiplatform', MavenPublication) {
-            artifactId = 'multiplatform'
+        register('stockPluginForge', MavenPublication) {
+            artifactId = 'forge'
             version = project.version
 
             artifacts = [jar, sourcesJar, groovydocJar]

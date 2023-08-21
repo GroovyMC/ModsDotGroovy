@@ -192,6 +192,7 @@ abstract class AbstractConvertTask extends DefaultTask {
     Map from(File script) {
         final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
         compilerConfig.classpathList = mdgRuntimeFiles.get().collect { it.toString() }
+        println compilerConfig.classpath
 
         final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingAdder)
         final Platform platform = arguments.get()['platform'] as Platform
@@ -218,7 +219,7 @@ abstract class AbstractConvertTask extends DefaultTask {
             exclude fileName
             dependsOn this
             from(output.get().asFile) { CopySpec spec ->
-                spec.into getOutputDir()
+                spec.into outputDir
             }
         }
     }

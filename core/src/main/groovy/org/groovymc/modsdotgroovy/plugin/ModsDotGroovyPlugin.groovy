@@ -17,8 +17,6 @@ abstract class ModsDotGroovyPlugin {
         return 0
     }
 
-    abstract EnumSet<Platform> getPlatforms()
-
     /**
      * The name of the plugin, used for logging and debugging purposes.
      */

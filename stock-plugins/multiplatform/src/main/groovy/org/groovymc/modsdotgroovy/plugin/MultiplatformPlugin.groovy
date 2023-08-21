@@ -19,11 +19,6 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     }
 
     @Override
-    EnumSet<Platform> getPlatforms() {
-        return EnumSet.of(Platform.FORGE, Platform.FABRIC)
-    }
-
-    @Override
     Logger getLog() {
         return log
     }

@@ -16,14 +16,12 @@ import java.lang.reflect.Modifier
 @CompileStatic
 @Log4j2(category = 'MDG - Core')
 final class ModsDotGroovyCore {
-    private final PluginRegistry plugins
+    private final PluginRegistry plugins = new PluginRegistry()
 
     @Delegate
     final StackAwareObservableMap backingData = new StackAwareObservableMap()
 
     ModsDotGroovyCore(final Map<String, ?> environment) {
-        Platform platform = environment["platform"]?.asType(Platform) ?: null
-        plugins = new PluginRegistry(platform)
         plugins*.init(environment.asImmutable())
 
         // Setup backingData event listeners

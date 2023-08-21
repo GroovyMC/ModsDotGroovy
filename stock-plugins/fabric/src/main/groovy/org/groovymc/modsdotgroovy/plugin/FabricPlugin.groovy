@@ -23,11 +23,6 @@ class FabricPlugin extends ModsDotGroovyPlugin {
         return log
     }
 
-    @Override
-    EnumSet<Platform> getPlatforms() {
-        return EnumSet.of(Platform.FABRIC)
-    }
-
     @CompileDynamic
     PluginResult setEnvironment(final def environment) {
         log.debug "environment: ${environment}"

@@ -24,11 +24,6 @@ class ForgePlugin extends ModsDotGroovyPlugin {
         log.info "Environment: ${environment}"
     }
 
-    @Override
-    EnumSet<Platform> getPlatforms() {
-        return EnumSet.of(Platform.FORGE)
-    }
-
     // note: void methods are executed and treated as PluginResult.VALIDATE
     void setModLoader(final String modLoader) {
         log.debug "modLoader: ${modLoader}"
