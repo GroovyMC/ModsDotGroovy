@@ -58,6 +58,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             final List<Platform> platforms = ext.platforms.get().unique(false)
 
             if (ext.setupDsl.get() || ext.setupPlugins.get()) {
+                project.repositories.mavenCentral()
                 project.repositories.maven { MavenArtifactRepository repo ->
                     repo.name = 'Modding Inquisition Releases'
                     repo.url = 'https://maven.moddinginquisition.org/releases'

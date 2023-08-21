@@ -20,8 +20,7 @@ abstract class ConvertToQuiltJsonTask extends AbstractConvertTask {
 
     @Override
     protected void setupPlatformSpecificArguments() {
-        final mcDependency = project.configurations.findByName('minecraft')
-                ?.getDependencies()?.find()
+        final mcDependency = project.configurations.findByName('minecraft')?.getDependencies()?.find()
         if (mcDependency !== null) {
             arg('minecraftVersion', mcDependency.version)
 

@@ -21,7 +21,7 @@ subprojects {
 }
 
 modsDotGroovy {
-    automaticConfiguration = false
+    automaticConfiguration = false // we only want automatic configuration for the subprojects, not this root project
 }
 
 // To test all platforms at once, run the build task for this root ModsDotGroovy-Test project.

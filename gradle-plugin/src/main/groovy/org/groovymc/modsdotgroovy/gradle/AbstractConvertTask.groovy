@@ -155,7 +155,7 @@ abstract class AbstractConvertTask extends DefaultTask {
     }
 
     protected static void writeByPartwise(Map root, String path, Object value) {
-        List<String> parts = path.split(/\./).collect {it.trim()}.findAll {!it.isEmpty()}
+        List<String> parts = path.split(/\./).collect(String::trim).findAll(String::isEmpty)
         if (parts.size() === 1)
             root[parts[0]] = value
         else if (parts.size() >= 1) {
