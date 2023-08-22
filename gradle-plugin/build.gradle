@@ -21,6 +21,7 @@ dependencies {
     implementation projects.core
     implementation projects.stockPlugins.forge
     implementation projects.stockPlugins.fabric
+    //implementation projects.stockPlugins.quilt
     implementation projects.stockPlugins.multiplatform
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
 }

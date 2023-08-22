@@ -1,4 +1,4 @@
-package org.groovymc.modsdotgroovy.frontend.fabric
+package org.groovymc.modsdotgroovy.frontend.quilt
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
@@ -9,7 +9,7 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
-@Log4j2(category = 'MDG - Fabric Frontend')
+@Log4j2(category = 'MDG - Quilt Frontend')
 class IconBuilder extends DslBuilder implements PropertyInterceptor {
     @Nullable String x16 = null
     @Nullable String x32 = null

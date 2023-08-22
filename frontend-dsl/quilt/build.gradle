@@ -1,0 +1,15 @@
+groovydoc {
+    source = sourceSets.main.allSource
+    docTitle = "ModsDotGroovy v${project.version} - Frontend Quilt DSL"
+}
+
+publishing {
+    publications {
+        register('frontendDslQuilt', MavenPublication) {
+            artifactId = 'quilt'
+            version = project.version
+
+            artifacts = [jar, sourcesJar, groovydocJar]
+        }
+    }
+}

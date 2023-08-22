@@ -293,18 +293,18 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
     }
 
     static FabricModsDotGroovy make(@DelegatesTo(value = FabricModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                            @ClosureParams(value = SimpleType, options = 'ModsDotGroovyFrontendFabric') final Closure closure) {
+                                    @ClosureParams(value = SimpleType, options = 'FabricModsDotGroovy') final Closure closure) {
         return make(closure, [:])
     }
 
     static FabricModsDotGroovy make(@DelegatesTo(value = FabricModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                            @ClosureParams(value = SimpleType, options = 'ModsDotGroovyFrontendFabric') final Closure closure,
+                                    @ClosureParams(value = SimpleType, options = 'FabricModsDotGroovy') final Closure closure,
                                     final Binding scriptBinding) {
         return make(closure, scriptBinding.variables)
     }
 
     static FabricModsDotGroovy make(@DelegatesTo(value = FabricModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                            @ClosureParams(value = SimpleType, options = 'ModsDotGroovyFrontendFabric') final Closure closure,
+                                    @ClosureParams(value = SimpleType, options = 'FabricModsDotGroovy') final Closure closure,
                                     final Map<String, ?> environment) {
         final FabricModsDotGroovy val = new FabricModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST

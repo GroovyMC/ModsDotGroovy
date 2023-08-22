@@ -75,6 +75,8 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:forge'))
                     } else if (platforms.contains(Platform.FABRIC)) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:fabric'))
+                    } else if (platforms.contains(Platform.QUILT)) {
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:quilt'))
                     } else {
                         throw new UnsupportedOperationException("""
                             There is no stock frontend DSL available for ${platforms} on this version of ModsDotGroovy.
@@ -94,6 +96,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
                     if (platforms.contains(Platform.FABRIC))
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:fabric'))
+
+//                    if (platforms.contains(Platform.QUILT))
+//                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:quilt'))
                 }
             }
 

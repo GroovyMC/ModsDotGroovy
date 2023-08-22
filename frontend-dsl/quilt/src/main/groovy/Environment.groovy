@@ -1,3 +1,5 @@
+
+
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -8,12 +10,12 @@ enum Environment {
     ANY("*"),
 
     /**@
-     * Runs on the client side.
+     * Runs on the physical client.
      */
     CLIENT("client"),
 
     /**@
-     * Runs on the server side.
+     * Runs on the dedicated server.
      */
     SERVER("server")
     

@@ -1,3 +1,5 @@
+import org.gradle.api.internal.FeaturePreviews.Feature
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -13,9 +15,9 @@ buildCache {
     }
 }
 
-enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'
-enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
+enableFeaturePreview Feature.GROOVY_COMPILATION_AVOIDANCE.name()
+enableFeaturePreview Feature.TYPESAFE_PROJECT_ACCESSORS.name()
 
 includeBuild('../')
 
-include 'forge', 'fabric', 'multiplatform'
+include 'forge', 'fabric', 'quilt', 'multiplatform'
