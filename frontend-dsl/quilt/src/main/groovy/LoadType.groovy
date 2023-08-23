@@ -19,5 +19,10 @@ enum LoadType {
      */
     IF_REQUIRED
 
+    @Override
+    String toString() {
+        return name().toLowerCase(Locale.ROOT)
+    }
+
     LoadType() {}
 }

@@ -19,4 +19,4 @@ enableFeaturePreview Feature.TYPESAFE_PROJECT_ACCESSORS.name()
 
 include 'core', 'gradle-plugin',
         'frontend-dsl:forge', 'frontend-dsl:fabric', 'frontend-dsl:quilt', 'frontend-dsl:multiplatform',
-        'stock-plugins:forge', 'stock-plugins:fabric', 'stock-plugins:multiplatform'
+        'stock-plugins:forge', 'stock-plugins:fabric', 'stock-plugins:quilt', 'stock-plugins:multiplatform'

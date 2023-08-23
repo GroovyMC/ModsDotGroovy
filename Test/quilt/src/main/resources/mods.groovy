@@ -1,49 +1,110 @@
 final mdg = QuiltModsDotGroovy.make {
-    // todo: finish adapting this Fabric test file to Quilt
     schemaVersion = 1
-    id = "examplemod"
-    name = "Example Mod"
-    version = "1.0.0"
-    provides = ["example_mod"]
 
-    accessWidener = "examplemod.accesswidener"
+    group = 'org.quiltmc'
+    id = 'examplemod'
 
-    metadata {
-        license = ["MIT", "CC0-1.0"]
-
-        description = "This is an example description!"
-
-        contact {
-            email = "contact@example.com"
-            homepage = "https://fabricmc.net/"
-            issues = "https://github.com/FabricMC/fabric-example-mod/issues"
-            sources = "https://github.com/FabricMC/fabric-example-mod"
-            // Non-standard values
-            discord = "https://discord.gg/example"
+    provides {
+        api {
+            id = 'super_awesome_lib'
+            version = '1.0.0'
         }
-
-        icon {
-            x16 = "small.png"
-            x32 = "medium.png"
-        }
-        icon 64, "large.png"
+        mod 'flamingo'
     }
 
-    minecraft {
-        environment = Environment.ANY
-    }
+    version = '1.0.0'
 
     entrypoints {
-        main "net.fabricmc.example.ExampleMod"
+        main 'org.quiltmc.examplemod.impl.ExampleMod'
+        main 'org.quiltmc.examplemod.impl.ExampleModNetworking'
         main {
             adapter = "kotlin"
             value = "hello.kotlin.World"
         }
-        client "net.fabricmc.example.ExampleModClient"
-        rei = "net.fabricmc.example.ReiPlugin"
+        client 'org.quiltmc.examplemod.impl.client.ExampleModClient'
+        rei = 'org.quiltmc.examplemod.impl.ReiPlugin'
         entrypoint('fabric:datagen') {
             value = "net.fabricmc.example.ExampleModData"
         }
+    }
+
+    depends {
+        quilt_networking_api = '*'
+        quilt_rendering_api = '*'
+
+        mod('modmenu') {
+            environment = 'client'
+        }
+
+        mod 'another-mod', '>=1.5.0'
+        mod 'something-else', ['>0.5', '<1.0']
+
+        mod {
+            id = 'rats'
+            version = '*'
+        }
+    }
+
+    breaks {
+        example_arr_mod = '*'
+
+        mod {
+            id = 'sodium'
+            reason = 'Sodium does not implement the Quilt Rendering API.'
+            unless = 'indium'
+        }
+
+        mod {
+            id = 'some_random_library'
+            versions = '1.23.456'
+        }
+
+        mod {
+            id = 'some_random_library'
+            reason = 'Stable API required'
+            version = '<1.0.0'
+        }
+
+        mod {
+            id = 'some_random_library'
+            reason = 'Contain game-breaking bugs'
+            versions = ['1.5.3', '1.2.7', '1.8.3']
+        }
+    }
+
+    accessWidener = 'examplemod.accesswidener'
+
+    metadata {
+        name = 'Quilt Example Mod'
+        description = 'An example mod for the Quilt ecosystem.'
+
+        contributors {
+            contributor {
+                name = 'Haven King'
+                role = 'Developer'
+            }
+        }
+
+        contact {
+            email = 'contact@example.com'
+            homepage = 'https://quiltmc.org/'
+            issues = 'https://github.com/QuiltMC/quilt-template-mod/issues'
+            sources = 'https://github.com/QuiltMC/quilt-template-mod'
+            // Non-standard values
+            discord = 'https://discord.gg/example'
+        }
+
+        license = ['MIT', 'CC0-1.0']
+
+        icon {
+            x16 = 'small.png'
+            x32 = 'medium.png'
+        }
+        icon 64, 'large.png'
+    }
+
+    minecraft {
+        environment = Environment.ANY
     }
 
     jars {
@@ -57,48 +118,8 @@ final mdg = QuiltModsDotGroovy.make {
         kotlin = "net.fabricmc.language.kotlin.KotlinAdapter"
     }
 
-    depends {
-        fabricloader = ">=0.14.21"
-        minecraft = "~1.20.1"
-        java = ">=17"
-        it.'fabric-api' = "*"
-
-        mod "another-mod", ">=1.5.0"
-        mod "something-else", [">0.5", '<1.0']
-        mod {
-            modId = "rats"
-            versionRange = "*"
-        }
-    }
-
-    breaks {
-        example_arr_mod = "*"
-    }
-
-    authors {
-        person "Me!"
-        person("You!") {
-            email = "you@example.com"
-        }
-        person {
-            name = "Someone Else"
-            contact {
-                email = "someone-else@example.com"
-            }
-        }
-    }
-
-    contributors {
-        person "Su5eD"
-    }
-
-    custom {
-        property "fabricMod:foo", "bar"
-        it.'fabricMod:hello' = "world"
-    }
-
     unrecognisedByFrontend {
-        hello = 'world'
+        it.'fabricMod:hello' = 'world'
         x = 24
 
         nest {

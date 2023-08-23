@@ -97,8 +97,8 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                     if (platforms.contains(Platform.FABRIC))
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:fabric'))
 
-//                    if (platforms.contains(Platform.QUILT))
-//                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:quilt'))
+                    if (platforms.contains(Platform.QUILT))
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:quilt'))
                 }
             }
 

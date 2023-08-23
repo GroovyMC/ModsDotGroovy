@@ -11,12 +11,12 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 @CompileStatic
 @Log4j2(category = 'MDG - Quilt Frontend')
 class DependenciesBuilder extends DslBuilder implements PropertyInterceptor {
-    void mod(final String modId, final String versions) {
-        core.put(modId, versions)
+    void mod(final String id, final String versions) {
+        core.put(id, versions)
     }
 
-    void mod(final String modId, final List<String> versions) {
-        core.put(modId, versions)
+    void mod(final String id, final List<String> versions) {
+        core.put(id, versions)
     }
 
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = Closure.DELEGATE_FIRST)
@@ -31,14 +31,14 @@ class DependenciesBuilder extends DslBuilder implements PropertyInterceptor {
         core.pop()
     }
 
-    void mod(final String modId,
+    void mod(final String id,
              @DelegatesTo(value = DependencyBuilder, strategy = Closure.DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.quilt.DependencyBuilder')
              final Closure closure) {
         log.debug 'mod(string, closure)'
         core.push('mod')
         final dependencyBuilder = new DependencyBuilder(core)
-        core.put('modId', modId)
+        core.put('id', id)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = dependencyBuilder
         closure.call(dependencyBuilder)

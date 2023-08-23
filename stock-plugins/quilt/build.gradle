@@ -1,0 +1,15 @@
+groovydoc {
+    source = sourceSets.main.allSource
+    docTitle = "ModsDotGroovy v${project.version} - Quilt plugin"
+}
+
+publishing {
+    publications {
+        register('stockPluginQuilt', MavenPublication) {
+            artifactId = 'quilt'
+            version = project.version
+
+            artifacts = [jar, sourcesJar, groovydocJar]
+        }
+    }
+}

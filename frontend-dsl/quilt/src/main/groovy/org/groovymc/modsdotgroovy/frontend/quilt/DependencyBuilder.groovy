@@ -15,6 +15,13 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor {
      */
     String id
 
+    /**@
+     * Alias for {@link #setVersions(String)}
+     */
+    void setVersion(final String version) {
+        core.put('versions', version)
+    }
+
     void setVersions(final String versions) {
         core.put('versions', versions)
     }
