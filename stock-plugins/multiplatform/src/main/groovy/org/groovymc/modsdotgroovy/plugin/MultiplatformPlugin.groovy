@@ -35,11 +35,10 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     }
 
     def setSourcesUrl(final String sourcesUrl) {
-        switch (currentPlatform) {
-            case Platform.FORGE:
-                return PluginResult.remove()
-            case Platform.FABRIC:
-                return PluginResult.move(['contact', 'sources'], sourcesUrl)
+        return switch (currentPlatform) {
+            case Platform.FORGE -> PluginResult.remove()
+            case Platform.FABRIC -> PluginResult.move(['contact', 'sources'], sourcesUrl)
+            default -> null
         }
     }
 
@@ -85,11 +84,10 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
 
             class Entrypoints {
                 def onNestEnter(final Deque<String> stack, final Map value) {
-                    switch (currentPlatform) {
-                        case Platform.FORGE:
-                            return PluginResult.remove()
-                        case Platform.FABRIC:
-                            return PluginResult.move(['entrypoints'], value)
+                    return switch (currentPlatform) {
+                        case Platform.FORGE -> PluginResult.remove()
+                        case Platform.FABRIC -> PluginResult.move(['entrypoints'], value)
+                        default -> null
                     }
                 }
             }

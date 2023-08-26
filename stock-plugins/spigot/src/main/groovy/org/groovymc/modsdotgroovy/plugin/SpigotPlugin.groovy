@@ -1,6 +1,5 @@
 package org.groovymc.modsdotgroovy.plugin
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
@@ -48,9 +47,9 @@ class SpigotPlugin extends ModsDotGroovyPlugin {
             throw new PluginResult.MDGPluginException('The website attribute must be a valid HTTP(S) URL.')
     }
 
-    PluginResult setLibraries(final List<String> libraries) {
+    void setLibraries(final List<String> libraries) {
         // todo
-        return new PluginResult.Unhandled()
+        throw new PluginResult.MDGPluginException('The libraries attribute is not yet supported.')
     }
 
     class Commands {

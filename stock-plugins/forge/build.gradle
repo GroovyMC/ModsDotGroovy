@@ -15,5 +15,5 @@ publishing {
 }
 
 dependencies {
-    implementation 'org.codehaus.groovy:groovy-json:3.0.13'
+    implementation 'org.apache.groovy:groovy-json:4.0.14'
 }

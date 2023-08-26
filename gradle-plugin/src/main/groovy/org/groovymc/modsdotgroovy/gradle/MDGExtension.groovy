@@ -63,7 +63,7 @@ abstract class MDGExtension {
     }
 
     void setPlatforms(final ArrayList<String> platforms) {
-        this.platforms.set(platforms.collect { Platform.of(it) })
+        this.platforms.set(platforms.collect { String name -> Platform.of(name) })
     }
 
     void setPlatforms(final List<Platform> platforms) {

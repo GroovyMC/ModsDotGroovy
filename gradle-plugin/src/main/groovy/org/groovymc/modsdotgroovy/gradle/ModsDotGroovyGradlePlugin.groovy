@@ -60,8 +60,8 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
         project.afterEvaluate {
             // make sure Groovy is loaded into mdgRuntime for IDE support
-            rootConfiguration.get().dependencies.add(project.dependencies.create('org.codehaus.groovy:groovy:3.0.13')) // todo: Groovy 4?
-            rootConfiguration.get().dependencies.add(project.dependencies.create('org.codehaus.groovy:groovy-json:3.0.13'))
+            rootConfiguration.get().dependencies.add(project.dependencies.create('org.apache.groovy:groovy:4.0.14'))
+            rootConfiguration.get().dependencies.add(project.dependencies.create('org.apache.groovy:groovy-json:4.0.14'))
 
             final List<Platform> platforms = mdgExtension.platforms.get().unique(false)
 
@@ -218,7 +218,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
     @CompileDynamic
     private <T extends AbstractConvertTask> AbstractConvertTask makeAndAppendConvertTask(FileWithSourceSet modsGroovy, Project project,
-                                                                                        String taskNameSuffix, Class<T> taskType, String destDir = '') {
+                                                                                         String taskNameSuffix, Class<T> taskType, String destDir = '') {
         final T convertTask = project.tasks.create("modsDotGroovyTo${taskNameSuffix}", taskType) {
             notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
             dependsOn project.configurations.named(CONFIGURATION_NAME_ROOT)

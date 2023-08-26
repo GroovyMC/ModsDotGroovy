@@ -11,10 +11,12 @@ class MapUtils {
     static void sanitizeMap(final Map data) {
         final copy = new LinkedHashMap(data) // cannot use Map.copyOf as we wish to remove null values
         copy.forEach((key, value) -> {
-            if (value === null) data.remove(key)
-            else if (value instanceof List) value.removeIf { it === null }
-            else if (value instanceof Map) sanitizeMap(value)
-            else if (value instanceof GString) data[key] = value.toString()
+            switch (value) {
+                case null -> data.remove(key)
+                case List -> (value as List).removeIf(it -> it === null)
+                case Map -> sanitizeMap(value as Map)
+                case GString -> data[key] = value.toString()
+            }
         })
     }
 

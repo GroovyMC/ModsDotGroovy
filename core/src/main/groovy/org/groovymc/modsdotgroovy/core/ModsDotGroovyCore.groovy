@@ -213,13 +213,10 @@ final class ModsDotGroovyCore {
         final Object delegateObject = result.v1
 
         if (useGenericMethod) {
-            switch (action) {
-                case PluginAction.SET:
-                    return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
-                case PluginAction.ON_NEST_ENTER:
-                    return PluginResult.of(plugin.onNestEnter(eventStack, propertyName, (Map) propertyValue))
-                case PluginAction.ON_NEST_LEAVE:
-                    return PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
+            return switch (action) {
+                case PluginAction.SET -> PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
+                case PluginAction.ON_NEST_ENTER -> PluginResult.of(plugin.onNestEnter(eventStack, propertyName, (Map) propertyValue))
+                case PluginAction.ON_NEST_LEAVE -> PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
             }
         } else {
             final String methodName = action === PluginAction.SET
@@ -278,7 +275,7 @@ final class ModsDotGroovyCore {
                 Object oldObject = (Object) delegateObject
                 try {
                     delegateObject = delegateObject[s]
-                    if (delegateObject == null) {
+                    if (delegateObject === null) {
                         found = false
                     }
                     pluginObject.initializeNest(key, delegateObject)
@@ -292,7 +289,7 @@ final class ModsDotGroovyCore {
                     } catch (IllegalStateException ignored2) {
                         // ignore
                     }
-                    if (innerClass != null) {
+                    if (innerClass !== null) {
                         boolean has1 = false
                         if (innerClass.constructors.any {
                             if ((it.modifiers & Modifier.PUBLIC) == 0) return false
@@ -329,7 +326,7 @@ final class ModsDotGroovyCore {
     @Memoized
     private static Class<?> findFirstInnerClass(Class<?> clazz, String name) {
         var innerClass = clazz.classes.find {it.simpleName == name}
-        if (innerClass != null) return innerClass
+        if (innerClass !== null) return innerClass
 
         var matchesFromInterfaces = clazz.interfaces.collect {
             findFirstInnerClass(it, name)

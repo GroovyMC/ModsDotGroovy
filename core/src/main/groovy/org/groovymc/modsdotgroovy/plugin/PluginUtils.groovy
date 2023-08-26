@@ -9,7 +9,7 @@ import java.util.regex.Pattern
  * Some useful validation methods for plugins.
  */
 @CompileStatic
-class PluginUtils {
+final class PluginUtils {
     private static final Pattern HTTP_URL_PATTERN = Pattern.compile($/^https?:///$, Pattern.CASE_INSENSITIVE) // matches http:// and https://
     private static final Pattern STARTS_WITH_NUMBER_PATTERN = ~/^\d/
 

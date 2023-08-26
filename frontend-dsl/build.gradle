@@ -21,7 +21,7 @@ subprojects {
     }
 
     dependencies {
-        implementation 'org.codehaus.groovy:groovy:3.0.13'
+        implementation 'org.apache.groovy:groovy:4.0.14'
         implementation projects.core
         compileOnly 'org.jetbrains:annotations:24.0.1'
     }

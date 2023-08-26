@@ -17,7 +17,7 @@ class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
     @Nullable String minecraft
 
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependencyBuilder')
+             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.DependencyBuilder')
              final Closure closure) {
         log.debug "mod(closure)"
         core.push('dependency')
@@ -30,7 +30,8 @@ class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
 
     void mod(final String modId,
              @DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'modsdotgroovy.DependencyBuilder') final Closure closure) {
+             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.DependencyBuilder')
+             final Closure closure) {
         log.debug "mod(string, closure)"
         core.push('dependency')
         final dependencyBuilder = new DependencyBuilder(core)

@@ -5,10 +5,8 @@
 
 package org.groovymc.modsdotgroovy.gradle
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.groovymc.modsdotgroovy.core.Platform
-import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.transform.MDGBindingAdder
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
