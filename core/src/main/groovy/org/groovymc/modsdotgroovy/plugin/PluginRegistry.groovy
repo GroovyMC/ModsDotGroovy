@@ -19,7 +19,7 @@ final class PluginRegistry {
 
     PluginRegistry() {
         // Load plugins
-        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin).asCollection())
+        plugins.addAll(ServiceLoader.load(ModsDotGroovyPlugin, this.class.classLoader).asCollection())
         if (plugins.isEmpty()) throw new IllegalStateException('No plugins found!')
         log.info "Loaded plugins: ${Writer writer -> writer << plugins.collect {"[${it.name} v${it.version}]" }.join(', ')}"
     }

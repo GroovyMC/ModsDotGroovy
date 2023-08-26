@@ -20,4 +20,4 @@ enableFeaturePreview Feature.TYPESAFE_PROJECT_ACCESSORS.name()
 
 includeBuild('../')
 
-include 'forge', 'fabric', 'quilt', 'multiplatform'
+include 'forge', 'fabric', 'quilt', 'spigot', 'multiplatform'

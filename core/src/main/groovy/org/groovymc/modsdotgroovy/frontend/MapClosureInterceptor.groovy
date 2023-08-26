@@ -19,7 +19,7 @@ trait MapClosureInterceptor {
         if (args.size() > 0 && args[0] instanceof Closure) {
             final closure = args[0] as Closure
             core.push(name)
-            final map = [:].withTraits(PropertyInterceptor, MapClosureInterceptor)
+            final map = new MapClosureDslBuilder(core)
             closure.delegate = map
             closure.call(map)
             core.pop()

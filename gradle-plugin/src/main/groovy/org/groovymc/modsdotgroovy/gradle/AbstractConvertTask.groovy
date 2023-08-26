@@ -5,6 +5,7 @@
 
 package org.groovymc.modsdotgroovy.gradle
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
@@ -119,6 +120,7 @@ abstract class AbstractConvertTask extends DefaultTask {
         return getLibsExtension(project.parent, name)
     }
 
+    @CompileStatic
     protected static Map versionCatalogToMap(VersionCatalog catalog) {
         if (catalog === null)
             return [:]
@@ -190,9 +192,12 @@ abstract class AbstractConvertTask extends DefaultTask {
 
     @CompileStatic
     Map from(File script) {
+        // The default Gradle classloader breaks the Java ServiceLoader, so we need to use our own classloader
+        final ClassLoader mdgClassLoader = new URLClassLoader(mdgRuntimeFiles.get().collect { it.toURI().toURL() } as URL[])
+
         final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
-        compilerConfig.classpathList = mdgRuntimeFiles.get().collect { it.toString() }
-        println compilerConfig.classpath
+        compilerConfig.classpathList = mdgClassLoader.URLs*.toString()
+        println "mdgClassLoader classpath: ${mdgClassLoader.URLs}"
 
         final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingAdder)
         final Platform platform = arguments.get()['platform'] as Platform
@@ -202,8 +207,14 @@ abstract class AbstractConvertTask extends DefaultTask {
         compilerConfig.addCompilationCustomizers(bindingAdderTransform)
 
         final bindings = new Binding(arguments.get())
-        final shell = new GroovyShell(getClass().classLoader, bindings, compilerConfig)
-        return ((ModsDotGroovyFrontend) shell.evaluate(script)).core.build()
+        final shell = new GroovyShell(mdgClassLoader, bindings, compilerConfig)
+        // set context classloader to MDG classloader so that transitive dependencies work correctly
+        shell.evaluate('Thread.currentThread().contextClassLoader = this.class.classLoader')
+        return fromScriptResult(shell.evaluate(script))
+    }
+
+    private static Map fromScriptResult(Object scriptResult) {
+        return scriptResult.core.build()
     }
 
     @SuppressWarnings('unused')
