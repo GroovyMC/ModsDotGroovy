@@ -2,7 +2,7 @@
 (todo: badge)
 
 ModsDotGroovy v2 is a tool that allows writing Minecraft mod metadata files in Groovy which is then compiled down to
-a `mods.toml`, `fabric.mod.json` and/or `quilt.mod.json` when the mod is built.
+a `mods.toml`, `fabric.mod.json`, `quilt.mod.json` and/or `plugin.yml` when the mod is built.
 
 It features a swappable frontend for adjusting IDE suggestions based on your target mod loader and a plugin system for
 adding support for new platforms and functionality.
@@ -37,6 +37,7 @@ Refer to the documentation for your specific platform for more details:
 - [Forge]() (todo)
 - [Fabric]() (todo)
 - [Quilt]() (todo)
+- [Spigot]() (todo)
 - [Multiplatform]() (todo)
 
 However, the following is a general guide that should work in most cases:

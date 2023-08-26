@@ -18,5 +18,5 @@ enableFeaturePreview Feature.GROOVY_COMPILATION_AVOIDANCE.name()
 enableFeaturePreview Feature.TYPESAFE_PROJECT_ACCESSORS.name()
 
 include 'core', 'gradle-plugin',
-        'frontend-dsl:forge', 'frontend-dsl:fabric', 'frontend-dsl:quilt', 'frontend-dsl:multiplatform',
-        'stock-plugins:forge', 'stock-plugins:fabric', 'stock-plugins:quilt', 'stock-plugins:multiplatform'
+        'frontend-dsl:forge', 'frontend-dsl:fabric', 'frontend-dsl:quilt', 'frontend-dsl:spigot', 'frontend-dsl:multiplatform',
+        'stock-plugins:forge', 'stock-plugins:fabric', 'stock-plugins:quilt', 'stock-plugins:spigot', 'stock-plugins:multiplatform'

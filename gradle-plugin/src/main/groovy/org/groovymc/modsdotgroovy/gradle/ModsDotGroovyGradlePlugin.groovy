@@ -77,6 +77,8 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:fabric'))
                     } else if (platforms.contains(Platform.QUILT)) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:quilt'))
+                    } else if (platforms.contains(Platform.SPIGOT)) {
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:spigot'))
                     } else {
                         throw new UnsupportedOperationException("""
                             There is no stock frontend DSL available for ${platforms} on this version of ModsDotGroovy.

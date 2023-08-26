@@ -1,0 +1,15 @@
+groovydoc {
+    source = sourceSets.main.allSource
+    docTitle = "ModsDotGroovy v${project.version} - Frontend Spigot DSL"
+}
+
+publishing {
+    publications {
+        register('frontendDslSpigot', MavenPublication) {
+            artifactId = 'spigot'
+            version = project.version
+
+            artifacts = [jar, sourcesJar, groovydocJar]
+        }
+    }
+}

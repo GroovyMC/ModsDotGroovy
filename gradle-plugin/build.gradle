@@ -18,12 +18,14 @@ repositories {
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
+
     implementation projects.core
     implementation projects.stockPlugins.forge
     implementation projects.stockPlugins.fabric
     implementation projects.stockPlugins.quilt
     implementation projects.stockPlugins.multiplatform
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+    implementation 'org.yaml:snakeyaml:2.1'
 }
 
 pluginBundle {

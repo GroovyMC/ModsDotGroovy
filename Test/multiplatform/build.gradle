@@ -6,7 +6,7 @@ dependencies {
 }
 
 modsDotGroovy {
-    // multiplatform support is unimplemented in the Gradle plugin
+    // multiplatform support is currently unimplemented in the Gradle plugin
     //platforms = [Platform.FORGE, Platform.FABRIC]
     automaticConfiguration = false
 }

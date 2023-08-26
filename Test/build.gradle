@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.groovymc.modsdotgroovy' version '2.0.0-beta.1'
+    id 'org.groovymc.modsdotgroovy'
 }
 
 repositories {
@@ -20,8 +20,11 @@ subprojects {
     }
 }
 
+// we only want to apply modsDotGroovy to the subprojects, not this root project
 modsDotGroovy {
-    automaticConfiguration = false // we only want automatic configuration for the subprojects, not this root project
+    automaticConfiguration = false
+    setupDsl = false
+    setupPlugins = false
 }
 
 // To test all platforms at once, run the build task for this root ModsDotGroovy-Test project.

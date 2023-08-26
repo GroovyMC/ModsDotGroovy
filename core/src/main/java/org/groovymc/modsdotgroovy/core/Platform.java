@@ -13,6 +13,7 @@ public record Platform(String name) implements Serializable {
     public static final Platform FORGE = new Platform("forge");
     public static final Platform FABRIC = new Platform("fabric");
     public static final Platform QUILT = new Platform("quilt");
+    public static final Platform SPIGOT = new Platform("spigot");
     public static final Platform UNKNOWN = new Platform("unknown");
 
     public String toString() {
@@ -48,6 +49,7 @@ public record Platform(String name) implements Serializable {
             case "forge" -> FORGE;
             case "fabric" -> FABRIC;
             case "quilt" -> QUILT;
+            case "spigot" -> SPIGOT;
             default -> {
                 final var platform = REGISTRY.get(name);
                 if (platform == null)

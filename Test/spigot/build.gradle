@@ -1,0 +1,10 @@
+import org.groovymc.modsdotgroovy.core.Platform
+
+modsDotGroovy {
+    platform = Platform.SPIGOT
+    //setupPlugins = false
+}
+
+dependencies {
+    //mdgPlugin 'org.groovymc.modsdotgroovy.stock-plugins:spigot'
+}
