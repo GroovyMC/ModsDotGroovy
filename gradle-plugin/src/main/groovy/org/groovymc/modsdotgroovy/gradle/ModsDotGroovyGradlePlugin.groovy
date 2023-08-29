@@ -178,7 +178,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 //                    }
                 }
             }
-            println "deps: ${rootConfiguration.get().dependencies.collect({ it.group + ':' + it.name + ':' + it.version })}"
+            //println "deps: ${rootConfiguration.get().dependencies.collect({ it.group + ':' + it.name + ':' + it.version })}"
         }
     }
 

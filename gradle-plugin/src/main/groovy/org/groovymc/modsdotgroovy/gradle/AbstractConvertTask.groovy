@@ -197,7 +197,7 @@ abstract class AbstractConvertTask extends DefaultTask {
 
         final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
         compilerConfig.classpathList = mdgClassLoader.URLs*.toString()
-        println "mdgClassLoader classpath: ${compilerConfig.classpath}"
+        //println "mdgClassLoader classpath: ${compilerConfig.classpath}"
 
         final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingAdder)
         final Platform platform = arguments.get()['platform'] as Platform
