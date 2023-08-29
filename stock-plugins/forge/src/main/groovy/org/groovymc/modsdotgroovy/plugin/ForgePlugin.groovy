@@ -6,7 +6,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
 import java.net.http.HttpClient
@@ -29,6 +29,11 @@ class ForgePlugin extends ModsDotGroovyPlugin {
         log.debug "modLoader: ${modLoader}"
         if (PluginUtils.startsWithNumber(modLoader))
             throw new PluginResult.MDGPluginException('modLoader must not start with a number.')
+    }
+
+    PluginResult setLoaderVersion(final VersionRange loaderVersion) {
+        log.debug "loaderVersion: ${loaderVersion}"
+        return new PluginResult.Change(newValue: loaderVersion.toMaven())
     }
 
     void setLicense(final String license) {
@@ -157,7 +162,13 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 
                 class Dependency {
                     @Nullable String modId = null
-                    @Nullable String versionRange = null
+                    @Nullable VersionRange versionRange = null
+
+                    PluginResult setVersionRange(final VersionRange versionRange) {
+                        log.debug "mods.modInfo.dependencies.dependency.versionRange: ${versionRange}"
+                        this.versionRange = versionRange
+                        return new PluginResult.Change(newValue: versionRange.toMaven())
+                    }
 
                     PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                         log.debug "mods.modInfo.dependencies.dependency.onNestLeave"

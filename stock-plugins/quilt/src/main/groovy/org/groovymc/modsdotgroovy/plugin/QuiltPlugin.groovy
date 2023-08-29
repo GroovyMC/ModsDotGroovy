@@ -4,6 +4,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
@@ -21,6 +22,14 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
     @Override
     Logger getLog() {
         return log
+    }
+
+    PluginResult setSchemaVersion(final int schemaVersion) {
+        log.debug "schemaVersion: ${schemaVersion}"
+        if (schemaVersion !== 1)
+            throw new PluginResult.MDGPluginException('schemaVersion must be 1')
+
+        return PluginResult.rename('schema_version', schemaVersion)
     }
 
     PluginResult setGroup(final String group) {
@@ -80,7 +89,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
 
         PluginResult onNestLeave(final Deque<String> stack, final Map value) {
             log.debug "jars.onNestLeave: ${value}"
-            return PluginResult.move(['quilt_loader', 'jars'], jars)
+            return PluginResult.move(['quilt_loader'], jars)
         }
 
         void onNestEnter(final Deque<String> stack, final Map value) {
@@ -115,7 +124,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
 
         PluginResult onNestLeave(final Deque<String> stack, final Map value) {
             log.info "depends.onNestLeave: ${value}"
-            return PluginResult.move(['quilt_loader', 'depends'], value)
+            return PluginResult.move(['quilt_loader'], value)
         }
     }
 
@@ -124,7 +133,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
 
         PluginResult onNestLeave(final Deque<String> stack, final Map value) {
             log.info "breaks.onNestLeave: ${value}"
-            return PluginResult.move(['quilt_loader', 'breaks'], value)
+            return PluginResult.move(['quilt_loader'], value)
         }
     }
 
@@ -134,6 +143,9 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
 
         PluginResult onNestLeave(final Deque<String> stack, final Map value) {
             log.info "mod.onNestLeave: ${value}"
+            if (versions instanceof VersionRange)
+                versions = versions.toSemver()
+
             return PluginResult.rename(id, versions)
         }
     }
@@ -212,7 +224,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
 
         PluginResult onNestLeave(final Deque<String> stack, final Map value) {
             log.debug "metadata.onNestLeave: ${value}"
-            return PluginResult.move(['quilt_loader', 'metadata'], value)
+            return PluginResult.move(['quilt_loader'], value)
         }
     }
 

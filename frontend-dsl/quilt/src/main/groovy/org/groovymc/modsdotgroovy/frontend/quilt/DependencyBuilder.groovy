@@ -3,6 +3,8 @@ package org.groovymc.modsdotgroovy.frontend.quilt
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.core.versioning.VersionRange
+import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.jetbrains.annotations.Nullable
@@ -18,17 +20,17 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor {
     /**@
      * Alias for {@link #setVersions(String)}
      */
-    void setVersion(final String version) {
-        core.put('versions', version)
+    void setVersion(final @VersionRangeAware String version) {
+        core.put('versions', new VersionRange(version))
     }
 
-    void setVersions(final String versions) {
-        core.put('versions', versions)
+    void setVersions(final @VersionRangeAware String versions) {
+        core.put('versions', new VersionRange(versions))
     }
 
     @Deprecated
-    void setVersions(final List<String> versions) {
-        core.put('versions', versions)
+    void setVersions(final @VersionRangeAware List<String> versions) {
+        core.put('versions', new VersionRange(versions))
     }
 
     // todo: support object type for versions field. https://github.com/QuiltMC/rfcs/blob/main/specification/0002-quilt.mod.json.md#object

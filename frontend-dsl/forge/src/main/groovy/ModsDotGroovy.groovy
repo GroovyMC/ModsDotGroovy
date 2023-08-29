@@ -4,6 +4,7 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.ModInfoBuilder
 import org.groovymc.modsdotgroovy.frontend.ModsBuilder
@@ -55,6 +56,7 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
     /**@
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
+    @VersionRangeAware
     String loaderVersion = '[1,)'
 
     /**@

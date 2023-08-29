@@ -3,6 +3,8 @@ package org.groovymc.modsdotgroovy.frontend.fabric
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.core.versioning.VersionRange
+import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
@@ -11,12 +13,12 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 class DependencyBuilder extends DslBuilder implements PropertyInterceptor {
     String modId
 
-    void setVersionRange(final String versionRange) {
-        core.put('versionRange', versionRange)
+    void setVersionRange(final @VersionRangeAware String versionRange) {
+        core.put('versionRange', new VersionRange(versionRange))
     }
 
-    void setVersionRange(final List<String> versionRange) {
-        core.put('versionRange', versionRange)
+    void setVersionRange(final @VersionRangeAware List<String> versionRange) {
+        core.put('versionRange', new VersionRange(versionRange))
     }
 
     DependencyBuilder(final ModsDotGroovyCore core) {

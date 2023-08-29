@@ -6,6 +6,7 @@
 package org.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.CompileStatic
+import org.groovymc.modsdotgroovy.core.MapUtils
 import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.transform.MDGBindingAdder
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -107,7 +108,7 @@ abstract class AbstractConvertTask extends DefaultTask {
                     return false
             }
             return true
-        } as Map<String, Object>
+        }
     }
 
     protected static VersionCatalog getLibsExtension(Project project, String name) {
@@ -154,8 +155,9 @@ abstract class AbstractConvertTask extends DefaultTask {
         return out
     }
 
+    @CompileStatic
     protected static void writeByPartwise(Map root, String path, Object value) {
-        List<String> parts = path.split(/\./).collect(String::trim).findAll(String::isEmpty)
+        final List<String> parts = path.split(/\./).collect(String.&trim).findAll(String.&isEmpty)
         if (parts.size() === 1)
             root[parts[0]] = value
         else if (parts.size() >= 1) {
@@ -181,7 +183,7 @@ abstract class AbstractConvertTask extends DefaultTask {
             logger.warn("Input file {} for task '{}' could not be found!", input, getName())
             return
         }
-        final Map data = from(input)
+        final Map data = MapUtils.recursivelyConvertToPrimitives(from(input))
         final outPath = getOutput().get().asFile.toPath()
         if (outPath.parent !== null && !Files.exists(outPath.parent)) Files.createDirectories(outPath.parent)
         Files.deleteIfExists(outPath)
@@ -195,7 +197,7 @@ abstract class AbstractConvertTask extends DefaultTask {
 
         final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
         compilerConfig.classpathList = mdgClassLoader.URLs*.toString()
-        println "mdgClassLoader classpath: ${mdgClassLoader.URLs}"
+        println "mdgClassLoader classpath: ${compilerConfig.classpath}"
 
         final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingAdder)
         final Platform platform = arguments.get()['platform'] as Platform
@@ -211,7 +213,7 @@ abstract class AbstractConvertTask extends DefaultTask {
         return fromScriptResult(shell.evaluate(script))
     }
 
-    private static Map fromScriptResult(Object scriptResult) {
+    private static Map fromScriptResult(def scriptResult) {
         return scriptResult.core.build()
     }
 

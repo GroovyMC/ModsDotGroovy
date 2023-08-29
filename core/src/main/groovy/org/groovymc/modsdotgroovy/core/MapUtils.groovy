@@ -65,4 +65,27 @@ class MapUtils {
         }
         return result
     }
+
+    static Map recursivelyConvertToPrimitives(final Map map) {
+        return map.inject([:]) { result, key, value ->
+            switch (value) {
+                case Map -> result[key] = recursivelyConvertToPrimitives(value as Map)
+                case List -> result[key] = recursivelyConvertToPrimitives(value as List)
+                case Number, Boolean, Character, String -> result[key] = value
+                default -> result[key] = value.toString()
+            }
+            return result
+        }
+    }
+
+    static List recursivelyConvertToPrimitives(final List list) {
+        return list.collect { listItem ->
+            switch (listItem) {
+                case Map -> recursivelyConvertToPrimitives(listItem as Map)
+                case List -> recursivelyConvertToPrimitives(listItem as List)
+                case Number, Boolean, Character, String -> listItem
+                default -> listItem.toString()
+            }
+        }
+    }
 }

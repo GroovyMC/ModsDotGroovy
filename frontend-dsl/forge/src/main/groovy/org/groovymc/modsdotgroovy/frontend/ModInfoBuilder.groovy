@@ -41,7 +41,6 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
      */
     @Nullable String displayUrl
 
-    // todo: change type to a File instead of a String
     /**
      * A file name (in the root of the mod JAR) containing a logo for display in the in-game Mods screen.
      */
@@ -54,8 +53,9 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
 
     /**
      * Display Test controls the display for your mod in the server connection screen.
+     * <p>Tip: Use the {@code DisplayTest} enum when setting this.</p>
      */
-    def displayTest = null //DisplayTest.MATCH_VERSION // todo: fix type issue
+    def displayTest = 'MATCH_VERSION'
 
     /**
      * A multi-line description text for the mod, displayed in the in-game Mods screen.

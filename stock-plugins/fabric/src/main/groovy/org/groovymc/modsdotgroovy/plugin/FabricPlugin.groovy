@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
 import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
@@ -143,6 +144,9 @@ class FabricPlugin extends ModsDotGroovyPlugin {
 
         PluginResult onNestLeave(final Deque<String> stack, final Map value) {
             log.info "mod.onNestLeave: ${value}"
+            if (versionRange instanceof VersionRange)
+                versionRange = versionRange.toSemver()
+
             return PluginResult.rename(modId, versionRange)
         }
     }

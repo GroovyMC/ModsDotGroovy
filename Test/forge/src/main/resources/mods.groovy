@@ -1,6 +1,6 @@
 final mdg = ModsDotGroovy.make {
     modLoader = 'gml'
-    loaderVersion = '[1,)'
+    loaderVersion = rawVersionRange('[1,)')
 
     license = 'All Rights Reserved'
     issueTrackerUrl = 'https://example.com/issues'
@@ -27,20 +27,20 @@ final mdg = ModsDotGroovy.make {
             onForge {
                 mod {
                     modId = 'patchouli'
-                    versionRange = '[1.1,)'
+                    versionRange = '>=1.1'
                     ordering = DependencyOrdering.AFTER
                     side = DependencySide.BOTH
                 }
             }
 
             mod('exampledep') {
-                versionRange = '[1,)'
+                versionRange = '1.*'
                 side = DependencySide.CLIENT
                 mandatory = false
             }
 
             exampledep2 = '[1,)'
-            exampledep3 = "[${libs.versions['exampledep3']},)" as String // to test reading from version catalogues
+            exampledep3 = "[${libs.versions['exampledep3']},)" // to test reading from version catalogues
         }
 
         features {

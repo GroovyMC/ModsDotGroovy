@@ -5,7 +5,7 @@ import org.codehaus.groovy.runtime.StringGroovyMethods;
 
 @CompileStatic
 record Platform(String name) implements Serializable {
-    private static final Map<String, Platform> REGISTRY = new HashMap<>()
+    private static final Map<String, Platform> REGISTRY = [:]
 
     public static final Platform FORGE = new Platform("forge")
     public static final Platform FABRIC = new Platform("fabric")
@@ -49,15 +49,14 @@ record Platform(String name) implements Serializable {
             case "spigot" -> SPIGOT
             default -> {
                 final platform = REGISTRY.get(name)
-                if (platform == null)
-                    yield create ? new Platform(name) : UNKNOWN
-                else
+                if (platform === null) {
+                    yield create ? REGISTRY.putIfAbsent(name, new Platform(name)) : UNKNOWN
+                } else {
                     yield platform
+                }
             }
         }
     }
 
-    public Platform {
-        REGISTRY.putIfAbsent(name, this)
-    }
+    private Platform {}
 }

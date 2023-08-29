@@ -1,5 +1,6 @@
 package org.groovymc.modsdotgroovy.frontend.spigot
 
+import groovy.transform.AutoImplement
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
@@ -8,6 +9,7 @@ import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.jetbrains.annotations.NotNull
 
+@AutoImplement
 @CompileStatic
 @Log4j2(category = 'MDG - Spigot Frontend')
 class PermissionsBuilder extends DslBuilder implements Map<String, Void> {
@@ -58,62 +60,4 @@ class PermissionsBuilder extends DslBuilder implements Map<String, Void> {
     PermissionsBuilder(ModsDotGroovyCore core) {
         super(core)
     }
-
-    // Todo: Move to @AutoImplement once IntelliJ supports it again
-    //region Map boilerplate
-    @Override
-    int size() {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    boolean isEmpty() {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    boolean containsKey(Object key) {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    boolean containsValue(Object value) {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    Void put(String key, Void value) {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    Void remove(Object key) {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    void putAll(@NotNull Map<? extends String, ? extends Void> m) {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    void clear() {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    Set<String> keySet() {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    Collection<Void> values() {
-        throw new UnsupportedOperationException()
-    }
-
-    @Override
-    Set<Entry<String, Void>> entrySet() {
-        throw new UnsupportedOperationException()
-    }
-    //endregion Map boilerplate
 }
