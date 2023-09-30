@@ -1,0 +1,15 @@
+tasks.named('groovydoc', Groovydoc).configure {
+    source = sourceSets.main.allSource
+    docTitle = "ModsDotGroovy v${project.version} - NeoForge plugin"
+}
+
+publishing {
+    publications {
+        register('stockPluginNeoForge', MavenPublication) {
+            artifactId = 'neoforge'
+            version = project.version
+
+            artifacts = [jar, sourcesJar, groovydocJar]
+        }
+    }
+}

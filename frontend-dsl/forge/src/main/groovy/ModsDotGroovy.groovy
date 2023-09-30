@@ -68,7 +68,7 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
             closure.call()
     }
 
-    private ModsDotGroovy(final Map<String, ?> environment) {
+    protected ModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
     }
 

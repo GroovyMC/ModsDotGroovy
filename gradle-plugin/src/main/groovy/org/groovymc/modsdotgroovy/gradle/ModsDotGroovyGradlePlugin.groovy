@@ -78,13 +78,16 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 if (mdgExtension.setupDsl.get()) {
                     if (platforms.containsAll([Platform.FORGE, Platform.FABRIC])) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:multiplatform'))
-                    } else if (platforms.contains(Platform.FORGE)) {
+                    } else if (Platform.FORGE in platforms) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:forge'))
-                    } else if (platforms.contains(Platform.FABRIC)) {
+                    } else if (Platform.NEOFORGE in platforms) {
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:forge')) // for IDE support - IntelliJ doesn't recognise transitive deps in the base package
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:neoforge'))
+                    } else if (Platform.FABRIC in platforms) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:fabric'))
-                    } else if (platforms.contains(Platform.QUILT)) {
+                    } else if (Platform.QUILT in platforms) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:quilt'))
-                    } else if (platforms.contains(Platform.SPIGOT)) {
+                    } else if (Platform.SPIGOT in platforms) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:spigot'))
                     } else {
                         throw new UnsupportedOperationException("""
@@ -117,6 +120,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         switch (platform) {
                             case Platform.FORGE:
                                 makeAndAppendConvertTask(modsGroovy, project, 'Toml', ConvertToTomlTask, 'META-INF')
+                                break
+                            case Platform.NEOFORGE:
+                                makeAndAppendConvertTask(modsGroovy, project, 'Toml', ConvertToNeoForgeTomlTask, 'META-INF')
                                 break
                             case Platform.FABRIC:
                                 makeAndAppendConvertTask(modsGroovy, project, 'FabricJson', ConvertToFabricJsonTask)
@@ -185,16 +191,20 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         if (platforms.containsAll([Platform.FORGE, Platform.FABRIC]))
             mdgRuntimeDependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:multiplatform'))
 
-        if (platforms.contains(Platform.FORGE))
+        if (Platform.FORGE in platforms || Platform.NEOFORGE in platforms) {
             mdgRuntimeDependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:forge'))
 
-        if (platforms.contains(Platform.FABRIC))
+            if (Platform.NEOFORGE in platforms)
+                mdgRuntimeDependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:neoforge'))
+        }
+
+        if (Platform.FABRIC in platforms)
             mdgRuntimeDependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:fabric'))
 
-        if (platforms.contains(Platform.QUILT))
+        if (Platform.QUILT in platforms)
             mdgRuntimeDependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:quilt'))
 
-        if (platforms.contains(Platform.SPIGOT))
+        if (Platform.SPIGOT in platforms)
             mdgRuntimeDependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.stock-plugins:spigot'))
     }
 

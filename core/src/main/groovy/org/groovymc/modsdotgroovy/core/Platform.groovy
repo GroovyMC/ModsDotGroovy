@@ -7,13 +7,14 @@ record Platform(String name) implements Serializable {
     private static final Map<String, Platform> REGISTRY = [:]
 
     public static final Platform FORGE = new Platform("forge")
+    public static final Platform NEOFORGE = new Platform("neoForge")
     public static final Platform FABRIC = new Platform("fabric")
     public static final Platform QUILT = new Platform("quilt")
     public static final Platform SPIGOT = new Platform("spigot")
     public static final Platform UNKNOWN = new Platform("unknown")
 
     String toString() {
-        return name().toLowerCase(Locale.ROOT).capitalize()
+        return name().capitalize()
     }
 
     /**
@@ -43,6 +44,7 @@ record Platform(String name) implements Serializable {
         name = name.toLowerCase(Locale.ROOT)
         return switch (name) {
             case "forge" -> FORGE
+            case "neoforge" -> NEOFORGE
             case "fabric" -> FABRIC
             case "quilt" -> QUILT
             case "spigot" -> SPIGOT

@@ -1,0 +1,21 @@
+tasks.named('groovydoc', Groovydoc).configure {
+    source = sourceSets.main.allSource
+    docTitle = "ModsDotGroovy v${project.version} - Frontend NeoForge DSL"
+}
+
+publishing {
+    publications {
+        register('frontendDslNeoForge', MavenPublication) {
+            artifactId = 'neoforge'
+            version = project.version
+
+            artifacts = [jar, sourcesJar, groovydocJar]
+        }
+    }
+}
+
+dependencies {
+    implementation(projects.frontendDsl.forge) {
+        transitive = true
+    }
+}

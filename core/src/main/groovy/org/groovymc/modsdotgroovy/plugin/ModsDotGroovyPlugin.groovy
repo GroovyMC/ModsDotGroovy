@@ -38,7 +38,7 @@ abstract class ModsDotGroovyPlugin {
      * Called when the plugin is initialized. Use this to setup any resources you need and get information about the
      * environment you're running in.
      */
-    abstract void init(final Map<String, ?> environment)
+    void init(final Map<String, ?> environment) {}
 
     /**
      * A generic method that's called when a property is set.
