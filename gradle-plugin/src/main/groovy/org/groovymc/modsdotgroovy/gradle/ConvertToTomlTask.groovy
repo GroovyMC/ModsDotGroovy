@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2022 GroovyMC
- * SPDX-License-Identifier: MIT
- */
-
 package org.groovymc.modsdotgroovy.gradle
 
 import com.moandjiezana.toml.TomlWriter

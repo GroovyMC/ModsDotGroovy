@@ -101,7 +101,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             }
 
             if (mdgExtension.automaticConfiguration.get()) {
-                for (Platform platform : platforms) {
+                for (Platform platform in platforms) {
 //                    if (platform !== Platform.MULTILOADER) {
                         final SourceSetContainer srcSets = project.extensions.getByType(JavaPluginExtension).sourceSets
                         final srcSet = mdgExtension.source.isPresent() ? mdgExtension.source.get() : browse(srcSets) { new File(it, 'mods.groovy')}

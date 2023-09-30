@@ -28,4 +28,4 @@ modsDotGroovy {
 }
 
 // To test all platforms at once, run the build task for this root ModsDotGroovy-Test project.
-// To test a specific platform, run the build task for its subproject. For example, forge:build
+// To test a specific platform, run the build task for its subproject. For example: forge:build

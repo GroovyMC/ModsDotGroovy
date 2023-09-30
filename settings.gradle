@@ -1,5 +1,3 @@
-import org.gradle.api.internal.FeaturePreviews.Feature
-
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -14,8 +12,8 @@ buildCache {
     }
 }
 
-enableFeaturePreview Feature.GROOVY_COMPILATION_AVOIDANCE.name()
-enableFeaturePreview Feature.TYPESAFE_PROJECT_ACCESSORS.name()
+enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'
+enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 
 include 'core', 'gradle-plugin',
         'frontend-dsl:forge', 'frontend-dsl:fabric', 'frontend-dsl:quilt', 'frontend-dsl:spigot', 'frontend-dsl:multiplatform',

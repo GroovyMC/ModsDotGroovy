@@ -1,4 +1,4 @@
-groovydoc {
+tasks.named('groovydoc', Groovydoc).configure {
     source = sourceSets.main.allSource
     docTitle = "ModsDotGroovy v${project.version} - Spigot plugin"
 }
