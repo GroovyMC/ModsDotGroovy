@@ -29,6 +29,10 @@ abstract class ModsDotGroovyFrontend {
         return new BypassVersionRange(string)
     }
 
+    ModsDotGroovyCore getCore() {
+        return core
+    }
+
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
     ModsDotGroovyFrontend() {
         this([:])

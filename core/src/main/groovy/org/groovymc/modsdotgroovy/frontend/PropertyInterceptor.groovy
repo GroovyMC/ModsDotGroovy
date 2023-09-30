@@ -1,8 +1,9 @@
 package org.groovymc.modsdotgroovy.frontend
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.util.logging.Log4j2
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 
@@ -11,9 +12,12 @@ import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
  * Classes that use this trait to need to implement a non-null {@code private final ModsDotGroovyCore core}.
  */
 @CompileStatic
-@Log4j2(category = 'MDG - Frontend')
 trait PropertyInterceptor {
-    @CompileDynamic
+    abstract ModsDotGroovyCore getCore()
+
+    @Lazy
+    private final Logger log = LogManager.getLogger('MDG - Frontend')
+
     void setProperty(final String name, def value) {
         log.debug "setProperty(name: $name, value: $value) stack: ${core.getStack()}"
 

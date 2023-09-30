@@ -7,6 +7,10 @@ import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 abstract class DslBuilder {
     protected final ModsDotGroovyCore core
 
+    ModsDotGroovyCore getCore() {
+        return core
+    }
+
     @SuppressWarnings('GroovyUnusedDeclaration') // Used by the Groovy compiler for coercing an implicit `it` closure
     DslBuilder() {
         this.core = null
