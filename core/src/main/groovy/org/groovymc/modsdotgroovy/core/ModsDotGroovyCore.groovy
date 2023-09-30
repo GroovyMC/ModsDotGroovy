@@ -147,16 +147,10 @@ final class ModsDotGroovyCore {
                     if (change.newLocation !== null && (change.newValue != null || action == PluginAction.ON_NEST_ENTER)) {
                         log.debug "Plugin \"${plugin.name}\" moved nest \"${propertyName}\" from \"${event.oldStack.join '->'}\" to \"${change.newLocation.join '->'}\""
                         switch (action) {
-                            case PluginAction.ON_NEST_ENTER:
-                                relocate(change.newLocation)
-                                break
-                            case PluginAction.ON_NEST_LEAVE:
-                                move(propertyName, change.newLocation, change.newPropertyName, change.newValue)
-                                break
-                            default:
-                                throw new IllegalStateException("Unknown PluginAction type: ${action.class.name}")
+                            case PluginAction.ON_NEST_ENTER -> relocate(change.newLocation)
+                            case PluginAction.ON_NEST_LEAVE -> move(propertyName, change.newLocation, change.newPropertyName, change.newValue)
+                            default -> throw new IllegalStateException("Unknown PluginAction type: ${action.class.name}")
                         }
-                        break
                     }
                     if (change.newPropertyName !== null && change.newValue !== null) {
                         log.debug "Plugin \"${plugin.name}\" renamed nest \"${propertyName}\" to \"${change.newPropertyName}\""

@@ -60,8 +60,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
         project.afterEvaluate {
             // make sure Groovy is loaded into mdgRuntime for IDE support
-            rootConfiguration.get().dependencies.add(project.dependencies.create('org.apache.groovy:groovy:4.0.14'))
-            rootConfiguration.get().dependencies.add(project.dependencies.create('org.apache.groovy:groovy-json:4.0.14'))
+            rootConfiguration.get().dependencies.add(project.dependencies.create('org.apache.groovy:groovy:4.0.15'))
 
             final List<Platform> platforms = mdgExtension.platforms.get().unique(false)
 

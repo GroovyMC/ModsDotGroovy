@@ -21,7 +21,7 @@ subprojects {
     }
 
     dependencies {
-        implementation 'org.apache.groovy:groovy:4.0.14'
+        implementation 'org.apache.groovy:groovy:4.0.15'
         implementation projects.core
         compileOnly 'org.jetbrains:annotations:24.0.1'
     }
@@ -40,7 +40,7 @@ subprojects {
     tasks.register('groovydocJar', Jar).configure {
         archiveClassifier.set('javadoc')
         from groovydoc.destinationDir
-        dependsOn groovydoc
+        dependsOn 'groovydoc'
     }
 
     publishing {

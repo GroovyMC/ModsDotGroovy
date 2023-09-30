@@ -1,7 +1,6 @@
 package org.groovymc.modsdotgroovy.core
 
-import groovy.transform.CompileStatic;
-import org.codehaus.groovy.runtime.StringGroovyMethods;
+import groovy.transform.CompileStatic
 
 @CompileStatic
 record Platform(String name) implements Serializable {
@@ -14,7 +13,7 @@ record Platform(String name) implements Serializable {
     public static final Platform UNKNOWN = new Platform("unknown")
 
     String toString() {
-        return StringGroovyMethods.capitalize(name().toLowerCase(Locale.ROOT))
+        return name().toLowerCase(Locale.ROOT).capitalize()
     }
 
     /**

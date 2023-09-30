@@ -15,5 +15,7 @@ publishing {
 }
 
 dependencies {
-    implementation 'org.apache.groovy:groovy-json:4.0.14'
+    implementation('org.apache.groovy:groovy-json:4.0.15') {
+        transitive = true
+    }
 }
