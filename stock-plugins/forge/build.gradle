@@ -4,14 +4,18 @@ tasks.named('groovydoc', Groovydoc).configure {
 }
 
 publishing {
-    publications {
-        register('stockPluginForge', MavenPublication) {
-            artifactId = 'forge'
-            version = project.version
+    publications.register('stockPluginForge', MavenPublication) {
+        artifactId = 'forge'
+        version = project.version
 
-            artifacts = [jar, sourcesJar, groovydocJar]
-        }
+        artifacts = [jar, sourcesJar, groovydocJar]
+
+        // todo: pom
     }
+}
+
+signing {
+    sign publishing.publications.stockPluginForge
 }
 
 dependencies {

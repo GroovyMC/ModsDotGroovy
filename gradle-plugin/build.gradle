@@ -5,11 +5,11 @@ plugins {
     id 'groovy-gradle-plugin'
 
     id 'maven-publish'
-    id 'com.gradle.plugin-publish' version '0.18.0'
+    id 'com.gradle.plugin-publish' version '1.2.1'
 }
 
 group = 'org.groovymc.modsdotgroovy'
-archivesBaseName = 'modsdotgroovy'
+base.archivesName = 'modsdotgroovy'
 
 repositories {
     mavenCentral()
@@ -25,23 +25,25 @@ dependencies {
     implementation 'org.yaml:snakeyaml:2.1'
 }
 
-pluginBundle {
-    website = 'https://github.com/GroovyMC/ModsDotGroovy'
-}
-
 gradlePlugin {
+    website = vcsUrl = 'https://github.com/GroovyMC/ModsDotGroovy'
     plugins {
         modsdotgroovy {
             id = 'org.groovymc.modsdotgroovy'
             displayName = 'ModsDotGroovy'
             description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
             implementationClass = 'org.groovymc.modsdotgroovy.gradle.ModsDotGroovyGradlePlugin'
+            tags.set(['groovy', 'minecraft', 'forge', 'neoforge', 'fabric', 'quilt', 'spigot'])
         }
     }
 }
 
 java {
     withSourcesJar()
+    withJavadocJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 tasks.withType(GroovyCompile).configureEach {
@@ -50,13 +52,11 @@ tasks.withType(GroovyCompile).configureEach {
 }
 
 publishing {
-    publications {
-        register('gradlePlugin', MavenPublication) {
-            artifactId = 'modsdotgroovy'
-            version = project.version
+    publications.register('gradlePlugin', MavenPublication) {
+        artifactId = 'modsdotgroovy'
+        version = project.version
 
-            artifacts = [jar, sourcesJar]
-        }
+        artifacts = [jar, sourcesJar]
     }
 
     repositories {
@@ -64,8 +64,8 @@ publishing {
             name = 'ModdingInquisitionMavenRepo'
             url = 'https://maven.moddinginquisition.org/snapshots'
             credentials {
-                username = findProperty('inquisitionMavenUser') ?: ''
-                password = findProperty('inquisitionMavenPassword') ?: ''
+                username = System.getenv('MAVEN_USER') ?: findProperty('inquisitionMavenUser') ?: ''
+                password = System.getenv('MAVEN_PASSWORD') ?: findProperty('inquisitionMavenPassword') ?: ''
             }
         }
     }

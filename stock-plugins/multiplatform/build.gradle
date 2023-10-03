@@ -4,12 +4,16 @@ tasks.named('groovydoc', Groovydoc).configure {
 }
 
 publishing {
-    publications {
-        register('stockPluginMultiplatform', MavenPublication) {
-            artifactId = 'multiplatform'
-            version = project.version
+    publications.register('stockPluginMultiplatform', MavenPublication) {
+        artifactId = 'multiplatform'
+        version = project.version
 
-            artifacts = [jar, sourcesJar, groovydocJar]
-        }
+        artifacts = [jar, sourcesJar, groovydocJar]
+
+        // todo: pom
     }
+}
+
+signing {
+    sign publishing.publications.stockPluginMultiplatform
 }

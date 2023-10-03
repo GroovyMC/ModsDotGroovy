@@ -81,7 +81,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                     } else if (Platform.FORGE in platforms) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:forge'))
                     } else if (Platform.NEOFORGE in platforms) {
-                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:forge')) // for IDE support - IntelliJ doesn't recognise transitive deps in the base package
+                        rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:forge')) // for IDE support - IntelliJ 2023.2 doesn't recognise transitive deps in the base package
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:neoforge'))
                     } else if (Platform.FABRIC in platforms) {
                         rootConfiguration.get().dependencies.add(project.dependencies.create('org.groovymc.modsdotgroovy.frontend-dsl:fabric'))

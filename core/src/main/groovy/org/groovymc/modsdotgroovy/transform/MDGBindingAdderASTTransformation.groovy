@@ -13,6 +13,7 @@ import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
+import org.codehaus.groovy.ast.tools.GeneralUtils
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
@@ -89,10 +90,8 @@ class MDGBindingAdderASTTransformation extends AbstractASTTransformation {
                     final ArgumentListExpression arguments = methodCallExpr.arguments as ArgumentListExpression
                     if (arguments.expressions.size() === 1) {
                         final ClosureExpression closureExpr = arguments.expressions[0] as ClosureExpression
-                        final ArgumentListExpression newArgs = new ArgumentListExpression()
-                        newArgs.addExpression(closureExpr)
-                        newArgs.addExpression(new MethodCallExpression(VariableExpression.THIS_EXPRESSION, 'getBinding', ArgumentListExpression.EMPTY_ARGUMENTS))
-                        methodCallExpr.arguments = newArgs
+                        final MethodCallExpression getBindingExpr = GeneralUtils.callX(VariableExpression.THIS_EXPRESSION, 'getBinding', ArgumentListExpression.EMPTY_ARGUMENTS)
+                        methodCallExpr.arguments = GeneralUtils.args(closureExpr, getBindingExpr)
                         return methodCallExpr
                     }
                 }

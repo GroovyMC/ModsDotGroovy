@@ -4,14 +4,18 @@ tasks.named('groovydoc', Groovydoc).configure {
 }
 
 publishing {
-    publications {
-        register('frontendDslNeoForge', MavenPublication) {
-            artifactId = 'neoforge'
-            version = project.version
+    publications.register('frontendDslNeoForge', MavenPublication) {
+        artifactId = 'neoforge'
+        version = project.version
 
-            artifacts = [jar, sourcesJar, groovydocJar]
-        }
+        artifacts = [jar, sourcesJar, groovydocJar]
+
+        // todo: pom
     }
+}
+
+signing {
+    sign publishing.publications.frontendDslNeoForge
 }
 
 dependencies {

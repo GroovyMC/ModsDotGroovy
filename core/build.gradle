@@ -21,7 +21,12 @@ tasks.withType(GroovyCompile).configureEach {
     options.incremental = true
 }
 
-java.withSourcesJar()
+java {
+    withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 publishing {
     publications {
