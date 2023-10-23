@@ -2,20 +2,20 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
     }
-    includeBuild('../')
+    includeBuild '../'
 }
 
 rootProject.name = 'ModsDotGroovy-Test'
 
 buildCache {
-    remote(HttpBuildCache) {
+    remote(HttpBuildCache) { HttpBuildCache cache -> cache.tap {
         url = 'https://gradlecache.groovymc.org/cache/'
-    }
+    }}
 }
 
 enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 
-includeBuild('../')
+includeBuild '../'
 
 include 'forge', 'neoforge', 'fabric', 'quilt', 'spigot', 'multiplatform'

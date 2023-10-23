@@ -1,19 +1,11 @@
 plugins {
     id 'idea'
-
-    id 'groovy'
     id 'groovy-gradle-plugin'
-
-    id 'maven-publish'
     id 'com.gradle.plugin-publish' version '1.2.1'
 }
 
 group = 'org.groovymc.modsdotgroovy'
 base.archivesName = 'modsdotgroovy'
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     implementation gradleApi()
@@ -38,19 +30,6 @@ gradlePlugin {
     }
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
-tasks.withType(GroovyCompile).configureEach {
-    groovyOptions.optimizationOptions.indy = true
-    options.incremental = true
-}
-
 publishing {
     publications.register('gradlePlugin', MavenPublication) {
         artifactId = 'modsdotgroovy'
@@ -58,15 +37,8 @@ publishing {
 
         artifacts = [jar, sourcesJar]
     }
+}
 
-    repositories {
-        maven {
-            name = 'ModdingInquisitionMavenRepo'
-            url = 'https://maven.moddinginquisition.org/snapshots'
-            credentials {
-                username = System.getenv('MAVEN_USER') ?: findProperty('inquisitionMavenUser') ?: ''
-                password = System.getenv('MAVEN_PASSWORD') ?: findProperty('inquisitionMavenPassword') ?: ''
-            }
-        }
-    }
+signing {
+    sign publishing.publications.gradlePlugin
 }

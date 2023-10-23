@@ -1,0 +1,68 @@
+plugins {
+    id 'groovy'
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+final String signingKey = System.getenv('SIGNING_KEY') ?: findProperty('groovyMCSigningKey') ?: ''
+final String signingPassword = System.getenv('SIGNING_PASSWORD') ?: findProperty('groovyMCSigningPassword') ?: ''
+final boolean hasSigningDetails = !signingKey.isEmpty() && !signingPassword.isEmpty()
+
+subprojects {
+    apply {
+        plugin 'groovy'
+        plugin 'java-library'
+        plugin 'maven-publish'
+        plugin 'signing'
+    }
+
+    java {
+        withSourcesJar()
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    tasks.withType(GroovyCompile).configureEach {
+        options.incremental = true
+        groovyOptions.optimizationOptions.indy = true
+        groovyOptions.optimizationOptions.groovyDoc = true
+        groovyOptions.optimizationOptions.runtimeGroovydoc = true
+    }
+
+    tasks.named('groovydoc', Groovydoc).configure {
+        use = true
+    }
+
+    tasks.register('groovydocJar', Jar).configure {
+        archiveClassifier = 'javadoc'
+        from groovydoc.destinationDir
+        dependsOn 'groovydoc'
+    }
+
+    signing {
+        if (hasSigningDetails) useInMemoryPgpKeys(signingKey, signingPassword)
+    }
+
+    tasks.withType(Sign).configureEach {
+        onlyIf { hasSigningDetails }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = 'ModdingInquisitionMavenRepo'
+                url = 'https://maven.moddinginquisition.org/snapshots'
+                credentials {
+                    username = System.getenv('MAVEN_USER') ?: findProperty('inquisitionMavenUser') ?: ''
+                    password = System.getenv('MAVEN_PASSWORD') ?: findProperty('inquisitionMavenPassword') ?: ''
+                }
+            }
+        }
+    }
+}

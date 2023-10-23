@@ -19,7 +19,5 @@ signing {
 }
 
 dependencies {
-    implementation(projects.frontendDsl.forge) {
-        transitive = true
-    }
+    api projects.frontendDsl.forge
 }

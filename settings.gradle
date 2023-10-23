@@ -7,13 +7,34 @@ pluginManagement {
 rootProject.name = 'ModsDotGroovy'
 
 buildCache {
-    remote(HttpBuildCache) {
+    remote(HttpBuildCache) { HttpBuildCache cache -> cache.tap {
         url = 'https://gradlecache.groovymc.org/cache/'
-    }
+
+        final Map<String, String> projectProperties = startParameter.projectProperties
+        final String cacheUsername = System.getenv('CACHE_USERNAME') ?: projectProperties['groovyMCCacheUsername'] ?: ''
+        final String cachePassword = System.getenv('CACHE_PASSWORD') ?: projectProperties['groovyMCCachePassword'] ?: ''
+
+        if (!cacheUsername.isEmpty() && !cachePassword.isEmpty()) {
+            push = true
+            credentials {
+                username = cacheUsername
+                password = cachePassword
+            }
+        }
+    }}
 }
 
 enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            version('groovy4', '4.0.15')
+            library('groovy4', 'org.apache.groovy', 'groovy').versionRef('groovy4')
+        }
+    }
+}
 
 include 'core', 'gradle-plugin',
         'frontend-dsl:forge', 'frontend-dsl:neoforge', 'frontend-dsl:fabric', 'frontend-dsl:quilt', 'frontend-dsl:spigot', 'frontend-dsl:multiplatform',
