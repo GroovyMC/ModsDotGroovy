@@ -1,0 +1,32 @@
+name: Release Plugin
+concurrency: ci-${{ github.ref }}
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Setup Java
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+      - uses: gradle/gradle-build-action@v2
+        with:
+          cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/master') }}
+      - name: Publish - Central
+        run: ./gradlew publishMavenDslPublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository
+        env:
+          SONATYPE_USER: ${{ secrets.CENTRAL_MAVEN_USER }}
+          SONATYPE_PASSWORD: ${{ secrets.CENTRAL_MAVEN_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.GPG_KEY_PASSWORD }}
+      - name: Publish - Modding Inquisition Maven
+        run: ./gradlew publishMavenDslPublicationToModdingInquisitionMavenRepoRepository -PinquisitionPublish
+        env:
+          MAVEN_USER: ${{ secrets.MAVEN_PASSWORD }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_USER }}
+          SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.GPG_KEY_PASSWORD }}

@@ -194,3 +194,8 @@ project.tasks.register('configureTeamCityDSL') {
         println "##teamcity[buildNumber 'DSL: ${project.dsl_version}']"
     }
 }
+
+if (System.getenv('GPP_KEY')) {
+    ext['gradle.publish.key'] = System.getenv('GPP_KEY')
+    ext['gradle.publish.secret'] = System.getenv('GPP_SECRET')
+}
