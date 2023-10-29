@@ -31,5 +31,5 @@ signing {
 }
 
 dependencies {
-    api "org.apache.groovy:groovy-json:${libs.versions.groovy4}"
+    api libs.groovy4.json.get()
 }

@@ -4,6 +4,17 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'net.minecraftforge.gradleutils' version '2.+' apply false
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0-rc-1'
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl = uri('https://s01.oss.sonatype.org/service/local/')
+            username = System.getenv('SONATYPE_USER') ?: findProperty('groovyMCSonatypeUser') as String ?: ''
+            password = System.getenv('SONATYPE_PASSWORD') ?: findProperty('groovyMCSonatypePassword') as String ?: ''
+        }
+    }
 }
 
 final String signingKey = System.getenv('SIGNING_KEY') ?: findProperty('groovyMCSigningKey') ?: ''
@@ -31,9 +42,11 @@ subprojects {
 
     tasks.withType(GroovyCompile).configureEach {
         options.incremental = true
-        groovyOptions.optimizationOptions.indy = true
-        groovyOptions.optimizationOptions.groovyDoc = true
-        groovyOptions.optimizationOptions.runtimeGroovydoc = true
+        groovyOptions.optimizationOptions.with {
+            indy = true
+            groovyDoc = true
+            runtimeGroovydoc = true
+        }
     }
 
     tasks.named('groovydoc', Groovydoc).configure {

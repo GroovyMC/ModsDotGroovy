@@ -2,7 +2,7 @@ subprojects {
     group = 'org.groovymc.modsdotgroovy.stock-plugins'
 
     dependencies {
-        implementation libs.groovy4.get()
+        implementation libs.groovy4.core.get()
         implementation projects.core
         compileOnly 'org.jetbrains:annotations:24.0.1'
     }
