@@ -3,6 +3,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
+    id 'net.minecraftforge.gradleutils' version '2.+' apply false
 }
 
 final String signingKey = System.getenv('SIGNING_KEY') ?: findProperty('groovyMCSigningKey') ?: ''

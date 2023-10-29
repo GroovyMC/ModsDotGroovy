@@ -1,3 +1,5 @@
+import net.minecraftforge.gradleutils.PomUtils
+
 tasks.named('groovydoc', Groovydoc).configure {
     source = sourceSets.main.allSource
     docTitle = "ModsDotGroovy v${project.version} - Frontend Spigot DSL"
@@ -10,7 +12,17 @@ publishing {
 
         artifacts = [jar, sourcesJar, groovydocJar]
 
-        // todo: pom
+        pom {
+            name = 'mods.groovy frontend DSL for Spigot'
+            description = 'The frontend DSL for mods.groovy on Spigot'
+            url = 'https://github.com/GroovyMC/ModsDotGroovy'
+
+            PomUtils.setGitHubDetails(pom, 'GroovyMC', 'ModsDotGroovy')
+
+            licenses {
+                license PomUtils.Licenses.MIT
+            }
+        }
     }
 }
 

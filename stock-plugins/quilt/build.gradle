@@ -1,3 +1,5 @@
+import net.minecraftforge.gradleutils.PomUtils
+
 tasks.named('groovydoc', Groovydoc).configure {
     source = sourceSets.main.allSource
     docTitle = "ModsDotGroovy v${project.version} - Quilt plugin"
@@ -10,7 +12,17 @@ publishing {
 
         artifacts = [jar, sourcesJar, groovydocJar]
 
-        // todo: pom
+        pom {
+            name = 'mods.groovy stock plugin for Quilt'
+            description = 'The stock plugin for mods.groovy on Quilt'
+            url = 'https://github.com/GroovyMC/ModsDotGroovy'
+
+            PomUtils.setGitHubDetails(pom, 'GroovyMC', 'ModsDotGroovy')
+
+            licenses {
+                license PomUtils.Licenses.MIT
+            }
+        }
     }
 }
 
