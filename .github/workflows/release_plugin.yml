@@ -14,8 +14,6 @@ jobs:
         run: |
           echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
       - uses: gradle/gradle-build-action@v2
-        with:
-          cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/master') }}
       - name: Publish - Plugin Portal
         run: ./gradlew publishPlugins
         env:
