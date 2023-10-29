@@ -22,7 +22,10 @@ abstract class ConvertToTomlTask extends AbstractConvertTask {
         if (mcDependency !== null) {
             final version = mcDependency.version.split('-')
             arg('minecraftVersion', version[0])
-            arg('forgeVersion', version[1].split('_mapped_')[0])
+
+            if (version.length > 1) {
+                arg('forgeVersion', version[1].split('_mapped_')[0])
+            }
 
             final mcSplit = version[0].split('\\.')
             if (mcSplit.length > 1) {
