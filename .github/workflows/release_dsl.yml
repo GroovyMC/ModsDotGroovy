@@ -1,4 +1,4 @@
-name: Release Plugin
+name: Release DSL
 concurrency: ci-${{ github.ref }}
 on:
   workflow_dispatch:
