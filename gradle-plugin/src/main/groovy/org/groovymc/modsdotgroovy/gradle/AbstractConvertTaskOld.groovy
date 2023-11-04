@@ -1,9 +1,6 @@
 package org.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.CompileStatic
-import org.groovymc.modsdotgroovy.core.MapUtils
-import org.groovymc.modsdotgroovy.core.Platform
-import org.groovymc.modsdotgroovy.transform.MDGBindingAdder
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.gradle.api.DefaultTask
@@ -20,12 +17,15 @@ import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.language.jvm.tasks.ProcessResources
+import org.groovymc.modsdotgroovy.core.MapUtils
+import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.transform.MDGBindingAdder
 
 import javax.inject.Inject
 import java.nio.file.Files
 
 @CacheableTask
-abstract class AbstractConvertTask extends DefaultTask {
+abstract class AbstractConvertTaskOld extends DefaultTask {
     private static final CompilerConfiguration MDG_COMPILER_CONFIG = new CompilerConfiguration().tap {
         targetBytecode = JDK17
         optimizationOptions['indy'] = true
@@ -77,7 +77,7 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Inject
     protected abstract ObjectFactory getObjects()
 
-    AbstractConvertTask() {
+    AbstractConvertTaskOld() {
         notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
         environmentBlacklist.convention(['pass', 'password', 'token', 'key', 'secret'])
         output.convention(projectLayout.buildDirectory.dir(name).map {it.file(getOutputName())})

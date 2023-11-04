@@ -13,6 +13,8 @@ record Platform(String name) implements Serializable {
     public static final Platform SPIGOT = new Platform("spigot")
     public static final Platform UNKNOWN = new Platform("unknown")
 
+    public static final Set<Platform> STOCK_PLATFORMS = Set.of(FORGE, NEOFORGE, FABRIC, QUILT, SPIGOT)
+
     String toString() {
         return name().capitalize()
     }

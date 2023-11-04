@@ -1,5 +1,11 @@
 import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
 
 modsDotGroovy {
     platform = Platform.FABRIC
+}
+
+tasks.withType(AbstractGatherPlatformDetailsTask).configureEach {
+    minecraftVersion = '1.20.2'
+    platformVersion = '0.90.7'
 }

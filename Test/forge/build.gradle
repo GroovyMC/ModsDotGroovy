@@ -1,2 +1,11 @@
+import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
+import org.groovymc.modsdotgroovy.core.Platform
+
 // this file is empty because the ModsDotGroovy plugin (applied in the root Test project) defaults to Forge
 // out of the box, so no setup is needed
+// todo: make the above true again
+
+tasks.withType(AbstractGatherPlatformDetailsTask).configureEach {
+    minecraftVersion = '1.20.2'
+    platformVersion = '48.0.34'
+}
