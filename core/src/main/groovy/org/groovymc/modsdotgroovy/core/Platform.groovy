@@ -1,8 +1,15 @@
 package org.groovymc.modsdotgroovy.core
 
-import groovy.transform.CompileStatic
+import groovy.transform.*
+import groovy.transform.options.Visibility
 
+/*
+ * Note: This is an emulated record as Gradle 8.4 doesn't seem to support serialising native records into the configuration cache yet
+ */
 @CompileStatic
+@VisibilityOptions(constructor = Visibility.PRIVATE)
+@EqualsAndHashCode(pojo = true, cache = true, useGetters = false)
+@RecordOptions(mode = RecordTypeMode.EMULATE, toList = false, toMap = false)
 record Platform(String name) implements Serializable {
     private static final Map<String, Platform> REGISTRY = [:]
 
@@ -16,7 +23,7 @@ record Platform(String name) implements Serializable {
     public static final Set<Platform> STOCK_PLATFORMS = Set.of(FORGE, NEOFORGE, FABRIC, QUILT, SPIGOT)
 
     String toString() {
-        return name().capitalize()
+        return name.capitalize()
     }
 
     /**

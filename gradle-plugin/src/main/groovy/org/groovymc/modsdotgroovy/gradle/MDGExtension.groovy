@@ -13,11 +13,11 @@ import javax.inject.Inject
 class MDGExtension {
     @PackageScope static final String NAME = 'modsDotGroovy'
 
-    final SetProperty<Platform> platforms
-    final SetProperty<String> environmentBlacklist
-    final Property<Boolean> setupDsl
-    final Property<Boolean> setupPlugins
-    final Property<Boolean> setupTasks
+    private final SetProperty<Platform> platforms
+    private final SetProperty<String> environmentBlacklist
+    private final Property<Boolean> setupDsl
+    private final Property<Boolean> setupPlugins
+    private final Property<Boolean> setupTasks
 
     @Inject
     MDGExtension(ObjectFactory objects) {
@@ -35,6 +35,26 @@ class MDGExtension {
 
         this.setupTasks = objects.property(Boolean)
         this.setupTasks.convention(true)
+    }
+
+    SetProperty<Platform> getPlatforms() {
+        return platforms
+    }
+
+    SetProperty<String> getEnvironmentBlacklist() {
+        return environmentBlacklist
+    }
+
+    Property<Boolean> getSetupDsl() {
+        return setupDsl
+    }
+
+    Property<Boolean> getSetupPlugins() {
+        return setupPlugins
+    }
+
+    Property<Boolean> getSetupTasks() {
+        return setupTasks
     }
 
     void setPlatforms(Platform[] platforms) {
