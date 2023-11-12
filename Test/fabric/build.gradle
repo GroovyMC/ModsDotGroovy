@@ -1,11 +1,15 @@
 import org.groovymc.modsdotgroovy.core.Platform
-import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
+
+plugins {
+    id 'fabric-loom' version '1.4-SNAPSHOT'
+}
 
 modsDotGroovy {
     platform = Platform.FABRIC
 }
 
-tasks.withType(AbstractGatherPlatformDetailsTask).configureEach {
-    minecraftVersion = '1.20.2'
-    platformVersion = '0.90.7'
+dependencies {
+    minecraft 'com.mojang:minecraft:1.20.2'
+    mappings 'net.fabricmc:yarn:1.20.2+build.1:v2'
+    modImplementation 'net.fabricmc:fabric-loader:0.14.24'
 }

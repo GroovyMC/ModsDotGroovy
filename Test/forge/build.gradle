@@ -1,11 +1,17 @@
-import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
-import org.groovymc.modsdotgroovy.core.Platform
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+}
 
-// this file is empty because the ModsDotGroovy plugin (applied in the root Test project) defaults to Forge
-// out of the box, so no setup is needed
-// todo: make the above true again
+version = '1.0.0'
+group = 'com.example.examplemod'
+base.archivesName = 'examplemod'
 
-tasks.withType(AbstractGatherPlatformDetailsTask).configureEach {
-    minecraftVersion = '1.20.2'
-    platformVersion = '48.0.34'
+minecraft {
+    mappings channel: 'official', version: '1.20.2'
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.2-48.0.35'
 }

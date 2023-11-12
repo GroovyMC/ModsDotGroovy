@@ -1,5 +1,13 @@
 import org.groovymc.modsdotgroovy.core.Platform
 
+plugins {
+    id 'net.neoforged.gradle.userdev' version '7.0.26'
+}
+
 modsDotGroovy {
     platform = Platform.NEOFORGE
+}
+
+dependencies {
+    implementation 'net.neoforged:neoforge:20.2.35-beta'
 }

@@ -1,10 +1,11 @@
 import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
 
 modsDotGroovy {
     platform = Platform.SPIGOT
-    //setupPlugins = false
 }
 
-dependencies {
-    //mdgPlugin 'org.groovymc.modsdotgroovy.stock-plugins:spigot'
+tasks.withType(AbstractGatherPlatformDetailsTask).configureEach {
+    minecraftVersion = '1.20.2'
+    // platformVersion = '???' // todo: find out what this should be - Spigot's docs aren't obvious
 }

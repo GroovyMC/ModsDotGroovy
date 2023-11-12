@@ -9,9 +9,9 @@ import org.jetbrains.annotations.Nullable
 
 @CacheableTask
 @CompileStatic
-abstract class GatherFabricPlatformDetails extends AbstractGatherPlatformDetailsTask {
+abstract class GatherQuiltPlatformDetails extends GatherFabricPlatformDetails {
 
-    GatherFabricPlatformDetails() {
+    GatherQuiltPlatformDetails() {
         this.configurationName.convention('minecraft')
         this.dependencyJars.setFrom(project.provider(Collections::emptyList))
 
@@ -38,7 +38,7 @@ abstract class GatherFabricPlatformDetails extends AbstractGatherPlatformDetails
 
         if (platformVersion === null) {
             final @Nullable Dependency dep = project.configurations.findByName('modImplementation')?.dependencies?.find { dep ->
-                dep.name == 'fabric-loader' && dep.group == 'net.fabricmc'
+                dep.name == 'quilt-loader' && dep.group == 'org.quiltmc'
             }
             if (dep === null)
                 throw new IllegalStateException("""

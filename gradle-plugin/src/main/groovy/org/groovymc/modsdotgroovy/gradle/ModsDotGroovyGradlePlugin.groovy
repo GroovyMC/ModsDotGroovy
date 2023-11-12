@@ -19,6 +19,8 @@ import org.groovymc.modsdotgroovy.gradle.tasks.ConvertToToml
 import org.groovymc.modsdotgroovy.gradle.tasks.ConvertToYml
 import org.groovymc.modsdotgroovy.gradle.tasks.GatherFabricPlatformDetails
 import org.groovymc.modsdotgroovy.gradle.tasks.GatherForgePlatformDetails
+import org.groovymc.modsdotgroovy.gradle.tasks.GatherNeoForgePlatformDetails
+import org.groovymc.modsdotgroovy.gradle.tasks.GatherQuiltPlatformDetails
 
 @CompileStatic
 class ModsDotGroovyGradlePlugin implements Plugin<Project> {
@@ -140,8 +142,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 }
                 break
             case Platform.NEOFORGE:
-                // todo: gatherNeoForgePlatformDetails
+                project.tasks.register('gatherNeoForgePlatformDetails', GatherNeoForgePlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToToml', ConvertToToml) { ConvertToToml task ->
+                    task.dependsOn 'gatherNeoForgePlatformDetails'
                     task.mdgRuntimeFiles.from(
                             project.configurations.named(CONFIGURATION_NAME_ROOT),
                             project.configurations.named(CONFIGURATION_NAME_PLUGIN),
@@ -174,8 +177,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 }
                 break
             case Platform.QUILT:
-                // todo: gatherQuiltPlatformDetails
+                project.tasks.register('gatherQuiltPlatformDetails', GatherQuiltPlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToJson', ConvertToJson) { ConvertToJson task ->
+                    task.dependsOn 'gatherQuiltPlatformDetails'
                     task.mdgRuntimeFiles.from(
                             project.configurations.named(CONFIGURATION_NAME_ROOT),
                             project.configurations.named(CONFIGURATION_NAME_PLUGIN),

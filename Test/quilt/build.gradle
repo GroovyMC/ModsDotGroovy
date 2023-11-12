@@ -1,5 +1,23 @@
 import org.groovymc.modsdotgroovy.core.Platform
 
+plugins {
+    id 'org.quiltmc.loom' version '1.4.1'
+}
+
 modsDotGroovy {
     platform = Platform.QUILT
+}
+
+loom {
+    mods {
+        'example_mod' {
+            sourceSet 'main'
+        }
+    }
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.20.1'
+    mappings 'org.quiltmc:quilt-mappings:1.20.1+build.23:intermediary-v2'
+    modImplementation 'org.quiltmc:quilt-loader:0.21.0'
 }

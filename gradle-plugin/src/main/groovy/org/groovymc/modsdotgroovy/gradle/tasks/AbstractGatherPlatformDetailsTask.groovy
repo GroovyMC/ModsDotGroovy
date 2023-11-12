@@ -52,6 +52,7 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
     }
 
     // defined here to trigger the task when dep versions change
+    @Optional // some platforms don't have a resolvable configuration for this - in which case, this should be set to empty
     @InputFiles
     @Classpath
     protected ConfigurableFileCollection getDependencyJars() {
