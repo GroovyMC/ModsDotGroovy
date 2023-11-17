@@ -371,7 +371,7 @@ class ModsDotGroovy {
     }
 
     /**
-     * Declare a mixin config. Only works on Fabric or Quilt.
+     * Declare a mixin config. Only works on Fabric, Quilt or NeoForge.
      * @param mixins the mixin configs to declare
      */
     void setMixin(List<String> mixins) {
@@ -382,7 +382,11 @@ class ModsDotGroovy {
         } else if (platform === Platform.NEOFORGE) {
             // NeoForge supports setting mixin configs directly in the mods.toml file
             // https://github.com/neoforged/FancyModLoader/pull/31
-            this.data = merge(this.data, ['mixins.config': mixins.toList()])
+            final mixinsCfg = data.computeIfAbsent('mixins', {[]}) as List
+
+            mixins.each {
+                mixinsCfg.add([config: it])
+            }
         }
     }
 
