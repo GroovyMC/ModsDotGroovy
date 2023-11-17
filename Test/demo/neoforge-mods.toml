@@ -36,3 +36,9 @@ license = "MIT"
 
     [modproperties.examplemod]
       customProperty = "hello_neoforge"
+
+[[mixins]]
+  config = "no.mixin.json"
+
+[[mixins]]
+  config = "test.mixin.json"

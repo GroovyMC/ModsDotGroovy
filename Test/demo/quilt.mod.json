@@ -20,7 +20,7 @@
       {
         "optional": false,
         "id": "minecraft",
-        "versions": ">=1.19"
+        "versions": ">=1.19.4"
       },
       {
         "optional": false,
@@ -69,6 +69,7 @@
     }
   },
   "mixin": [
-    "no.mixin.json"
+    "no.mixin.json",
+    "test.mixin.json"
   ]
 }
