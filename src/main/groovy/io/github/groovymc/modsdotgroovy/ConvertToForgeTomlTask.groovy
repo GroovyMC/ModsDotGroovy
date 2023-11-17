@@ -9,7 +9,7 @@ import com.moandjiezana.toml.TomlWriter
 import groovy.transform.CompileStatic
 
 @CompileStatic
-abstract class ConvertToTomlTask extends AbstractConvertTask {
+abstract class ConvertToForgeTomlTask extends AbstractConvertTask {
     @Override
     protected String getOutputName() {
         return 'mods.toml'

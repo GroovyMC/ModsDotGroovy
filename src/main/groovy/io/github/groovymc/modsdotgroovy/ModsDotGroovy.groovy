@@ -56,6 +56,12 @@ class ModsDotGroovy implements Plugin<Project> {
                                 .extendsFrom(configuration)
 
                         switch (platform) {
+                            case MDGExtension.Platform.NEOFORGE:
+                                makeAndAppendNeoForgeTask(modsGroovy, project).with {
+                                    arguments.set(ext.arguments.get())
+                                    catalogs.set(ext.catalogs.get())
+                                }
+                                break
                             case MDGExtension.Platform.FORGE:
                                 makeAndAppendForgeTask(modsGroovy, project).with {
                                     arguments.set(ext.arguments.get())
@@ -78,6 +84,7 @@ class ModsDotGroovy implements Plugin<Project> {
                         final common = ext.multiloader.getOrNull()?.common ?: project.subprojects.find { it.name.toLowerCase(Locale.ROOT) == 'common' }
                         final quilt = ext.multiloader.isPresent() ? ext.multiloader.get().quilt : project.subprojects.findAll { it.name.toLowerCase(Locale.ROOT) == 'quilt' }
                         final forge = ext.multiloader.isPresent() ? ext.multiloader.get().forge : project.subprojects.findAll { it.name.toLowerCase(Locale.ROOT) == 'forge' }
+                        final neoforge = ext.multiloader.isPresent() ? ext.multiloader.get().neoforge : project.subprojects.findAll { it.name.toLowerCase(Locale.ROOT) == 'neoforge' }
                         final fabric = ext.multiloader.isPresent() ? ext.multiloader.get().fabric : project.subprojects.findAll { it.name.toLowerCase(Locale.ROOT) == 'fabric' }
 
                         if (common === null)
@@ -106,6 +113,14 @@ class ModsDotGroovy implements Plugin<Project> {
                                 catalogs.set(ext.catalogs.get())
                             }
                         }
+                        neoforge.each {
+                            makeAndAppendNeoForgeTask(modsGroovy, it).with {
+                                it.dependsOn(commonConfiguration)
+                                dslClasspath.from(commonConfiguration)
+                                arguments.set(ext.arguments.get())
+                                catalogs.set(ext.catalogs.get())
+                            }
+                        }
                         quilt.each {
                             makeAndAppendQuiltTask(modsGroovy, it).with{
                                 it.dependsOn(commonConfiguration)
@@ -128,8 +143,22 @@ class ModsDotGroovy implements Plugin<Project> {
         }
     }
 
-    static ConvertToTomlTask makeAndAppendForgeTask(FileWithSourceSet modsGroovy, Project project) {
-        final convertTask = project.getTasks().create('modsDotGroovyToToml', ConvertToTomlTask) {
+    static ConvertToForgeTomlTask makeAndAppendForgeTask(FileWithSourceSet modsGroovy, Project project) {
+        final convertTask = project.getTasks().create('modsDotGroovyToForgeToml', ConvertToForgeTomlTask) {
+            it.getInput().set(modsGroovy.file)
+        }
+        project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {
+            exclude((FileTreeElement el) -> el.file == convertTask.input.get().asFile)
+            dependsOn(convertTask)
+            from(convertTask.output.get().asFile) {
+                into 'META-INF'
+            }
+        }
+        return convertTask
+    }
+
+    static ConvertToForgeTomlTask makeAndAppendNeoForgeTask(FileWithSourceSet modsGroovy, Project project) {
+        final convertTask = project.getTasks().create('modsDotGroovyToNeoForgeToml', ConvertToNeoForgeTomlTask) {
             it.getInput().set(modsGroovy.file)
         }
         project.tasks.named(modsGroovy.sourceSet.processResourcesTaskName, ProcessResources).configure {

@@ -7,7 +7,7 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 enum Platform {
-    FORGE, QUILT, FABRIC
+    FORGE, NEOFORGE, QUILT, FABRIC
 
     Platform() {}
 }

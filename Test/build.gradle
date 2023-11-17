@@ -1,4 +1,6 @@
 import io.github.groovymc.modsdotgroovy.AbstractConvertTask
+import io.github.groovymc.modsdotgroovy.ConvertToForgeTomlTask
+import io.github.groovymc.modsdotgroovy.ConvertToNeoForgeTomlTask
 
 plugins {
     id 'java'
@@ -8,8 +10,8 @@ plugins {
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 modsDotGroovy {
-    dslVersion = '1.5.0'
-    platforms 'forge', 'quilt', 'fabric'
+    dslVersion = '1.5.7'
+    platforms 'forge', 'neoforge', 'quilt', 'fabric'
 }
 
 repositories {
@@ -17,5 +19,11 @@ repositories {
 }
 
 tasks.withType(AbstractConvertTask).configureEach {
-    it.output.set(file("demo/${it.output.get().asFile.name}"))
+    if(it instanceof ConvertToNeoForgeTomlTask) {
+        it.output.set(file("demo/neoforge-${it.output.get().asFile.name}"))
+    } else if(it instanceof ConvertToForgeTomlTask) {
+        it.output.set(file("demo/forge-${it.output.get().asFile.name}"))
+    } else {
+        it.output.set(file("demo/${it.output.get().asFile.name}"))
+    }
 }

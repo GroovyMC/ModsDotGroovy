@@ -26,6 +26,10 @@ ModsDotGroovy.make {
             customProperty = 'hello_forge'
         }
 
+        onNeoForge {
+            customProperty = 'hello_neoforge'
+        }
+
         onFabricAndQuilt {
             customProperty = 'hello_quabric'
         }
@@ -34,6 +38,7 @@ ModsDotGroovy.make {
             //minecraft = 1.19..1.20 // equivalent to `minecraft = '[1.19,1.20)'`
             minecraft = 19.4..20.0 // equivalent to `minecraft = '[1.19.4,1.20)'`
             forge = '[43.0.0,)' // equivalent to `forge { versionRange = '[43.0.0,)' }`
+            neoforge = '[20.2,)' // equivalent to `neoforge { versionRange = '[20.2,)' }`
             quiltLoader = '>=0.17.3'
             fabricLoader = '[0.14.19,)'
 

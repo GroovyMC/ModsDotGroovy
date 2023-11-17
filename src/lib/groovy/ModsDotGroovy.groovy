@@ -38,6 +38,7 @@ class ModsDotGroovy {
                 this.data = ['schemaVersion': 1]
                 break
             case Platform.FORGE:
+            case Platform.NEOFORGE:
                 this.data = [:]
         }
     }
@@ -65,6 +66,26 @@ class ModsDotGroovy {
      */
     void onForge(Closure closure) {
         if (platform === Platform.FORGE) {
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call()
+        }
+    }
+
+    /**
+     * Run a given block only if the plugin is configuring the mods.toml file for NeoForge.
+     */
+    void onNeoForge(Closure closure) {
+        if (platform === Platform.NEOFORGE) {
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call()
+        }
+    }
+
+    /**
+     * Run a given block only if the plugin is configuring the mods.toml file for Forge or NeoForge.
+     */
+    void onForgeAndNeo(Closure closure) {
+        if (platform === Platform.NEOFORGE || platform === Platform.FORGE) {
             closure.resolveStrategy = DELEGATE_FIRST
             closure.call()
         }
@@ -109,6 +130,7 @@ class ModsDotGroovy {
         switch (platform) {
             case Platform.FABRIC:
             case Platform.FORGE:
+            case Platform.NEOFORGE:
                 put 'license', license
                 break
             case Platform.QUILT:
@@ -122,6 +144,7 @@ class ModsDotGroovy {
     void setIssueTrackerUrl(String issueTrackerUrl) {
         switch (platform) {
             case Platform.FORGE:
+            case Platform.NEOFORGE:
                 put 'issueTrackerURL', issueTrackerUrl
                 break
             case Platform.QUILT:
@@ -150,7 +173,7 @@ class ModsDotGroovy {
      * For GroovyModLoader @GMod mods it should be {@code gml}.
      */
     void setModLoader(String modLoader) {
-       if (platform === Platform.FORGE)
+       if (platform === Platform.NEOFORGE || platform === Platform.FORGE)
             put 'modLoader', modLoader
     }
 
@@ -158,7 +181,7 @@ class ModsDotGroovy {
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
     void setLoaderVersion(String loaderVersion) {
-        if (platform === Platform.FORGE)
+        if (platform === Platform.NEOFORGE || platform === Platform.FORGE)
             put 'loaderVersion', VersionRange.of(loaderVersion).toForge()
     }
 
@@ -166,7 +189,7 @@ class ModsDotGroovy {
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
     void setLoaderVersion(List<String> loaderVersion) {
-        if (platform === Platform.FORGE) {
+        if (platform === Platform.NEOFORGE || platform === Platform.FORGE) {
             final VersionRange range = new VersionRange()
             range.versions = loaderVersion.collectMany {VersionRange.of(it).versions}
             put 'loaderVersion', range.toForge()
@@ -194,6 +217,7 @@ class ModsDotGroovy {
 
     protected void pushMod(ImmutableModInfo modInfo) {
         switch (platform) {
+            case Platform.NEOFORGE:
             case Platform.FORGE:
                 final mods = (data.computeIfAbsent('mods', {[]}) as List)
                 modInfo.dependencies?.each {
@@ -355,6 +379,10 @@ class ModsDotGroovy {
             this.data = merge(this.data, ['mixins': mixins.toList()])
         } else if (platform === Platform.QUILT) {
             this.data = merge(this.data, ['mixin': mixins.toList()])
+        } else if (platform === Platform.NEOFORGE) {
+            // NeoForge supports setting mixin configs directly in the mods.toml file
+            // https://github.com/neoforged/FancyModLoader/pull/31
+            this.data = merge(this.data, ['mixins.config': mixins.toList()])
         }
     }
 
@@ -447,7 +475,7 @@ class ModsDotGroovy {
      */
     @Nullable
     String inferUpdateJsonUrl(final ImmutableModInfo modInfo) {
-        if (platform !== Platform.FORGE) return null
+        if (!(platform === Platform.NEOFORGE || platform === Platform.FORGE)) return null
 
         final String displayOrIssueTrackerUrl = modInfo.displayUrl ?: ((String) data.issueTrackerURL) ?: ''
         if (displayOrIssueTrackerUrl === null || displayOrIssueTrackerUrl.isEmpty() || displayOrIssueTrackerUrl.isAllWhitespace())

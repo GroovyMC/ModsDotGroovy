@@ -99,6 +99,25 @@ class DependenciesBuilder extends HashMap {
         }
     }
 
+    void neoforge(@DelegatesTo(value = NeoForgeDependency, strategy = DELEGATE_FIRST)
+               @ClosureParams(value = SimpleType, options = 'modsdotgroovy.NeoForgeDependency') final Closure closure) {
+        if (platform === Platform.NEOFORGE) {
+            final neoDependency = new NeoForgeDependency()
+            closure.delegate = neoDependency
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure.call(neoDependency)
+            dependencies << neoDependency.copy()
+        }
+    }
+
+    void setNeoForge(final String versionRange) {
+        if (platform === Platform.NEOFORGE) {
+            final neoDependency = new NeoForgeDependency()
+            neoDependency.versionRange = versionRange
+            dependencies << neoDependency.copy()
+        }
+    }
+
     void quiltLoader(@DelegatesTo(value = QuiltLoaderDependency, strategy = DELEGATE_FIRST)
                      @ClosureParams(value = SimpleType, options = 'modsdotgroovy.QuiltLoaderDependency') final Closure closure) {
         if (platform === Platform.QUILT) {
