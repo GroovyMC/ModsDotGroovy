@@ -95,7 +95,6 @@ ModsDotGroovy.make {
         }
     }
 
-    onFabricAndQuilt {
-        mixin = 'no.mixin.json'
-    }
+    mixin = 'no.mixin.json'
+    mixin = 'test.mixin.json'
 }
