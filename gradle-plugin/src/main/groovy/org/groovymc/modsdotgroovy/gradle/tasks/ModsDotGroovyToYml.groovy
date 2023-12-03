@@ -7,7 +7,7 @@ import org.yaml.snakeyaml.Yaml
 
 @CacheableTask
 @CompileStatic
-abstract class ConvertToYml extends AbstractConvertTask {
+abstract class ModsDotGroovyToYml extends AbstractMDGConvertTask {
     @Override
     protected String writeData(Map data) {
         final yamlWriter = new Yaml(new DumperOptions().tap {

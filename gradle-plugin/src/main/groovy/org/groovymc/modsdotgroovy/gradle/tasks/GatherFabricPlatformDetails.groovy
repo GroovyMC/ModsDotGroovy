@@ -13,7 +13,6 @@ abstract class GatherFabricPlatformDetails extends AbstractGatherPlatformDetails
 
     GatherFabricPlatformDetails() {
         this.configurationName.convention('minecraft')
-        this.dependencyJars.setFrom(project.provider(Collections::emptyList))
 
         // Todo: Use non-internal Loom API when available - https://github.com/FabricMC/fabric-loom/issues/982
         // this.minecraftVersion.convention(project.provider(this::getMCVersionFromLoom))

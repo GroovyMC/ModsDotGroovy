@@ -25,7 +25,7 @@ import java.nio.file.Files
 
 @CacheableTask
 @CompileStatic
-abstract class AbstractConvertTask extends DefaultTask {
+abstract class AbstractMDGConvertTask extends DefaultTask {
     private static final CompilerConfiguration MDG_COMPILER_CONFIG = new CompilerConfiguration().tap {
         targetBytecode = JDK17
         optimizationOptions['indy'] = true
@@ -76,14 +76,14 @@ abstract class AbstractConvertTask extends DefaultTask {
     @Inject
     protected abstract ProjectLayout getProjectLayout()
 
-    AbstractConvertTask() {
+    AbstractMDGConvertTask() {
         input.convention(projectLayout.projectDirectory.file('src/main/resources/mods.groovy'))
         // default to e.g. build/modsDotGroovyToToml/mods.toml
         output.convention(projectLayout.buildDirectory.dir('generated/modsDotGroovy/' + name.replaceFirst('ConvertTo', 'modsDotGroovyTo')).map((Directory dir) -> dir.file(outputName.get())))
 
         environmentBlacklist.convention(project.provider(() -> project.extensions.getByType(MDGExtension).environmentBlacklist.get()))
         buildProperties.convention(project.provider(() -> filterBuildProperties(project.extensions.extraProperties.properties, environmentBlacklist.get())))
-        platform.convention(project.provider(() -> project.extensions.getByType(MDGExtension).platforms.getOrElse(Set.of(Platform.UNKNOWN)).first()))
+        platform.convention(project.provider(() -> project.extensions.getByType(MDGExtension).platforms.get().first()))
         projectVersion.convention(project.provider(() -> project.version.toString()))
         projectGroup.convention(project.provider(() -> project.group.toString()))
         platformDetailsFile.convention(projectLayout.buildDirectory.dir("generated/modsDotGroovy/gather${platform.get()}PlatformDetails").map((Directory dir) -> dir.file('mdgPlatform.json')))

@@ -33,7 +33,6 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
     private final Property<@Nullable String> minecraftVersion = objectFactory.property(String)
     private final Property<@Nullable String> platformVersion = objectFactory.property(String)
     private final Property<String> configurationName = objectFactory.property(String)
-    private final ConfigurableFileCollection dependencyJars = objectFactory.fileCollection()
     private final RegularFileProperty outputFile = objectFactory.fileProperty()
 
     @Optional @Input
@@ -49,14 +48,6 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
     @Input
     Property<String> getConfigurationName() {
         return configurationName
-    }
-
-    // defined here to trigger the task when dep versions change
-    @Optional // some platforms don't have a resolvable configuration for this - in which case, this should be set to empty
-    @InputFiles
-    @Classpath
-    protected ConfigurableFileCollection getDependencyJars() {
-        return dependencyJars
     }
 
     @OutputFile
@@ -81,7 +72,6 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
 
     AbstractGatherPlatformDetailsTask() {
         configurationName.convention('implementation')
-        dependencyJars.from(providerFactory.provider(() -> configuration ?: []))
         outputFile.convention(projectLayout.buildDirectory.dir("generated/modsDotGroovy/${name.uncapitalize()}").map((Directory dir) -> dir.file('mdgPlatform.json')))
     }
 
@@ -95,7 +85,6 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
 
     void setConfigurationName(String name) {
         configurationName.set(name)
-        dependencyJars.setFrom(project.configurations.named(configurationName.get()))
     }
 
     void setOutputFile(File file) {
@@ -109,21 +98,6 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
                     'platformVersion', platformVersion,
                     'minecraftVersionRange', "[${minecraftVersion},1.${(DOT_PATTERN.split(minecraftVersion, 3)[1] as int) + 1})".toString(),
             )).toPrettyString())
-        }
-    }
-
-    @Internal
-    protected @Nullable DependencySet getDependencies() {
-        return configuration?.dependencies
-    }
-
-    @Internal
-    protected @Nullable Configuration getConfiguration() {
-        try {
-            return project.configurations.named(configurationName.get()).getOrNull()
-        } catch (UnknownConfigurationException ignored) {
-            project.logger.warn "Warning: Configuration \"${configurationName.get()}\" not found for project \"${project.name}\""
-            return null
         }
     }
 }

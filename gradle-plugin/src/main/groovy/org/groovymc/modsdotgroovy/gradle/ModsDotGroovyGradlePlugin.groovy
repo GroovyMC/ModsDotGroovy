@@ -29,7 +29,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     private MDGExtension mdgExtension
 
     @Lazy
-    private Set<Platform> platforms = mdgExtension.platforms.getOrElse(Set.of(Platform.UNKNOWN))
+    private Set<Platform> platforms = mdgExtension.platforms.get()
 
     @Override
     void apply(Project project) {
@@ -60,7 +60,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
         // setup required MDG repositories and dependencies for better IDE support
         project.repositories.mavenCentral()
-        rootConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create('org.apache.groovy:groovy:4.0.15')))
+        rootConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create('org.apache.groovy:groovy:4.0.16')))
 
         project.afterEvaluate {
             // if asked, setup the mods.groovy DSL
@@ -123,10 +123,10 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         switch (platform) {
             case Platform.FORGE:
                 project.tasks.register('gatherForgePlatformDetails', GatherForgePlatformDetails)
-                final convertTask = project.tasks.register('modsDotGroovyToToml', ConvertToToml) { ConvertToToml task ->
+                final convertTask = project.tasks.register('modsDotGroovyToToml', ModsDotGroovyToToml) { ModsDotGroovyToToml task ->
                     task.dependsOn 'gatherForgePlatformDetails'
                 }
-                processResourcesTask.configure { ProcessResources task ->
+                processResourcesTask.configure { task ->
                     task.dependsOn 'modsDotGroovyToToml'
                     task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
                         spec.into 'META-INF'
@@ -135,10 +135,10 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 break
             case Platform.NEOFORGE:
                 project.tasks.register('gatherNeoForgePlatformDetails', GatherNeoForgePlatformDetails)
-                final convertTask = project.tasks.register('modsDotGroovyToToml', ConvertToToml) { ConvertToToml task ->
+                final convertTask = project.tasks.register('modsDotGroovyToToml', ModsDotGroovyToToml) { ModsDotGroovyToToml task ->
                     task.dependsOn 'gatherNeoForgePlatformDetails'
                 }
-                processResourcesTask.configure { ProcessResources task ->
+                processResourcesTask.configure { task ->
                     task.dependsOn 'modsDotGroovyToToml'
                     task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
                         spec.into 'META-INF'
@@ -147,11 +147,11 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 break
             case Platform.FABRIC:
                 project.tasks.register('gatherFabricPlatformDetails', GatherFabricPlatformDetails)
-                final convertTask = project.tasks.register('modsDotGroovyToJson', ConvertToJson) { ConvertToJson task ->
+                final convertTask = project.tasks.register('modsDotGroovyToJson', ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
                     task.dependsOn 'gatherFabricPlatformDetails'
                     task.outputName.set('fabric.mod.json')
                 }
-                processResourcesTask.configure { ProcessResources task ->
+                processResourcesTask.configure { task ->
                     task.dependsOn 'modsDotGroovyToJson'
                     task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
                         spec.into '.'
@@ -160,11 +160,11 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 break
             case Platform.QUILT:
                 project.tasks.register('gatherQuiltPlatformDetails', GatherQuiltPlatformDetails)
-                final convertTask = project.tasks.register('modsDotGroovyToJson', ConvertToJson) { ConvertToJson task ->
+                final convertTask = project.tasks.register('modsDotGroovyToJson', ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
                     task.dependsOn 'gatherQuiltPlatformDetails'
                     task.outputName.set('quilt.mod.json')
                 }
-                processResourcesTask.configure { ProcessResources task ->
+                processResourcesTask.configure { task ->
                     task.dependsOn 'modsDotGroovyToJson'
                     task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
                         spec.into '.'
@@ -173,10 +173,10 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 break
             case Platform.SPIGOT:
                 // todo: gatherSpigotPlatformDetails
-                final convertTask = project.tasks.register('modsDotGroovyToYml', ConvertToYml) { ConvertToYml task ->
+                final convertTask = project.tasks.register('modsDotGroovyToYml', ModsDotGroovyToYml) { ModsDotGroovyToYml task ->
                     task.outputName.set('spigot.yml')
                 }
-                processResourcesTask.configure { ProcessResources task ->
+                processResourcesTask.configure { task ->
                     task.dependsOn 'modsDotGroovyToYml'
                     task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
                         spec.into '.'
@@ -184,7 +184,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 }
         }
 
-        project.tasks.withType(AbstractConvertTask).configureEach { AbstractConvertTask task ->
+        project.tasks.withType(AbstractMDGConvertTask).configureEach { task ->
             task.mdgRuntimeFiles.from(
                     project.configurations.named(CONFIGURATION_NAME_ROOT),
                     project.configurations.named(CONFIGURATION_NAME_PLUGIN),

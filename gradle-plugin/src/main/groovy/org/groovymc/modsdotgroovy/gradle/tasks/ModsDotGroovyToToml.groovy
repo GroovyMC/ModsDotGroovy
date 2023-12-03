@@ -9,13 +9,13 @@ import javax.inject.Inject
 
 @CacheableTask
 @CompileStatic
-abstract class ConvertToToml extends AbstractConvertTask {
+abstract class ModsDotGroovyToToml extends AbstractMDGConvertTask {
     private static final TomlWriter TOML_WRITER = new TomlWriter()
 
     @Inject
     protected abstract ProjectLayout getProjectLayout()
 
-    ConvertToToml() {
+    ModsDotGroovyToToml() {
         this.outputName.convention('mods.toml')
     }
 

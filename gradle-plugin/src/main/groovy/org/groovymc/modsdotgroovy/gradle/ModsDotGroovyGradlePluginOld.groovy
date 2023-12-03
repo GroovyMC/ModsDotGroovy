@@ -23,10 +23,10 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.groovymc.modsdotgroovy.core.Platform
-import org.groovymc.modsdotgroovy.gradle.tasks.AbstractConvertTask
-import org.groovymc.modsdotgroovy.gradle.tasks.ConvertToJson
-import org.groovymc.modsdotgroovy.gradle.tasks.ConvertToYml
-import org.groovymc.modsdotgroovy.gradle.tasks.ConvertToToml
+import org.groovymc.modsdotgroovy.gradle.tasks.AbstractMDGConvertTask
+import org.groovymc.modsdotgroovy.gradle.tasks.ModsDotGroovyToJson
+import org.groovymc.modsdotgroovy.gradle.tasks.ModsDotGroovyToYml
+import org.groovymc.modsdotgroovy.gradle.tasks.ModsDotGroovyToToml
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
@@ -123,19 +123,19 @@ class ModsDotGroovyGradlePluginOld implements Plugin<Project> {
 
                         switch (platform) {
                             case Platform.FORGE:
-                                makeAndAppendConvertTask(modsGroovy, project, 'Toml', ConvertToToml, 'META-INF')
+                                makeAndAppendConvertTask(modsGroovy, project, 'Toml', ModsDotGroovyToToml, 'META-INF')
                                 break
                             case Platform.NEOFORGE:
                                 makeAndAppendConvertTask(modsGroovy, project, 'Toml', ConvertToNeoForgeTomlTask, 'META-INF')
                                 break
                             case Platform.FABRIC:
-                                makeAndAppendConvertTask(modsGroovy, project, 'FabricJson', ConvertToJson)
+                                makeAndAppendConvertTask(modsGroovy, project, 'FabricJson', ModsDotGroovyToJson)
                                 break
                             case Platform.QUILT:
                                 makeAndAppendConvertTask(modsGroovy, project, 'QuiltJson', ConvertToQuiltJsonTask)
                                 break
                             case Platform.SPIGOT:
-                                makeAndAppendConvertTask(modsGroovy, project, 'PluginYml', ConvertToYml)
+                                makeAndAppendConvertTask(modsGroovy, project, 'PluginYml', ModsDotGroovyToYml)
                                 break
                         }
 //                    } else {
@@ -230,8 +230,8 @@ class ModsDotGroovyGradlePluginOld implements Plugin<Project> {
     }
 
     @CompileDynamic
-    private <T extends AbstractConvertTask> AbstractConvertTask makeAndAppendConvertTask(FileWithSourceSet modsGroovy, Project project,
-                                                                                         String taskNameSuffix, Class<T> taskType, String destDir = '') {
+    private <T extends AbstractMDGConvertTask> AbstractMDGConvertTask makeAndAppendConvertTask(FileWithSourceSet modsGroovy, Project project,
+                                                                                               String taskNameSuffix, Class<T> taskType, String destDir = '') {
         final T convertTask = project.tasks.create("modsDotGroovyTo${taskNameSuffix}", taskType) {
             notCompatibleWithConfigurationCache('This version of the ModsDotGroovy Gradle plugin does not support the configuration cache.')
             dependsOn project.configurations.named(CONFIGURATION_NAME_ROOT)
