@@ -14,13 +14,7 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.groovymc.modsdotgroovy.core.Platform
-import org.groovymc.modsdotgroovy.gradle.tasks.ConvertToJson
-import org.groovymc.modsdotgroovy.gradle.tasks.ConvertToToml
-import org.groovymc.modsdotgroovy.gradle.tasks.ConvertToYml
-import org.groovymc.modsdotgroovy.gradle.tasks.GatherFabricPlatformDetails
-import org.groovymc.modsdotgroovy.gradle.tasks.GatherForgePlatformDetails
-import org.groovymc.modsdotgroovy.gradle.tasks.GatherNeoForgePlatformDetails
-import org.groovymc.modsdotgroovy.gradle.tasks.GatherQuiltPlatformDetails
+import org.groovymc.modsdotgroovy.gradle.tasks.*
 
 @CompileStatic
 class ModsDotGroovyGradlePlugin implements Plugin<Project> {
@@ -47,7 +41,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         project.plugins.apply('groovy')
 
         // setup MDG dependency configurations
-        final Configuration rootConfiguration = project.configurations.create(CONFIGURATION_NAME_ROOT) { Configuration conf -> conf.tap {
+        final rootConfiguration = project.configurations.register(CONFIGURATION_NAME_ROOT) { Configuration conf -> conf.tap {
             canBeConsumed = false
             attributes.tap {
                 attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category, Category.LIBRARY))
@@ -58,15 +52,15 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             }
         }}
         final frontendConfiguration = project.configurations.register(CONFIGURATION_NAME_FRONTEND) { Configuration conf ->
-            conf.extendsFrom rootConfiguration
+            conf.extendsFrom rootConfiguration.get()
         }
         final pluginConfiguration = project.configurations.register(CONFIGURATION_NAME_PLUGIN) { Configuration conf ->
-            conf.extendsFrom rootConfiguration
+            conf.extendsFrom rootConfiguration.get()
         }
 
         // setup required MDG repositories and dependencies for better IDE support
         project.repositories.mavenCentral()
-        rootConfiguration.dependencies.add(project.dependencies.create('org.apache.groovy:groovy:4.0.15'))
+        rootConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create('org.apache.groovy:groovy:4.0.15')))
 
         project.afterEvaluate {
             // if asked, setup the mods.groovy DSL
@@ -80,6 +74,9 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             // if asked, setup the mods.groovy Gradle tasks
             if (mdgExtension.setupTasks.get())
                 setupTasks(project)
+
+            // setup IDE support by adding the mdgFrontend configuration to the compileOnly configuration
+            project.configurations.named('compileOnly').configure(conf -> conf.extendsFrom(frontendConfiguration.get()))
         }
     }
 
@@ -97,7 +94,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         }
 
         // mdgFrontend "org.groovymc.modsdotgroovy.frontend-dsl:<platform>"
-        frontendConfiguration.get().dependencies.add(project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT)))
+        frontendConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT))))
     }
 
     private void setupPlugins(Project project, NamedDomainObjectProvider<Configuration> pluginConfiguration) {
@@ -108,7 +105,7 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             return // no stock plugins available for this platform
 
         // mdgPlugin "org.groovymc.modsdotgroovy.stock-plugins:<platform>"
-        pluginConfiguration.get().dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT)))
+        pluginConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT))))
     }
 
     private void setupTasks(Project project) {
@@ -128,11 +125,6 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 project.tasks.register('gatherForgePlatformDetails', GatherForgePlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToToml', ConvertToToml) { ConvertToToml task ->
                     task.dependsOn 'gatherForgePlatformDetails'
-                    task.mdgRuntimeFiles.from(
-                            project.configurations.named(CONFIGURATION_NAME_ROOT),
-                            project.configurations.named(CONFIGURATION_NAME_PLUGIN),
-                            project.configurations.named(CONFIGURATION_NAME_FRONTEND)
-                    )
                 }
                 processResourcesTask.configure { ProcessResources task ->
                     task.dependsOn 'modsDotGroovyToToml'
@@ -145,11 +137,6 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 project.tasks.register('gatherNeoForgePlatformDetails', GatherNeoForgePlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToToml', ConvertToToml) { ConvertToToml task ->
                     task.dependsOn 'gatherNeoForgePlatformDetails'
-                    task.mdgRuntimeFiles.from(
-                            project.configurations.named(CONFIGURATION_NAME_ROOT),
-                            project.configurations.named(CONFIGURATION_NAME_PLUGIN),
-                            project.configurations.named(CONFIGURATION_NAME_FRONTEND)
-                    )
                 }
                 processResourcesTask.configure { ProcessResources task ->
                     task.dependsOn 'modsDotGroovyToToml'
@@ -162,11 +149,6 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 project.tasks.register('gatherFabricPlatformDetails', GatherFabricPlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToJson', ConvertToJson) { ConvertToJson task ->
                     task.dependsOn 'gatherFabricPlatformDetails'
-                    task.mdgRuntimeFiles.from(
-                            project.configurations.named(CONFIGURATION_NAME_ROOT),
-                            project.configurations.named(CONFIGURATION_NAME_PLUGIN),
-                            project.configurations.named(CONFIGURATION_NAME_FRONTEND)
-                    )
                     task.outputName.set('fabric.mod.json')
                 }
                 processResourcesTask.configure { ProcessResources task ->
@@ -180,11 +162,6 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 project.tasks.register('gatherQuiltPlatformDetails', GatherQuiltPlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToJson', ConvertToJson) { ConvertToJson task ->
                     task.dependsOn 'gatherQuiltPlatformDetails'
-                    task.mdgRuntimeFiles.from(
-                            project.configurations.named(CONFIGURATION_NAME_ROOT),
-                            project.configurations.named(CONFIGURATION_NAME_PLUGIN),
-                            project.configurations.named(CONFIGURATION_NAME_FRONTEND)
-                    )
                     task.outputName.set('quilt.mod.json')
                 }
                 processResourcesTask.configure { ProcessResources task ->
@@ -197,11 +174,6 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             case Platform.SPIGOT:
                 // todo: gatherSpigotPlatformDetails
                 final convertTask = project.tasks.register('modsDotGroovyToYml', ConvertToYml) { ConvertToYml task ->
-                    task.mdgRuntimeFiles.from(
-                            project.configurations.named(CONFIGURATION_NAME_ROOT),
-                            project.configurations.named(CONFIGURATION_NAME_PLUGIN),
-                            project.configurations.named(CONFIGURATION_NAME_FRONTEND)
-                    )
                     task.outputName.set('spigot.yml')
                 }
                 processResourcesTask.configure { ProcessResources task ->
@@ -210,6 +182,14 @@ class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                         spec.into '.'
                     }
                 }
+        }
+
+        project.tasks.withType(AbstractConvertTask).configureEach { AbstractConvertTask task ->
+            task.mdgRuntimeFiles.from(
+                    project.configurations.named(CONFIGURATION_NAME_ROOT),
+                    project.configurations.named(CONFIGURATION_NAME_PLUGIN),
+                    project.configurations.named(CONFIGURATION_NAME_FRONTEND)
+            )
         }
     }
 }

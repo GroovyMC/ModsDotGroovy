@@ -1,6 +1,10 @@
 import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
 
+plugins {
+    id 'org.groovymc.modsdotgroovy'
+}
+
 modsDotGroovy {
     platform = Platform.SPIGOT
 }

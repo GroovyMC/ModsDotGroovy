@@ -9,7 +9,6 @@ repositories {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'org.groovymc.modsdotgroovy'
 
     java.toolchain {
         languageVersion = JavaLanguageVersion.of(17)

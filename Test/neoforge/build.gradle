@@ -2,6 +2,7 @@ import org.groovymc.modsdotgroovy.core.Platform
 
 plugins {
     id 'net.neoforged.gradle.userdev' version '7.0.43'
+    id 'org.groovymc.modsdotgroovy'
 }
 
 modsDotGroovy {

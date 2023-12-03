@@ -2,6 +2,7 @@ import org.groovymc.modsdotgroovy.core.Platform
 
 plugins {
     id 'fabric-loom' version '1.4-SNAPSHOT'
+    id 'org.groovymc.modsdotgroovy'
 }
 
 modsDotGroovy {
