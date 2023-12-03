@@ -5,10 +5,6 @@ plugins {
     id 'org.groovymc.modsdotgroovy'
 }
 
-modsDotGroovy {
-    platform = Platform.NEOFORGE
-}
-
 runs {
     server {
         modSource project.sourceSets.main

@@ -2,7 +2,9 @@ package org.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
+import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.groovymc.modsdotgroovy.core.Platform
@@ -20,9 +22,9 @@ class MDGExtension {
     private final Property<Boolean> setupTasks
 
     @Inject
-    MDGExtension(ObjectFactory objects) {
+    MDGExtension(ObjectFactory objects, Project project) {
         this.platforms = objects.setProperty(Platform)
-        this.platforms.convention([Platform.FORGE])
+        this.platforms.convention(inferPlatforms(project.plugins))
 
         this.environmentBlacklist = objects.setProperty(String)
         this.environmentBlacklist.convention(['pass', 'password', 'token', 'key', 'secret'])
@@ -79,5 +81,17 @@ class MDGExtension {
 
     void setSetupTasks(boolean setupTasks) {
         this.setupTasks.set(setupTasks)
+    }
+
+    private static Set<Platform> inferPlatforms(PluginContainer plugins) {
+        // check what plugins are applied to the project to determine what platforms are being targeted
+        // to start, let's assume no subprojects.
+        // todo: multiplatform support with subprojects
+        final Set<Platform> platforms = []
+        if (plugins.findPlugin('net.minecraftforge.gradle')) platforms << Platform.FORGE
+        else if (plugins.findPlugin('net.neoforged.gradle.userdev')) platforms << Platform.NEOFORGE
+        else if (plugins.findPlugin('fabric-loom')) platforms << Platform.FABRIC
+        else if (plugins.findPlugin('org.quiltmc.loom')) platforms << Platform.QUILT
+        return platforms
     }
 }

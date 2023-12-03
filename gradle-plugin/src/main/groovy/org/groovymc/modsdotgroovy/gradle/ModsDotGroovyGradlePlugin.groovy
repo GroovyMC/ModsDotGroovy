@@ -17,7 +17,7 @@ import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.gradle.tasks.*
 
 @CompileStatic
-class ModsDotGroovyGradlePlugin implements Plugin<Project> {
+final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     private static final String CONFIGURATION_NAME_ROOT = 'mdgRuntime'
     private static final String CONFIGURATION_NAME_PLUGIN = 'mdgPlugin'
     private static final String CONFIGURATION_NAME_FRONTEND = 'mdgFrontend'
