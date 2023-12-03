@@ -4,7 +4,6 @@ import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.groovymc.modsdotgroovy.core.Platform
@@ -15,6 +14,7 @@ import javax.inject.Inject
 class MDGExtension {
     @PackageScope static final String NAME = 'modsDotGroovy'
 
+    private final Property<Boolean> multiplatform
     private final SetProperty<Platform> platforms
     private final SetProperty<String> environmentBlacklist
     private final Property<Boolean> setupDsl
@@ -23,8 +23,11 @@ class MDGExtension {
 
     @Inject
     MDGExtension(ObjectFactory objects, Project project) {
+        this.multiplatform = objects.property(Boolean)
+        this.multiplatform.convention(inferPlatforms(project).size() > 1)
+
         this.platforms = objects.setProperty(Platform)
-        this.platforms.convention(inferPlatforms(project.plugins))
+        this.platforms.convention(inferPlatforms(project))
 
         this.environmentBlacklist = objects.setProperty(String)
         this.environmentBlacklist.convention(['pass', 'password', 'token', 'key', 'secret'])
@@ -39,7 +42,12 @@ class MDGExtension {
         this.setupTasks.convention(true)
     }
 
+    Property<Boolean> getMultiplatform() {
+        return multiplatform
+    }
+
     SetProperty<Platform> getPlatforms() {
+        println platforms.get()
         return platforms
     }
 
@@ -57,6 +65,10 @@ class MDGExtension {
 
     Property<Boolean> getSetupTasks() {
         return setupTasks
+    }
+
+    void setMultiplatform(boolean multiplatform) {
+        this.multiplatform.set(multiplatform)
     }
 
     void setPlatforms(Platform[] platforms) {
@@ -83,15 +95,29 @@ class MDGExtension {
         this.setupTasks.set(setupTasks)
     }
 
-    private static Set<Platform> inferPlatforms(PluginContainer plugins) {
-        // check what plugins are applied to the project to determine what platforms are being targeted
-        // to start, let's assume no subprojects.
-        // todo: multiplatform support with subprojects
-        final Set<Platform> platforms = []
-        if (plugins.findPlugin('net.minecraftforge.gradle')) platforms << Platform.FORGE
-        else if (plugins.findPlugin('net.neoforged.gradle.userdev')) platforms << Platform.NEOFORGE
-        else if (plugins.findPlugin('fabric-loom')) platforms << Platform.FABRIC
-        else if (plugins.findPlugin('org.quiltmc.loom')) platforms << Platform.QUILT
-        return platforms
+    private static Set<Platform> inferPlatforms(Project project) {
+//        if (project.subprojects.isEmpty()) {
+            // no subprojects, so assume a single platform
+            if (project.plugins.findPlugin('net.minecraftforge.gradle')) return Set.of(Platform.FORGE)
+            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return Set.of(Platform.NEOFORGE)
+            else if (project.plugins.findPlugin('fabric-loom')) return Set.of(Platform.FABRIC)
+            else if (project.plugins.findPlugin('org.quiltmc.loom')) return Set.of(Platform.QUILT)
+//        } else {
+//            // subprojects, so account for the possibility of multiple platforms
+//            final platforms = project.subprojects.collect(new HashSet<>()) { subproject ->
+//                if (subproject.plugins.findPlugin('net.minecraftforge.gradle')) return Platform.FORGE
+//                else if (subproject.plugins.findPlugin('net.neoforged.gradle.userdev')) return Platform.NEOFORGE
+//                else if (subproject.plugins.findPlugin('fabric-loom')) return Platform.FABRIC
+//                else if (subproject.plugins.findPlugin('org.quiltmc.loom')) return Platform.QUILT
+//                else return null // collect() expects all iterations to return something
+//            }
+//
+//            platforms.remove(null)
+//
+//            if (!platforms.isEmpty())
+//                return (Set<Platform>) platforms
+//        }
+
+        return Set.of(Platform.UNKNOWN)
     }
 }

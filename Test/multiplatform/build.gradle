@@ -1,16 +1,12 @@
 import org.groovymc.modsdotgroovy.core.Platform
 
-plugins {
-    id 'org.groovymc.modsdotgroovy'
-}
+//dependencies {
+//    mdgPlugin 'org.groovymc.modsdotgroovy.stock-plugins:multiplatform'
+//    mdgFrontend 'org.groovymc.modsdotgroovy.frontend-dsl:multiplatform'
+//}
 
-dependencies {
-    mdgPlugin 'org.groovymc.modsdotgroovy.stock-plugins:multiplatform'
-    mdgFrontend 'org.groovymc.modsdotgroovy.frontend-dsl:multiplatform'
-}
-
-modsDotGroovy {
+//modsDotGroovy {
     // multiplatform support is currently unimplemented in the Gradle plugin
     //platforms = [Platform.FORGE, Platform.FABRIC]
-    automaticConfiguration = false
-}
+//    automaticConfiguration = false
+//}

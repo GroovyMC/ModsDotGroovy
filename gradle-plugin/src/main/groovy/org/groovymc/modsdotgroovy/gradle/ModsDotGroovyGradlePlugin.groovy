@@ -81,8 +81,6 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     }
 
     private void setupDsl(Project project, NamedDomainObjectProvider<Configuration> frontendConfiguration) {
-        // for now, assume max one platform
-        // todo: multiplatform support
         final Platform platform = platforms.first()
         if (platform !in Platform.STOCK_PLATFORMS) {
             throw new UnsupportedOperationException("""
@@ -94,23 +92,25 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         }
 
         // mdgFrontend "org.groovymc.modsdotgroovy.frontend-dsl:<platform>"
-        frontendConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT))))
+        final String platformName = mdgExtension.multiplatform.get() ? 'multiplatform' : platform.name().toLowerCase(Locale.ROOT)
+        frontendConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platformName)))
     }
 
     private void setupPlugins(Project project, NamedDomainObjectProvider<Configuration> pluginConfiguration) {
-        // for now, assume max one platform
-        // todo: multiplatform support
         final Platform platform = platforms.first()
         if (platform !in Platform.STOCK_PLATFORMS)
             return // no stock plugins available for this platform
 
         // mdgPlugin "org.groovymc.modsdotgroovy.stock-plugins:<platform>"
-        pluginConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT))))
+        pluginConfiguration.configure(conf -> {
+            if (mdgExtension.multiplatform.get())
+                conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':multiplatform'))
+
+            conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT)))
+        })
     }
 
     private void setupTasks(Project project) {
-        // for now, assume max one platform
-        // todo: multiplatform support
         final Platform platform = platforms.first()
 
         // three steps:
@@ -119,11 +119,13 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         // 3. configure those tasks appropriately
 
         final TaskProvider<ProcessResources> processResourcesTask = project.tasks.named('processResources', ProcessResources)
+        final boolean multiplatform = mdgExtension.multiplatform.get()
 
         switch (platform) {
             case Platform.FORGE:
                 project.tasks.register('gatherForgePlatformDetails', GatherForgePlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToToml', ModsDotGroovyToToml) { ModsDotGroovyToToml task ->
+                    if (multiplatform) task.input.set(project.parent.layout.projectDirectory.file('src/main/resources/mods.groovy'))
                     task.dependsOn 'gatherForgePlatformDetails'
                 }
                 processResourcesTask.configure { task ->
@@ -136,6 +138,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             case Platform.NEOFORGE:
                 project.tasks.register('gatherNeoForgePlatformDetails', GatherNeoForgePlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToToml', ModsDotGroovyToToml) { ModsDotGroovyToToml task ->
+                    if (multiplatform) task.input.set(project.parent.layout.projectDirectory.file('src/main/resources/mods.groovy'))
                     task.dependsOn 'gatherNeoForgePlatformDetails'
                 }
                 processResourcesTask.configure { task ->
@@ -148,6 +151,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             case Platform.FABRIC:
                 project.tasks.register('gatherFabricPlatformDetails', GatherFabricPlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToJson', ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
+                    if (multiplatform) task.input.set(project.parent.layout.projectDirectory.file('src/main/resources/mods.groovy'))
                     task.dependsOn 'gatherFabricPlatformDetails'
                     task.outputName.set('fabric.mod.json')
                 }
@@ -161,6 +165,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             case Platform.QUILT:
                 project.tasks.register('gatherQuiltPlatformDetails', GatherQuiltPlatformDetails)
                 final convertTask = project.tasks.register('modsDotGroovyToJson', ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
+                    if (multiplatform) task.input.set(project.parent.layout.projectDirectory.file('src/main/resources/mods.groovy'))
                     task.dependsOn 'gatherQuiltPlatformDetails'
                     task.outputName.set('quilt.mod.json')
                 }
@@ -174,6 +179,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
             case Platform.SPIGOT:
                 // todo: gatherSpigotPlatformDetails
                 final convertTask = project.tasks.register('modsDotGroovyToYml', ModsDotGroovyToYml) { ModsDotGroovyToYml task ->
+                    if (multiplatform) task.input.set(project.parent.layout.projectDirectory.file('src/main/resources/mods.groovy'))
                     task.outputName.set('spigot.yml')
                 }
                 processResourcesTask.configure { task ->
