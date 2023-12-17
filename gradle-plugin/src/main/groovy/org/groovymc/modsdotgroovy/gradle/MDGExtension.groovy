@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.groovymc.modsdotgroovy.core.Platform
@@ -14,19 +15,16 @@ import javax.inject.Inject
 class MDGExtension {
     @PackageScope static final String NAME = 'modsDotGroovy'
 
-    private final Property<Boolean> multiplatform
-    private final SetProperty<Platform> platforms
+    private final MapProperty<Platform, String[]> platforms
     private final SetProperty<String> environmentBlacklist
     private final Property<Boolean> setupDsl
     private final Property<Boolean> setupPlugins
     private final Property<Boolean> setupTasks
+    //private final transient Project project
 
     @Inject
     MDGExtension(ObjectFactory objects, Project project) {
-        this.multiplatform = objects.property(Boolean)
-        this.multiplatform.convention(inferPlatforms(project).size() > 1)
-
-        this.platforms = objects.setProperty(Platform)
+        this.platforms = objects.mapProperty(Platform, String[])
         this.platforms.convention(inferPlatforms(project))
 
         this.environmentBlacklist = objects.setProperty(String)
@@ -40,14 +38,11 @@ class MDGExtension {
 
         this.setupTasks = objects.property(Boolean)
         this.setupTasks.convention(true)
+
+        //this.project = project
     }
 
-    Property<Boolean> getMultiplatform() {
-        return multiplatform
-    }
-
-    SetProperty<Platform> getPlatforms() {
-        println platforms.get()
+    MapProperty<Platform, String[]> getPlatforms() {
         return platforms
     }
 
@@ -67,17 +62,18 @@ class MDGExtension {
         return setupTasks
     }
 
-    void setMultiplatform(boolean multiplatform) {
-        this.multiplatform.set(multiplatform)
+    void setPlatforms(Map<Platform, ?> platforms) {
+        this.platforms.set(platforms.collectEntries { Platform platform, def paths ->
+            if (paths instanceof String) return [platform, [paths] as String[]]
+            else if (paths instanceof List<String>) return [platform, paths.toArray(String[]::new)]
+            else throw new IllegalArgumentException("Invalid platform paths: $paths. Expected String or List<String>, got ${paths.getClass().getName()}")
+        })
     }
 
-    void setPlatforms(Platform[] platforms) {
-        this.platforms.set(Set.of(platforms))
-    }
-
-    void setPlatform(Platform platform) {
-        this.platforms.set(Set.of(platform))
-    }
+//    void setPlatform(Platform platform) {
+//        final String[] projectPath = [project.path]
+//        this.platforms.set(Map.of(platform, projectPath))
+//    }
 
     void setEnvironmentBlacklist(String... blacklist) {
         this.environmentBlacklist.set(Set.of(blacklist))
@@ -95,29 +91,46 @@ class MDGExtension {
         this.setupTasks.set(setupTasks)
     }
 
-    private static Set<Platform> inferPlatforms(Project project) {
-//        if (project.subprojects.isEmpty()) {
+    private static Map<Platform, String[]> inferPlatforms(Project project) {
+        final String[] projectPath = [project.path]
+        if (project.subprojects.isEmpty()) {
             // no subprojects, so assume a single platform
-            if (project.plugins.findPlugin('net.minecraftforge.gradle')) return Set.of(Platform.FORGE)
-            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return Set.of(Platform.NEOFORGE)
-            else if (project.plugins.findPlugin('fabric-loom')) return Set.of(Platform.FABRIC)
-            else if (project.plugins.findPlugin('org.quiltmc.loom')) return Set.of(Platform.QUILT)
-//        } else {
-//            // subprojects, so account for the possibility of multiple platforms
-//            final platforms = project.subprojects.collect(new HashSet<>()) { subproject ->
-//                if (subproject.plugins.findPlugin('net.minecraftforge.gradle')) return Platform.FORGE
-//                else if (subproject.plugins.findPlugin('net.neoforged.gradle.userdev')) return Platform.NEOFORGE
-//                else if (subproject.plugins.findPlugin('fabric-loom')) return Platform.FABRIC
-//                else if (subproject.plugins.findPlugin('org.quiltmc.loom')) return Platform.QUILT
-//                else return null // collect() expects all iterations to return something
-//            }
-//
-//            platforms.remove(null)
-//
-//            if (!platforms.isEmpty())
-//                return (Set<Platform>) platforms
-//        }
+            if (project.plugins.findPlugin('net.minecraftforge.gradle')) return Map.of(Platform.FORGE, projectPath)
+            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return Map.of(Platform.NEOFORGE, projectPath)
+            else if (project.plugins.findPlugin('fabric-loom')) return Map.of(Platform.FABRIC, projectPath)
+            else if (project.plugins.findPlugin('org.quiltmc.loom')) return Map.of(Platform.QUILT, projectPath)
+        } else {
+            // subprojects, so account for the possibility of multiple platforms and guess based on the names of the subprojects
+            // (we can't check the subprojects' plugins from the root project because they haven't been applied yet)
+            final Map<Platform, List<String>> platforms = [:]
+            for (Project subproject in project.subprojects) {
+                switch (subproject.name) {
+                    case 'forge':
+                        if (platforms.containsKey(Platform.FORGE)) platforms[Platform.FORGE] << subproject.path
+                        else platforms[Platform.FORGE] = [subproject.path]
+                        break
+                    case 'neoforge':
+                        if (platforms.containsKey(Platform.NEOFORGE)) platforms[Platform.NEOFORGE] << subproject.path
+                        else platforms[Platform.NEOFORGE] = [subproject.path]
+                        break
+                    case 'fabric':
+                        if (platforms.containsKey(Platform.FABRIC)) platforms[Platform.FABRIC] << subproject.path
+                        else platforms[Platform.FABRIC] = [subproject.path]
+                        break
+                    case 'quilt':
+                        if (platforms.containsKey(Platform.QUILT)) platforms[Platform.QUILT] << subproject.path
+                        else platforms[Platform.QUILT] = [subproject.path]
+                        break
+                    case 'spigot':
+                        if (platforms.containsKey(Platform.SPIGOT)) platforms[Platform.SPIGOT] << subproject.path
+                        else platforms[Platform.SPIGOT] = [subproject.path]
+                        break
+                }
+            }
 
-        return Set.of(Platform.UNKNOWN)
+            return platforms.collectEntries { Platform platform, List<String> paths -> [platform, paths.toArray(String[]::new)] }
+        }
+
+        return Map.of()
     }
 }

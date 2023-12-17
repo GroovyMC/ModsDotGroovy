@@ -6,6 +6,7 @@ import groovy.transform.CompileStatic
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.ProjectLayout
@@ -19,6 +20,7 @@ import org.groovymc.modsdotgroovy.core.MapUtils
 import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.gradle.MDGExtension
 import org.groovymc.modsdotgroovy.transform.MDGBindingAdder
+import org.jetbrains.annotations.Nullable
 
 import javax.inject.Inject
 import java.nio.file.Files
@@ -81,9 +83,12 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         // default to e.g. build/modsDotGroovyToToml/mods.toml
         output.convention(projectLayout.buildDirectory.dir('generated/modsDotGroovy/' + name.replaceFirst('ConvertTo', 'modsDotGroovyTo')).map((Directory dir) -> dir.file(outputName.get())))
 
-        environmentBlacklist.convention(project.provider(() -> project.extensions.getByType(MDGExtension).environmentBlacklist.get()))
+        environmentBlacklist.convention(project.provider(() -> mdgExtension.environmentBlacklist.get()))
         buildProperties.convention(project.provider(() -> filterBuildProperties(project.extensions.extraProperties.properties, environmentBlacklist.get())))
-        platform.convention(project.provider(() -> project.extensions.getByType(MDGExtension).platforms.get().first()))
+        platform.convention(project.provider(() -> {
+            final @Nullable Set<Platform> platforms = mdgExtension.platforms?.get()?.keySet()
+            return platforms === null || platforms.isEmpty() ? Platform.FORGE : platforms.first()
+        }))
         projectVersion.convention(project.provider(() -> project.version.toString()))
         projectGroup.convention(project.provider(() -> project.group.toString()))
         platformDetailsFile.convention(projectLayout.buildDirectory.dir("generated/modsDotGroovy/gather${platform.get()}PlatformDetails").map((Directory dir) -> dir.file('mdgPlatform.json')))
@@ -129,8 +134,11 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
 
         final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingAdder)
         final Platform platform = platform.get()
-        if (platform !== Platform.FORGE)
-            bindingAdderTransform.annotationParameters = [className: "${platform.toString()}ModsDotGroovy"] as Map<String, Object>
+        // todo: support both single and multiplatform
+//        if (platform !== Platform.FORGE)
+//            bindingAdderTransform.annotationParameters = [className: "${platform.toString()}ModsDotGroovy"] as Map<String, Object>
+
+        bindingAdderTransform.annotationParameters = [className: "MultiplatformModsDotGroovy"] as Map<String, Object>
 
         compilerConfig.addCompilationCustomizers(bindingAdderTransform)
 
@@ -156,5 +164,9 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     @CompileDynamic
     private static Map fromScriptResult(def scriptResult) {
         return scriptResult.core.build()
+    }
+
+    private MDGExtension getMdgExtension() {
+        return project.extensions.findByType(MDGExtension) ?: project.parent.extensions.getByType(MDGExtension)
     }
 }

@@ -13,7 +13,7 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
 
     @Override
     void init(final Map<String, ?> environment) {
-        this.currentPlatform = environment['platform'] as Platform
+        this.currentPlatform = Platform.of(environment['platform'].invokeMethod('name', null) as String)
         if (currentPlatform !in [Platform.FORGE, Platform.FABRIC])
             throw new PluginResult.MDGPluginException('Unknown platform: ' + currentPlatform)
     }
@@ -78,19 +78,20 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     class Mods {
         class ModInfo {
             def setAuthors(final List<String> authors) {
-                if (currentPlatform === Platform.FABRIC)
+                if (MultiplatformPlugin.this.currentPlatform === Platform.FABRIC)
                     return PluginResult.move(['authors'], authors) // todo: see if this works... the structure is different in Fabric
             }
 
-            class Entrypoints {
-                def onNestEnter(final Deque<String> stack, final Map value) {
-                    return switch (currentPlatform) {
-                        case Platform.FORGE -> PluginResult.remove()
-                        case Platform.FABRIC -> PluginResult.move(['entrypoints'], value)
-                        default -> null
-                    }
-                }
-            }
+            // todo: fix removing nests
+//            class Entrypoints {
+//                def onNestEnter(final Deque<String> stack, final Map value) {
+//                    return switch (MultiplatformPlugin.this.currentPlatform) {
+//                        case Platform.FORGE -> PluginResult.remove()
+//                        case Platform.FABRIC -> PluginResult.move(['entrypoints'], value)
+//                        default -> null
+//                    }
+//                }
+//            }
         }
     }
 }

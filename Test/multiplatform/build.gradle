@@ -10,3 +10,15 @@ import org.groovymc.modsdotgroovy.core.Platform
     //platforms = [Platform.FORGE, Platform.FABRIC]
 //    automaticConfiguration = false
 //}
+
+plugins {
+    id 'org.groovymc.modsdotgroovy'
+}
+
+modsDotGroovy {
+    platforms = [
+            (Platform.FORGE): ':multiplatform:forge',
+            (Platform.FABRIC): ':multiplatform:fabric',
+    ]
+    //platforms = [(Platform.FABRIC): ':multiplatform:fabric']
+}

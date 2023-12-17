@@ -4,6 +4,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.util.logging.Log4j2
+import org.apache.logging.log4j.Level
 import org.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import org.groovymc.modsdotgroovy.plugin.NestKey
 import org.groovymc.modsdotgroovy.plugin.PluginRegistry
@@ -22,6 +23,7 @@ final class ModsDotGroovyCore {
     final StackAwareObservableMap backingData = new StackAwareObservableMap()
 
     ModsDotGroovyCore(final Map<String, ?> environment) {
+        log.level = Level.DEBUG
         plugins*.init(environment.asImmutable())
 
         // Setup backingData event listeners
