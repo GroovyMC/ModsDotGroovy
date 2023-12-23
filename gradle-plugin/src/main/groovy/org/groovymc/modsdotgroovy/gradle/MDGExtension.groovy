@@ -15,6 +15,9 @@ import javax.inject.Inject
 
 @CompileStatic
 abstract class MDGExtension {
+    private static final String EXPOSE_SOURCE_SET = 'shareModsDotGroovy'
+    private static final String DEFAULT_MDG = "mods.groovy"
+
     final Property<Boolean> setupDsl
     final Property<Boolean> setupPlugins
     final Property<Boolean> setupTasks
@@ -128,9 +131,6 @@ abstract class MDGExtension {
             expose(project.provider { file.singleFile })
         }
     }
-
-    private static final String EXPOSE_SOURCE_SET = 'shareModsDotGroovy'
-    private static final String DEFAULT_MDG = "mods.groovy"
 
     @PackageScope static String forSourceSetName(String sourceSetName, String name) {
         return sourceSetName == SourceSet.MAIN_SOURCE_SET_NAME ? name : "${sourceSetName}${name.capitalize()}"
