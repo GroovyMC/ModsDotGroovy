@@ -13,7 +13,6 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
@@ -87,12 +86,12 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
 
                     // if asked, setup the mods.groovy DSL
                     if (extension.setupDsl.get())
-                        setupDsl(project, frontendConfiguration, platform, extension.multiplatform.get())
+                        setupDsl(project, frontendConfiguration, platform, extension.multiplatformFlag.get())
 
                     // the plugins have to be done on a per-platform basis
                     // if asked, setup the mods.groovy plugins
                     if (extension.setupPlugins.get())
-                        setupPlugins(project, pluginConfiguration, platform, extension.multiplatform.get())
+                        setupPlugins(project, pluginConfiguration, platform, extension.multiplatformFlag.get())
 
                     // now the hard part - the tasks
                     // if asked, setup the mods.groovy Gradle tasks

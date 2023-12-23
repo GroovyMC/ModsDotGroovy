@@ -22,6 +22,8 @@ abstract class MDGExtension {
     private final MDGConversionOptions conversionOptions
     private final Property<FileCollection> modsDotGroovyFile
 
+    private final Multiplatform multiplatform
+
     Property<Boolean> getSetupDsl() {
         return setupDsl
     }
@@ -41,7 +43,7 @@ abstract class MDGExtension {
         return modsDotGroovyFile
     }
 
-    @PackageScope final Property<Boolean> multiplatform
+    @PackageScope final Property<Boolean> multiplatformFlag
     private final SourceSet sourceSet
 
     private final Project project
@@ -64,8 +66,10 @@ abstract class MDGExtension {
             include DEFAULT_MDG
         })
 
-        this.multiplatform = project.objects.property(Boolean)
-        this.multiplatform.convention(false)
+        this.multiplatformFlag = project.objects.property(Boolean)
+        this.multiplatformFlag.convention(false)
+
+        this.multiplatform = new Multiplatform()
 
         this.setupPlugins.convention(false)
         this.setupTasks.convention(false)
@@ -85,32 +89,11 @@ abstract class MDGExtension {
     }
 
     void multiplatform(Action<Multiplatform> action) {
-        action.execute(new Multiplatform())
+        action.execute(multiplatform)
     }
 
-    void expose(Object file, Action<? super ConfigurablePublishArtifact> configureAction) {
-        setupDsl.set(false)
-        setupPlugins.set(false)
-        setupTasks.set(false)
-        var configurationName = forSourceSetName(sourceSet.name, EXPOSE_SOURCE_SET)
-        var exposingConfiguration = project.configurations.maybeCreate(configurationName)
-        exposingConfiguration.canBeResolved = false
-        exposingConfiguration.canBeConsumed = true
-
-        project.artifacts {
-            add(configurationName, file, configureAction)
-        }
-    }
-
-    void expose(Object file) {
-        expose(file, {})
-    }
-
-    void expose() {
-        var file = sourceSet.resources.matching {
-            include DEFAULT_MDG
-        }
-        expose(project.provider { file.singleFile })
+    Multiplatform getMultiplatform() {
+        return multiplatform
     }
 
     void enable() {
@@ -141,7 +124,32 @@ abstract class MDGExtension {
             consumingConfiguration.canBeResolved = true
             consumingConfiguration.canBeConsumed = false
             getModsDotGroovyFile().set(consumingConfiguration)
-            multiplatform.set(true)
+            multiplatformFlag.set(true)
+        }
+
+        void expose(Object file, Action<? super ConfigurablePublishArtifact> configureAction) {
+            setupDsl.set(false)
+            setupPlugins.set(false)
+            setupTasks.set(false)
+            var configurationName = forSourceSetName(sourceSet.name, EXPOSE_SOURCE_SET)
+            var exposingConfiguration = project.configurations.maybeCreate(configurationName)
+            exposingConfiguration.canBeResolved = false
+            exposingConfiguration.canBeConsumed = true
+
+            project.artifacts {
+                add(configurationName, file, configureAction)
+            }
+        }
+
+        void expose(Object file) {
+            expose(file, {})
+        }
+
+        void expose() {
+            var file = sourceSet.resources.matching {
+                include DEFAULT_MDG
+            }
+            expose(project.provider { file.singleFile })
         }
     }
 
