@@ -2,135 +2,141 @@ package org.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
+import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ConfigurablePublishArtifact
+import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.SourceSet
 import org.groovymc.modsdotgroovy.core.Platform
 
 import javax.inject.Inject
 
 @CompileStatic
-class MDGExtension {
-    @PackageScope static final String NAME = 'modsDotGroovy'
-
-    private final MapProperty<Platform, String[]> platforms
-    private final SetProperty<String> environmentBlacklist
+abstract class MDGExtension {
     private final Property<Boolean> setupDsl
     private final Property<Boolean> setupPlugins
     private final Property<Boolean> setupTasks
-    //private final transient Project project
-
-    @Inject
-    MDGExtension(ObjectFactory objects, Project project) {
-        this.platforms = objects.mapProperty(Platform, String[])
-        this.platforms.convention(inferPlatforms(project))
-
-        this.environmentBlacklist = objects.setProperty(String)
-        this.environmentBlacklist.convention(['pass', 'password', 'token', 'key', 'secret'])
-
-        this.setupDsl = objects.property(Boolean)
-        this.setupDsl.convention(true)
-
-        this.setupPlugins = objects.property(Boolean)
-        this.setupPlugins.convention(true)
-
-        this.setupTasks = objects.property(Boolean)
-        this.setupTasks.convention(true)
-
-        //this.project = project
-    }
-
-    MapProperty<Platform, String[]> getPlatforms() {
-        return platforms
-    }
-
-    SetProperty<String> getEnvironmentBlacklist() {
-        return environmentBlacklist
-    }
+    private final ListProperty<Platform> platforms
+    private final MDGConversionOptions conversionOptions
+    private final Property<FileCollection> modsDotGroovyFile
 
     Property<Boolean> getSetupDsl() {
         return setupDsl
     }
-
     Property<Boolean> getSetupPlugins() {
         return setupPlugins
     }
-
     Property<Boolean> getSetupTasks() {
         return setupTasks
     }
+    ListProperty<Platform> getPlatforms() {
+        return platforms
+    }
+    MDGConversionOptions getConversionOptions() {
+        return conversionOptions
+    }
+    Property<FileCollection> getModsDotGroovyFile() {
+        return modsDotGroovyFile
+    }
 
-    void setPlatforms(Map<Platform, ?> platforms) {
-        this.platforms.set(platforms.collectEntries { Platform platform, def paths ->
-            if (paths instanceof String) return [platform, [paths] as String[]]
-            else if (paths instanceof List<String>) return [platform, paths.toArray(String[]::new)]
-            else throw new IllegalArgumentException("Invalid platform paths: $paths. Expected String or List<String>, got ${paths.getClass().getName()}")
+    @PackageScope final Property<Boolean> multiplatform
+    private final SourceSet sourceSet
+
+    private final Project project
+
+    @Inject
+    MDGExtension(SourceSet sourceSet, Project project) {
+        this.project = project
+        this.sourceSet = sourceSet
+
+        this.setupDsl = project.objects.property(Boolean)
+        this.setupPlugins = project.objects.property(Boolean)
+        this.setupTasks = project.objects.property(Boolean)
+        this.platforms = project.objects.listProperty(Platform)
+        this.conversionOptions = project.objects.newInstance(MDGConversionOptions)
+        this.modsDotGroovyFile = project.objects.property(FileCollection)
+
+        this.platforms.convention(inferPlatforms(project))
+
+        this.modsDotGroovyFile.convention(sourceSet.resources.matching {
+            include DEFAULT_MDG
         })
+
+        this.multiplatform = project.objects.property(Boolean)
+        this.multiplatform.convention(false)
+
+        this.setupPlugins.convention(false)
+        this.setupTasks.convention(false)
+        this.setupDsl.convention(false)
     }
 
-//    void setPlatform(Platform platform) {
-//        final String[] projectPath = [project.path]
-//        this.platforms.set(Map.of(platform, projectPath))
-//    }
-
-    void setEnvironmentBlacklist(String... blacklist) {
-        this.environmentBlacklist.set(Set.of(blacklist))
+    void conversionOptions(Action<MDGConversionOptions> action) {
+        action.execute(conversionOptions)
     }
 
-    void setSetupDsl(boolean setupDsl) {
-        this.setupDsl.set(setupDsl)
+    private static List<Platform> inferPlatforms(Project project) {
+        if (project.plugins.findPlugin('net.minecraftforge.gradle')) return List.of(Platform.FORGE)
+        else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return List.of(Platform.NEOFORGE)
+        else if (project.plugins.findPlugin('fabric-loom')) return List.of(Platform.FABRIC)
+        else if (project.plugins.findPlugin('org.quiltmc.loom')) return List.of(Platform.QUILT)
+        else return List.of()
     }
 
-    void setSetupPlugins(boolean setupPlugins) {
-        this.setupPlugins.set(setupPlugins)
+    void multiplatform(Action<Multiplatform> action) {
+        action.execute(new Multiplatform())
     }
 
-    void setSetupTasks(boolean setupTasks) {
-        this.setupTasks.set(setupTasks)
+    void expose(Object file, Action<? super ConfigurablePublishArtifact> configureAction) {
+        setupDsl.set(false)
+        setupPlugins.set(false)
+        setupTasks.set(false)
+        var configurationName = forSourceSetName(sourceSet.name, EXPOSE_SOURCE_SET)
+        var exposingConfiguration = project.configurations.maybeCreate(configurationName)
+        exposingConfiguration.canBeResolved = false
+        exposingConfiguration.canBeConsumed = true
+
+        project.artifacts {
+            add(configurationName, file, configureAction)
+        }
     }
 
-    private static Map<Platform, String[]> inferPlatforms(Project project) {
-        final String[] projectPath = [project.path]
-        if (project.subprojects.isEmpty()) {
-            // no subprojects, so assume a single platform
-            if (project.plugins.findPlugin('net.minecraftforge.gradle')) return Map.of(Platform.FORGE, projectPath)
-            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return Map.of(Platform.NEOFORGE, projectPath)
-            else if (project.plugins.findPlugin('fabric-loom')) return Map.of(Platform.FABRIC, projectPath)
-            else if (project.plugins.findPlugin('org.quiltmc.loom')) return Map.of(Platform.QUILT, projectPath)
-        } else {
-            // subprojects, so account for the possibility of multiple platforms and guess based on the names of the subprojects
-            // (we can't check the subprojects' plugins from the root project because they haven't been applied yet)
-            final Map<Platform, List<String>> platforms = [:]
-            for (Project subproject in project.subprojects) {
-                switch (subproject.name) {
-                    case 'forge':
-                        if (platforms.containsKey(Platform.FORGE)) platforms[Platform.FORGE] << subproject.path
-                        else platforms[Platform.FORGE] = [subproject.path]
-                        break
-                    case 'neoforge':
-                        if (platforms.containsKey(Platform.NEOFORGE)) platforms[Platform.NEOFORGE] << subproject.path
-                        else platforms[Platform.NEOFORGE] = [subproject.path]
-                        break
-                    case 'fabric':
-                        if (platforms.containsKey(Platform.FABRIC)) platforms[Platform.FABRIC] << subproject.path
-                        else platforms[Platform.FABRIC] = [subproject.path]
-                        break
-                    case 'quilt':
-                        if (platforms.containsKey(Platform.QUILT)) platforms[Platform.QUILT] << subproject.path
-                        else platforms[Platform.QUILT] = [subproject.path]
-                        break
-                    case 'spigot':
-                        if (platforms.containsKey(Platform.SPIGOT)) platforms[Platform.SPIGOT] << subproject.path
-                        else platforms[Platform.SPIGOT] = [subproject.path]
-                        break
-                }
-            }
+    void expose(Object file) {
+        expose(file, {})
+    }
 
-            return platforms.collectEntries { Platform platform, List<String> paths -> [platform, paths.toArray(String[]::new)] }
+    void expose() {
+        var file = sourceSet.resources.matching {
+            include DEFAULT_MDG
+        }
+        expose(project.provider { file.singleFile })
+    }
+
+    @CompileStatic
+    class Multiplatform {
+        void from(String projectPath) {
+            from(projectPath, sourceSet.name)
         }
 
-        return Map.of()
+        void from(String projectPath, String sourceSetName) {
+            var configurationName = forSourceSetName(sourceSetName, EXPOSE_SOURCE_SET)
+            var consumingConfiguration = project.configurations.detachedConfiguration(
+                    project.dependencies.project(path: projectPath, configuration: configurationName)
+            )
+            consumingConfiguration.canBeResolved = true
+            consumingConfiguration.canBeConsumed = false
+            getModsDotGroovyFile().set(consumingConfiguration)
+            multiplatform.set(true)
+        }
+    }
+
+    private static final String EXPOSE_SOURCE_SET = 'shareModsDotGroovy'
+    private static final String DEFAULT_MDG = "mods.groovy"
+
+    @PackageScope static String forSourceSetName(String sourceSetName, String name) {
+        return sourceSetName == SourceSet.MAIN_SOURCE_SET_NAME ? name : "${sourceSetName}${name.capitalize()}"
     }
 }

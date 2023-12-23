@@ -1,0 +1,7 @@
+import org.groovymc.modsdotgroovy.core.Platform
+
+plugins {
+    id 'org.groovymc.modsdotgroovy'
+}
+
+modsDotGroovy.expose()

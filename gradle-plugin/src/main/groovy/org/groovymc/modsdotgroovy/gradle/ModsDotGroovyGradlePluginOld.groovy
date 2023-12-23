@@ -35,12 +35,12 @@ class ModsDotGroovyGradlePluginOld implements Plugin<Project> {
     @PackageScope static final String CONFIGURATION_NAME_PLUGIN = 'mdgPlugin'
     @PackageScope static final String CONFIGURATION_NAME_FRONTEND = 'mdgFrontend'
 
-    private MDGExtension mdgExtension
+    private MDGExtensionOldish mdgExtension
 
     @Override
     @CompileDynamic
     void apply(Project project) {
-        mdgExtension = project.extensions.create(MDGExtension.NAME, MDGExtension)
+        mdgExtension = project.extensions.create(MDGExtensionOldish.NAME, MDGExtensionOldish)
 
         final rootConfiguration = project.configurations.register(CONFIGURATION_NAME_ROOT) {
             canBeConsumed = false
