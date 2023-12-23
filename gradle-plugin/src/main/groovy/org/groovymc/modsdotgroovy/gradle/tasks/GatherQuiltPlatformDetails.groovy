@@ -18,7 +18,7 @@ abstract class GatherQuiltPlatformDetails extends GatherFabricPlatformDetails {
         // this.minecraftVersion.convention(project.provider(this::getMCVersionFromLoom))
     }
 
-    @TaskAction
+    @Override
     void run() throws IllegalStateException {
         @Nullable String minecraftVersion = this.minecraftVersion.getOrNull()
         @Nullable String platformVersion = this.platformVersion.getOrNull()

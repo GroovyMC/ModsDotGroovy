@@ -149,6 +149,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 final gatherTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'gatherForgePlatformDetails'), GatherForgePlatformDetails)
                 convertTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlForge'), ModsDotGroovyToToml) { ModsDotGroovyToToml task ->
                     task.dependsOn gatherTask
+                    task.platformDetailsFile.set(gatherTask.get().outputFile)
                     task.platform.set(Platform.FORGE)
                 }
                 processResourcesTask.configure { task ->
@@ -162,6 +163,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 final gatherTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'gatherNeoForgePlatformDetails'), GatherNeoForgePlatformDetails)
                 convertTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlNeoForge'), ModsDotGroovyToToml) { ModsDotGroovyToToml task ->
                     task.dependsOn gatherTask
+                    task.platformDetailsFile.set(gatherTask.get().outputFile)
                     task.platform.set(Platform.NEOFORGE)
                 }
                 processResourcesTask.configure { task ->
@@ -175,6 +177,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 final gatherTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'gatherFabricPlatformDetails'), GatherFabricPlatformDetails)
                 convertTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'modsDotGroovyToJsonFabric'), ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
                     task.dependsOn gatherTask
+                    task.platformDetailsFile.set(gatherTask.get().outputFile)
                     task.outputName.set('fabric.mod.json')
                     task.platform.set(Platform.FABRIC)
                 }
@@ -189,6 +192,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 final gatherTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'gatherQuiltPlatformDetails'), GatherQuiltPlatformDetails)
                 convertTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'modsDotGroovyToJsonQuilt'), ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
                     task.dependsOn gatherTask
+                    task.platformDetailsFile.set(gatherTask.get().outputFile)
                     task.outputName.set('quilt.mod.json')
                     task.platform.set(Platform.QUILT)
                 }
@@ -200,9 +204,11 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 }
                 break
             case Platform.SPIGOT:
-                // todo: gatherSpigotPlatformDetails
+                final gatherTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'gatherSpigotPlatformDetails'), AbstractGatherPlatformDetailsTask)
                 convertTask = project.tasks.register(MDGExtension.forSourceSetName(sourceSet.name, 'modsDotGroovyToYmlSpigot'), ModsDotGroovyToYml) { ModsDotGroovyToYml task ->
+                    task.dependsOn gatherTask
                     task.outputName.set('spigot.yml')
+                    task.platformDetailsFile.set(gatherTask.get().outputFile)
                     task.platform.set(Platform.SPIGOT)
                 }
                 processResourcesTask.configure { task ->

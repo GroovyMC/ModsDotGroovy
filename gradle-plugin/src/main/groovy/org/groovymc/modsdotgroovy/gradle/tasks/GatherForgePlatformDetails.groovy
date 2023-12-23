@@ -31,7 +31,7 @@ abstract class GatherForgePlatformDetails extends AbstractGatherPlatformDetailsT
         this.dependencyJars.from(providerFactory.provider(() -> configuration ?: []))
     }
 
-    @TaskAction
+    @Override
     void run() throws IllegalStateException {
         @Nullable String minecraftVersion = this.minecraftVersion.getOrNull()
         @Nullable String platformVersion = this.platformVersion.getOrNull()

@@ -6,10 +6,8 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ConfigurablePublishArtifact
 import org.gradle.api.file.FileCollection
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.SourceSet
 import org.groovymc.modsdotgroovy.core.Platform
 
@@ -113,6 +111,20 @@ abstract class MDGExtension {
             include DEFAULT_MDG
         }
         expose(project.provider { file.singleFile })
+    }
+
+    void enable() {
+        setupDsl.set(true)
+        setupPlugins.set(true)
+        setupTasks.set(true)
+    }
+
+    void platform(Platform platform) {
+        platforms.add(platform)
+    }
+
+    void setPlatform(Platform platform) {
+        this.platforms.set(List.of(platform))
     }
 
     @CompileStatic

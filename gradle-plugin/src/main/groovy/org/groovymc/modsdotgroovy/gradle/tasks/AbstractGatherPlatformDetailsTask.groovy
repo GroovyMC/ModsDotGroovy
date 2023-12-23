@@ -20,6 +20,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 import org.jetbrains.annotations.Nullable
 
 import javax.inject.Inject
@@ -99,5 +100,10 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
                     'minecraftVersionRange', "[${minecraftVersion},1.${(DOT_PATTERN.split(minecraftVersion, 3)[1] as int) + 1})".toString(),
             )).toPrettyString())
         }
+    }
+
+    @TaskAction
+    void run() throws IllegalStateException {
+        this.writePlatformDetails(minecraftVersion.get(), platformVersion.get())
     }
 }

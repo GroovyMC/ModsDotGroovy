@@ -81,7 +81,6 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     protected abstract ProjectLayout getProjectLayout()
 
     AbstractMDGConvertTask() {
-        input.convention(projectLayout.projectDirectory.file('src/main/resources/mods.groovy'))
         // default to e.g. build/modsDotGroovyToToml/mods.toml
         output.convention(projectLayout.buildDirectory.dir('generated/modsDotGroovy/' + name.replaceFirst('ConvertTo', 'modsDotGroovyTo')).map((Directory dir) -> dir.file(outputName.get())))
 
@@ -89,7 +88,6 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         buildProperties.convention(project.provider(() -> filterBuildProperties(project.extensions.extraProperties.properties, environmentBlacklist.get())))
         projectVersion.convention(project.provider(() -> project.version.toString()))
         projectGroup.convention(project.provider(() -> project.group.toString()))
-        platformDetailsFile.convention(projectLayout.buildDirectory.dir(project.provider(() ->"generated/modsDotGroovy/gather${platform.get()}PlatformDetails")).map((Directory dir) -> dir.file('mdgPlatform.json')))
     }
 
     protected abstract String writeData(Map data)

@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable
 @CompileStatic
 abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetailsTask {
 
-    @TaskAction
+    @Override
     void run() throws IllegalStateException {
         @Nullable String minecraftVersion = this.minecraftVersion.getOrNull() ?: versions[0]
         @Nullable String platformVersion = this.platformVersion.getOrNull() ?: versions[1]
