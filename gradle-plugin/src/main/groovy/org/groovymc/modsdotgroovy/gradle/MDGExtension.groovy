@@ -15,33 +15,13 @@ import javax.inject.Inject
 
 @CompileStatic
 abstract class MDGExtension {
-    private final Property<Boolean> setupDsl
-    private final Property<Boolean> setupPlugins
-    private final Property<Boolean> setupTasks
-    private final ListProperty<Platform> platforms
-    private final MDGConversionOptions conversionOptions
-    private final Property<FileCollection> modsDotGroovyFile
-
-    private final Multiplatform multiplatform
-
-    Property<Boolean> getSetupDsl() {
-        return setupDsl
-    }
-    Property<Boolean> getSetupPlugins() {
-        return setupPlugins
-    }
-    Property<Boolean> getSetupTasks() {
-        return setupTasks
-    }
-    ListProperty<Platform> getPlatforms() {
-        return platforms
-    }
-    MDGConversionOptions getConversionOptions() {
-        return conversionOptions
-    }
-    Property<FileCollection> getModsDotGroovyFile() {
-        return modsDotGroovyFile
-    }
+    final Property<Boolean> setupDsl
+    final Property<Boolean> setupPlugins
+    final Property<Boolean> setupTasks
+    final ListProperty<Platform> platforms
+    final MDGConversionOptions conversionOptions
+    final Property<FileCollection> modsDotGroovyFile
+    final Multiplatform multiplatform
 
     @PackageScope final Property<Boolean> multiplatformFlag
     private final SourceSet sourceSet
@@ -90,10 +70,6 @@ abstract class MDGExtension {
 
     void multiplatform(Action<Multiplatform> action) {
         action.execute(multiplatform)
-    }
-
-    Multiplatform getMultiplatform() {
-        return multiplatform
     }
 
     void enable() {
