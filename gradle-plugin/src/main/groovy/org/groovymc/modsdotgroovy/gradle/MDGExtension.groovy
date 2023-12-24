@@ -1,7 +1,6 @@
 package org.groovymc.modsdotgroovy.gradle
 
 import groovy.transform.CompileStatic
-import groovy.transform.PackageScope
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
@@ -21,15 +20,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.groovymc.modsdotgroovy.core.Platform
-import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
-import org.groovymc.modsdotgroovy.gradle.tasks.AbstractMDGConvertTask
-import org.groovymc.modsdotgroovy.gradle.tasks.GatherFabricPlatformDetails
-import org.groovymc.modsdotgroovy.gradle.tasks.GatherForgePlatformDetails
-import org.groovymc.modsdotgroovy.gradle.tasks.GatherNeoForgePlatformDetails
-import org.groovymc.modsdotgroovy.gradle.tasks.GatherQuiltPlatformDetails
-import org.groovymc.modsdotgroovy.gradle.tasks.ModsDotGroovyToJson
-import org.groovymc.modsdotgroovy.gradle.tasks.ModsDotGroovyToToml
-import org.groovymc.modsdotgroovy.gradle.tasks.ModsDotGroovyToYml
+import org.groovymc.modsdotgroovy.gradle.tasks.*
 
 import javax.inject.Inject
 
@@ -54,7 +45,7 @@ abstract class MDGExtension {
     final Property<FileCollection> modsDotGroovyFile
     final Multiplatform multiplatform
 
-    @PackageScope final Property<Boolean> multiplatformFlag
+    private final Property<Boolean> multiplatformFlag
     private final SourceSet sourceSet
 
     private final Project project
@@ -112,6 +103,20 @@ abstract class MDGExtension {
         action.execute(multiplatform)
     }
 
+    void enable() {
+        setupDsl.set(true)
+        setupPlugins.set(true)
+        setupTasks.set(true)
+    }
+
+    void platform(Platform platform) {
+        platforms.add(platform)
+    }
+
+    void setPlatform(Platform platform) {
+        this.platforms.set(List.of(platform))
+    }
+
     void apply() {
         if (applied) {
             return
@@ -160,6 +165,54 @@ abstract class MDGExtension {
             // setup IDE support by adding the mdgFrontend configuration to the compileOnly configuration
             project.configurations.named(sourceSet.compileOnlyConfigurationName).configure(conf -> conf.extendsFrom(frontendConfiguration.get()))
         }
+    }
+
+    @CompileStatic
+    class Multiplatform {
+        void from(String projectPath) {
+            from(projectPath, sourceSet.name)
+        }
+
+        void from(String projectPath, String sourceSetName) {
+            var configurationName = forSourceSetName(sourceSetName, EXPOSE_SOURCE_SET)
+            var consumingConfiguration = project.configurations.detachedConfiguration(
+                    project.dependencies.project(path: projectPath, configuration: configurationName)
+            )
+            consumingConfiguration.canBeResolved = true
+            consumingConfiguration.canBeConsumed = false
+            getModsDotGroovyFile().set(consumingConfiguration)
+            multiplatformFlag.set(true)
+        }
+
+        void expose(Object file, Action<? super ConfigurablePublishArtifact> configureAction) {
+            setupPlugins.set(false)
+            setupTasks.set(false)
+            multiplatformFlag.set(true)
+            platforms.set([Platform.UNKNOWN])
+            var configurationName = forSourceSetName(sourceSet.name, EXPOSE_SOURCE_SET)
+            var exposingConfiguration = project.configurations.maybeCreate(configurationName)
+            exposingConfiguration.canBeResolved = false
+            exposingConfiguration.canBeConsumed = true
+
+            project.artifacts {
+                add(configurationName, file, configureAction)
+            }
+        }
+
+        void expose(Object file) {
+            expose(file, {})
+        }
+
+        void expose() {
+            var file = sourceSet.resources.matching {
+                include DEFAULT_MDG
+            }
+            expose(project.provider { file.singleFile })
+        }
+    }
+
+    private static String forSourceSetName(String sourceSetName, String name) {
+        return sourceSetName == SourceSet.MAIN_SOURCE_SET_NAME ? name : "${sourceSetName}${name.capitalize()}"
     }
 
     private static void setupDsl(Project project, NamedDomainObjectProvider<Configuration> frontendConfiguration, Platform platform, boolean multiplatform) {
@@ -285,67 +338,5 @@ abstract class MDGExtension {
                 task.conversionOptions.set(conversionOptions)
             }
         }
-    }
-
-    void enable() {
-        setupDsl.set(true)
-        setupPlugins.set(true)
-        setupTasks.set(true)
-    }
-
-    void platform(Platform platform) {
-        platforms.add(platform)
-    }
-
-    void setPlatform(Platform platform) {
-        this.platforms.set(List.of(platform))
-    }
-
-    @CompileStatic
-    class Multiplatform {
-        void from(String projectPath) {
-            from(projectPath, sourceSet.name)
-        }
-
-        void from(String projectPath, String sourceSetName) {
-            var configurationName = forSourceSetName(sourceSetName, EXPOSE_SOURCE_SET)
-            var consumingConfiguration = project.configurations.detachedConfiguration(
-                    project.dependencies.project(path: projectPath, configuration: configurationName)
-            )
-            consumingConfiguration.canBeResolved = true
-            consumingConfiguration.canBeConsumed = false
-            getModsDotGroovyFile().set(consumingConfiguration)
-            multiplatformFlag.set(true)
-        }
-
-        void expose(Object file, Action<? super ConfigurablePublishArtifact> configureAction) {
-            setupPlugins.set(false)
-            setupTasks.set(false)
-            multiplatformFlag.set(true)
-            platforms.set([Platform.UNKNOWN])
-            var configurationName = forSourceSetName(sourceSet.name, EXPOSE_SOURCE_SET)
-            var exposingConfiguration = project.configurations.maybeCreate(configurationName)
-            exposingConfiguration.canBeResolved = false
-            exposingConfiguration.canBeConsumed = true
-
-            project.artifacts {
-                add(configurationName, file, configureAction)
-            }
-        }
-
-        void expose(Object file) {
-            expose(file, {})
-        }
-
-        void expose() {
-            var file = sourceSet.resources.matching {
-                include DEFAULT_MDG
-            }
-            expose(project.provider { file.singleFile })
-        }
-    }
-
-    @PackageScope static String forSourceSetName(String sourceSetName, String name) {
-        return sourceSetName == SourceSet.MAIN_SOURCE_SET_NAME ? name : "${sourceSetName}${name.capitalize()}"
     }
 }
