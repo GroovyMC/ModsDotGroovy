@@ -37,4 +37,4 @@ includeBuild '../'
 
 //include 'neoforge'
 include 'forge', 'fabric', 'quilt', 'spigot'
-include 'multiplatform', 'multiplatform:forge', 'multiplatform:fabric', 'multiplatform:common'
+//include 'multiplatform', 'multiplatform:forge', 'multiplatform:fabric', 'multiplatform:common'

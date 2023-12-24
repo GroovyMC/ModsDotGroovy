@@ -9,5 +9,6 @@ abstract class MDGConversionOptions {
 
     MDGConversionOptions() {
         this.environmentBlacklist.convention(['pass', 'password', 'token', 'key', 'secret'])
+        this.environmentBlacklist.finalizeValueOnRead()
     }
 }
