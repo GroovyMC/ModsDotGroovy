@@ -246,8 +246,8 @@ abstract class MDGExtension {
         })
     }
 
-    private <T extends AbstractGatherPlatformDetailsTask> TaskProvider<T> makeGatherTask(Platform platform, Class<T> gatherType) {
-        return project.tasks.register(forSourceSetName(sourceSet.name, "gather${platform.name().capitalize()}PlatformDetails"), gatherType)
+    private <T extends AbstractGatherPlatformDetailsTask> TaskProvider<T> makeGatherTask(Platform platform, Class<T> gatherType, Object... args) {
+        return project.tasks.register(forSourceSetName(sourceSet.name, "gather${platform.name().capitalize()}PlatformDetails"), gatherType, args)
     }
 
     private void setupTasks(SourceSet sourceSet, Platform platform, Provider<Configuration> root, Provider<Configuration> plugin, Provider<Configuration> frontend) {
@@ -265,10 +265,7 @@ abstract class MDGExtension {
                     gatherTask = makeGatherTask(platform, GatherForgePlatformDetails)
                     break
                 case Platform.NEOFORGE:
-                    gatherTask = makeGatherTask(platform, GatherNeoForgePlatformDetails)
-                    gatherTask.configure {
-                        it.conventions(sourceSet.compileClasspathConfigurationName)
-                    }
+                    gatherTask = makeGatherTask(platform, GatherNeoForgePlatformDetails, sourceSet.compileClasspathConfigurationName)
                     break
                 case Platform.FABRIC:
                     gatherTask = makeGatherTask(platform, GatherFabricPlatformDetails)
