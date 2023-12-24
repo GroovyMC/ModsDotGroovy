@@ -4,14 +4,15 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.Nullable
+
+import javax.inject.Inject
 
 @CacheableTask
 @CompileStatic
 abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetailsTask {
-    @ApiStatus.Internal
-    void conventions(String configurationName) {
+    @Inject
+    GatherNeoForgePlatformDetails(String configurationName) {
         var versions = calculateVersions(configurationName)
         this.minecraftVersion.convention(versions.map { it[0] })
         this.platformVersion.convention(versions.map { it[1] })

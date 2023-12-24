@@ -33,7 +33,6 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
 
     private final Property<@Nullable String> minecraftVersion = objectFactory.property(String)
     private final Property<@Nullable String> platformVersion = objectFactory.property(String)
-    private final Property<String> configurationName = objectFactory.property(String)
     private final RegularFileProperty outputFile = objectFactory.fileProperty()
 
     @Optional @Input
@@ -44,11 +43,6 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
     @Optional @Input
     Property<@Nullable String> getPlatformVersion() {
         return platformVersion
-    }
-
-    @Input
-    Property<String> getConfigurationName() {
-        return configurationName
     }
 
     @OutputFile
@@ -66,13 +60,7 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
         throw new IllegalStateException('ObjectFactory not injected')
     }
 
-    @Inject
-    protected ProviderFactory getProviderFactory() {
-        throw new IllegalStateException('ProviderFactory not injected')
-    }
-
     AbstractGatherPlatformDetailsTask() {
-        configurationName.convention('implementation')
         outputFile.convention(projectLayout.buildDirectory.dir("generated/modsDotGroovy/${name.uncapitalize()}").map((Directory dir) -> dir.file('mdgPlatform.json')))
     }
 
@@ -82,10 +70,6 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
 
     void setPlatformVersion(String version) {
         platformVersion.set(version)
-    }
-
-    void setConfigurationName(String name) {
-        configurationName.set(name)
     }
 
     void setOutputFile(File file) {
