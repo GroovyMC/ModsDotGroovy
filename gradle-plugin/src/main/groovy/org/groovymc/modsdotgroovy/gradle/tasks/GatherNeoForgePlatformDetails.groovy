@@ -13,22 +13,9 @@ import javax.inject.Inject
 abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetailsTask {
     @Inject
     GatherNeoForgePlatformDetails(String configurationName) {
-        // query neogradle after project evaluate instead of during a task run for the sake of better caching
-        try {
-            project.afterEvaluate {
-                var versions = calculateVersions(configurationName)
-                this.minecraftVersion.convention(versions.map { it[0] })
-                this.platformVersion.convention(versions.map { it[1] })
-            }
-        } catch (Exception e) {
-            if (project.state.executed) {
-                var versions = calculateVersions(configurationName)
-                this.minecraftVersion.convention(versions.map { it[0] })
-                this.platformVersion.convention(versions.map { it[1] })
-            } else {
-                throw e
-            }
-        }
+        var versions = calculateVersions(configurationName)
+        this.minecraftVersion.convention(versions.map { it[0] })
+        this.platformVersion.convention(versions.map { it[1] })
     }
 
     /**

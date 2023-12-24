@@ -7,6 +7,7 @@ import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier
@@ -37,23 +38,7 @@ abstract class GatherLoomPlatformDetails extends AbstractGatherPlatformDetailsTa
 
     GatherLoomPlatformDetails() {
         // query loom after project evaluate instead of during a task run for the sake of better caching
-        try {
-            project.afterEvaluate {
-                var mcVersion = getMCVersionFromLoom()
-                if (mcVersion !== null) {
-                    this.minecraftVersion.convention(mcVersion)
-                }
-            }
-        } catch (Exception e) {
-            if (project.state.executed) {
-                var mcVersion = getMCVersionFromLoom()
-                if (mcVersion !== null) {
-                    this.minecraftVersion.convention(mcVersion)
-                }
-            } else {
-                throw e
-            }
-        }
+        this.minecraftVersion.convention(getMCVersionFromLoom())
     }
 
     @Override
@@ -69,9 +54,11 @@ abstract class GatherLoomPlatformDetails extends AbstractGatherPlatformDetailsTa
     }
 
     @CompileDynamic
-    private @Nullable String getMCVersionFromLoom() {
-        // Todo: Use non-internal Loom API when available - https://github.com/FabricMC/fabric-loom/issues/982
-        final @Nullable def loomExtension = project.extensions.findByName('loom')
-        return loomExtension?.minecraftProvider?.minecraftVersion()
+    private Provider<String> getMCVersionFromLoom() {
+        return project.provider {
+            // Todo: Use non-internal Loom API when available - https://github.com/FabricMC/fabric-loom/issues/982
+            final @Nullable def loomExtension = project.extensions.findByName('loom')
+            return (String) loomExtension?.minecraftProvider?.minecraftVersion()
+        }
     }
 }
