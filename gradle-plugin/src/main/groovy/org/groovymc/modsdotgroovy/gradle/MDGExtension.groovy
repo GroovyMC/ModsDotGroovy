@@ -40,6 +40,7 @@ abstract class MDGExtension {
     final Property<Boolean> setupDsl
     final Property<Boolean> setupPlugins
     final Property<Boolean> setupTasks
+    final Property<Boolean> inferGather
     final ListProperty<Platform> platforms
     final MDGConversionOptions conversionOptions
     final Property<FileCollection> modsDotGroovyFile
@@ -60,6 +61,7 @@ abstract class MDGExtension {
         this.setupDsl = project.objects.property(Boolean)
         this.setupPlugins = project.objects.property(Boolean)
         this.setupTasks = project.objects.property(Boolean)
+        this.inferGather = project.objects.property(Boolean)
         this.platforms = project.objects.listProperty(Platform)
         this.conversionOptions = project.objects.newInstance(MDGConversionOptions)
         this.modsDotGroovyFile = project.objects.property(FileCollection)
@@ -78,10 +80,12 @@ abstract class MDGExtension {
         this.setupPlugins.convention(false)
         this.setupTasks.convention(false)
         this.setupDsl.convention(false)
+        this.inferGather.convention(true)
 
         this.setupDsl.finalizeValueOnRead()
         this.setupPlugins.finalizeValueOnRead()
         this.setupTasks.finalizeValueOnRead()
+        this.inferGather.finalizeValueOnRead()
         this.platforms.finalizeValueOnRead()
         this.modsDotGroovyFile.finalizeValueOnRead()
         this.multiplatformFlag.finalizeValueOnRead()
@@ -149,17 +153,17 @@ abstract class MDGExtension {
 
             // if asked, setup the mods.groovy DSL
             if (this.setupDsl.get())
-                setupDsl(project, frontendConfiguration, platform, this.multiplatformFlag.get())
+                setupDsl(frontendConfiguration, platform)
 
             // the plugins have to be done on a per-platform basis
             // if asked, setup the mods.groovy plugins
             if (this.setupPlugins.get())
-                setupPlugins(project, pluginConfiguration, platform, this.multiplatformFlag.get())
+                setupPlugins(pluginConfiguration, platform)
 
             // now the hard part - the tasks
             // if asked, setup the mods.groovy Gradle tasks
             if (this.setupTasks.get())
-                setupTasks(project, sourceSet, platform, rootConfiguration, pluginConfiguration, frontendConfiguration, this.modsDotGroovyFile, this.conversionOptions)
+                setupTasks(sourceSet, platform, rootConfiguration, pluginConfiguration, frontendConfiguration)
 
 
             // setup IDE support by adding the mdgFrontend configuration to the compileOnly configuration
@@ -215,8 +219,8 @@ abstract class MDGExtension {
         return sourceSetName == SourceSet.MAIN_SOURCE_SET_NAME ? name : "${sourceSetName}${name.capitalize()}"
     }
 
-    private static void setupDsl(Project project, NamedDomainObjectProvider<Configuration> frontendConfiguration, Platform platform, boolean multiplatform) {
-        if (!multiplatform && platform !in Platform.STOCK_PLATFORMS) {
+    private void setupDsl(NamedDomainObjectProvider<Configuration> frontendConfiguration, Platform platform) {
+        if (!multiplatformFlag.get() && platform !in Platform.STOCK_PLATFORMS) {
             throw new UnsupportedOperationException("""
                 There is no stock frontend DSL available for $platform on this version of ModsDotGroovy.
                 Possible solutions:
@@ -226,23 +230,27 @@ abstract class MDGExtension {
         }
 
         // mdgFrontend "org.groovymc.modsdotgroovy.frontend-dsl:<platform>"
-        final String platformName = multiplatform ? 'multiplatform' : platform.name().toLowerCase(Locale.ROOT)
+        final String platformName = multiplatformFlag.get() ? 'multiplatform' : platform.name().toLowerCase(Locale.ROOT)
         frontendConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platformName)))
     }
 
-    private static void setupPlugins(Project project, NamedDomainObjectProvider<Configuration> pluginConfiguration, Platform platform, boolean multiplatform) {
+    private void setupPlugins(NamedDomainObjectProvider<Configuration> pluginConfiguration, Platform platform) {
         if (platform !in Platform.STOCK_PLATFORMS)
             return // no stock plugins available for this platform
 
         // mdgPlugin "org.groovymc.modsdotgroovy.stock-plugins:<platform>"
         pluginConfiguration.configure(conf -> {
-            if (multiplatform) conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':multiplatform'))
+            if (multiplatformFlag.get()) conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':multiplatform'))
 
             conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT)))
         })
     }
 
-    private static void setupTasks(Project project, SourceSet sourceSet, Platform platform, Provider<Configuration> root, Provider<Configuration> plugin, Provider<Configuration> frontend, Provider<FileCollection> masterModsDotGroovyFile, MDGConversionOptions conversionOptions) {
+    private <T extends AbstractGatherPlatformDetailsTask> TaskProvider<T> gatherTask(Platform platform, Class<T> gatherType) {
+        return project.tasks.register(forSourceSetName(sourceSet.name, "gather${platform.name().capitalize()}PlatformDetails"), gatherType)
+    }
+
+    private void setupTasks(SourceSet sourceSet, Platform platform, Provider<Configuration> root, Provider<Configuration> plugin, Provider<Configuration> frontend) {
         // three steps:
         // 1. register a task to gather platform's details
         // 2. register a task to convert the mods.groovy file to a platform-specific file
@@ -250,16 +258,33 @@ abstract class MDGExtension {
 
         final TaskProvider<ProcessResources> processResourcesTask = project.tasks.named(sourceSet.processResourcesTaskName, ProcessResources)
 
-        TaskProvider<? extends AbstractMDGConvertTask> convertTask = null
+        final Class<? extends AbstractGatherPlatformDetailsTask> gatherType
+        if (inferGather.get()) {
+            switch (platform) {
+                case Platform.FORGE:
+                    gatherType = GatherForgePlatformDetails
+                    break
+                case Platform.NEOFORGE:
+                    gatherType = GatherNeoForgePlatformDetails
+                    break
+                case Platform.FABRIC:
+                    gatherType = GatherFabricPlatformDetails
+                    break
+                case Platform.QUILT:
+                    gatherType = GatherQuiltPlatformDetails
+                    break
+                default:
+                    gatherType = AbstractGatherPlatformDetailsTask
+            }
+        } else {
+            gatherType = AbstractGatherPlatformDetailsTask
+        }
+        final TaskProvider<? extends AbstractGatherPlatformDetailsTask> gatherTask = gatherTask(platform, gatherType)
 
+        TaskProvider<? extends AbstractMDGConvertTask> convertTask
         switch (platform) {
             case Platform.FORGE:
-                final gatherTask = project.tasks.register(forSourceSetName(sourceSet.name, 'gatherForgePlatformDetails'), GatherForgePlatformDetails)
-                convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlForge'), ModsDotGroovyToToml) { ModsDotGroovyToToml task ->
-                    task.dependsOn gatherTask
-                    task.platformDetailsFile.set(gatherTask.get().outputFile)
-                    task.platform.set(Platform.FORGE)
-                }
+                convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlForge'), ModsDotGroovyToToml)
                 processResourcesTask.configure { task ->
                     task.dependsOn convertTask
                     task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
@@ -268,12 +293,7 @@ abstract class MDGExtension {
                 }
                 break
             case Platform.NEOFORGE:
-                final gatherTask = project.tasks.register(forSourceSetName(sourceSet.name, 'gatherNeoForgePlatformDetails'), GatherNeoForgePlatformDetails)
-                convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlNeoForge'), ModsDotGroovyToToml) { ModsDotGroovyToToml task ->
-                    task.dependsOn gatherTask
-                    task.platformDetailsFile.set(gatherTask.get().outputFile)
-                    task.platform.set(Platform.NEOFORGE)
-                }
+                convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlNeoForge'), ModsDotGroovyToToml)
                 processResourcesTask.configure { task ->
                     task.dependsOn convertTask
                     task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
@@ -282,12 +302,8 @@ abstract class MDGExtension {
                 }
                 break
             case Platform.FABRIC:
-                final gatherTask = project.tasks.register(forSourceSetName(sourceSet.name, 'gatherFabricPlatformDetails'), GatherFabricPlatformDetails)
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToJsonFabric'), ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
-                    task.dependsOn gatherTask
-                    task.platformDetailsFile.set(gatherTask.get().outputFile)
                     task.outputName.set('fabric.mod.json')
-                    task.platform.set(Platform.FABRIC)
                 }
                 processResourcesTask.configure { task ->
                     task.dependsOn convertTask
@@ -297,12 +313,8 @@ abstract class MDGExtension {
                 }
                 break
             case Platform.QUILT:
-                final gatherTask = project.tasks.register(forSourceSetName(sourceSet.name, 'gatherQuiltPlatformDetails'), GatherQuiltPlatformDetails)
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToJsonQuilt'), ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
-                    task.dependsOn gatherTask
-                    task.platformDetailsFile.set(gatherTask.get().outputFile)
                     task.outputName.set('quilt.mod.json')
-                    task.platform.set(Platform.QUILT)
                 }
                 processResourcesTask.configure { task ->
                     task.dependsOn convertTask
@@ -312,12 +324,8 @@ abstract class MDGExtension {
                 }
                 break
             case Platform.SPIGOT:
-                final gatherTask = project.tasks.register(forSourceSetName(sourceSet.name, 'gatherSpigotPlatformDetails'), AbstractGatherPlatformDetailsTask)
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToYmlSpigot'), ModsDotGroovyToYml) { ModsDotGroovyToYml task ->
-                    task.dependsOn gatherTask
                     task.outputName.set('spigot.yml')
-                    task.platformDetailsFile.set(gatherTask.get().outputFile)
-                    task.platform.set(Platform.SPIGOT)
                 }
                 processResourcesTask.configure { task ->
                     task.dependsOn convertTask
@@ -325,11 +333,17 @@ abstract class MDGExtension {
                         spec.into '.'
                     }
                 }
+                break
+            default:
+                convertTask = null
         }
 
         if (convertTask != null) {
             convertTask.configure { task ->
-                task.input.fileProvider(masterModsDotGroovyFile.map { it.singleFile })
+                task.dependsOn gatherTask
+                task.platformDetailsFile.set(gatherTask.get().outputFile)
+                task.platform.set(platform)
+                task.input.fileProvider(modsDotGroovyFile.map { it.singleFile })
                 task.mdgRuntimeFiles.from(
                         root,
                         plugin,
