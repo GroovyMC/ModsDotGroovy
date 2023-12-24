@@ -13,7 +13,7 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
 
     @Override
     byte getPriority() {
-        return -10 // we want to run after ForgeLikePlugin
+        return 5 // we want to run before ForgeLikePlugin
     }
 
     @Override
@@ -25,43 +25,16 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
         class ModInfo {
             @Nullable String modId = null
 
-            class Aliases {
-                private final List aliases = []
-
-                PluginResult onNestEnter(final Deque<String> stack, final Map value) {
-                    log.debug "mods.modInfo.aliases.onNestEnter: ${value}"
-                    if (ModInfo.this.modId === null)
-                        throw new PluginResult.MDGPluginException('modId must be set before aliases can be set.')
-
-                    aliases.clear()
-                    return new PluginResult.Validate()
-                }
-
-                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                    log.debug "mods.modInfo.aliases.onNestLeave"
-                    return PluginResult.move(['aliases'], ModInfo.this.modId, aliases)
-                }
-
-                class Alias {
-                    @Nullable String modId = null
-                    @Nullable VersionRange versionRange = null
-
-                    PluginResult setVersionRange(final VersionRange versionRange) {
-                        log.debug "mods.modInfo.aliases.alias.versionRange: ${versionRange}"
-                        this.versionRange = versionRange
-                        return new PluginResult.Change(newValue: versionRange.toMaven())
+            class Dependencies {
+                class Dependency {
+                    def setType(final type) {
+                        if (type instanceof Enum)
+                            PluginResult.of(type.name().toLowerCase(Locale.ROOT))
                     }
 
-                    PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                        log.debug "mods.modInfo.aliases.alias.onNestLeave"
-                        if (modId === null)
-                            throw new PluginResult.MDGPluginException('alias is missing a modId')
-
-                        if (versionRange === null)
-                            throw new PluginResult.MDGPluginException("alias \"${this.modId}\" is missing a versionRange")
-
-                        aliases.add(value)
-                        return PluginResult.remove()
+                    void onNestLeave(final Deque<String> stack, final Map value) {
+                        if (value['type'] === null)
+                            value['type'] = 'required'
                     }
                 }
             }

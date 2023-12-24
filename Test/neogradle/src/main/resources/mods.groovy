@@ -1,5 +1,5 @@
-final mdg = ForgeModsDotGroovy.make {
-    modLoader = 'gml'
+final mdg = NeoForgeModsDotGroovy.make {
+    modLoader = 'javafml'
     loaderVersion = rawVersionRange('[1,)')
 
     license = 'All Rights Reserved'
@@ -21,14 +21,16 @@ final mdg = ForgeModsDotGroovy.make {
         credits = buildProperties['credits']
         displayTest = DisplayTest.MATCH_VERSION
         dependencies {
-            forge = "[44,)"
-            minecraft = '[1.19.3]'
+            forge = "[47.1.3,)"
+            minecraft = '[1.20.1]'
 
-            mod {
-                modId = 'patchouli'
-                versionRange = '>=1.1'
-                ordering = DependencyOrdering.AFTER
-                side = DependencySide.BOTH
+            onForge {
+                mod {
+                    modId = 'patchouli'
+                    versionRange = '>=1.1'
+                    ordering = DependencyOrdering.AFTER
+                    side = DependencySide.BOTH
+                }
             }
 
             mod('exampledep') {
@@ -38,7 +40,7 @@ final mdg = ForgeModsDotGroovy.make {
             }
 
             exampledep2 = '[1,)'
-            //exampledep3 = "[${libs.versions['exampledep3']},)" // to test reading from version catalogues
+            exampledep3 = "[${libs.versions['exampledep3']},)" // to test reading from version catalogues
         }
 
         features {

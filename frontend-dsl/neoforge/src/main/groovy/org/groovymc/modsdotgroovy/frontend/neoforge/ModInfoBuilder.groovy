@@ -101,18 +101,6 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
         core.pop()
     }
 
-    void aliases(@DelegatesTo(value = AliasesBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.AliasesBuilder')
-                 final Closure closure) {
-        log.debug 'aliases(closure)'
-        core.push('aliases')
-        final aliasesBuilder = new AliasesBuilder(core)
-        closure.delegate = aliasesBuilder
-        closure.resolveStrategy = DELEGATE_FIRST
-        closure.call(aliasesBuilder)
-        core.pop()
-    }
-
     ModInfoBuilder(final ModsDotGroovyCore core) {
         super(core)
     }

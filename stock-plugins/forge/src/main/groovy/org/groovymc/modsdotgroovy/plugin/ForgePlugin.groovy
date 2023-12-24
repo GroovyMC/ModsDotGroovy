@@ -22,7 +22,7 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 
     @Override
     byte getPriority() {
-        return -10 // we want to run after ForgeLikePlugin
+        return 5 // we want to run before ForgeLikePlugin
     }
 
     @Override
@@ -33,6 +33,15 @@ class ForgePlugin extends ModsDotGroovyPlugin {
     class Mods {
         class ModInfo {
             @Nullable String modId = null
+
+            class Dependencies {
+                class Dependency {
+                    void onNestLeave(final Deque<String> stack, final Map value) {
+                        if (value['mandatory'] === null)
+                            value['mandatory'] = true
+                    }
+                }
+            }
         }
     }
 }

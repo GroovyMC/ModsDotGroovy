@@ -1,14 +1,17 @@
+import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
+
 plugins {
-    id 'net.neoforged.gradle.userdev' version '7.0.72'
     id 'org.groovymc.modsdotgroovy'
 }
 
-runs {
-    server {
-        modSource project.sourceSets.main
-    }
+modsDotGroovy {
+    platform = Platform.NEOFORGE
+    inferGather.set false
+    apply()
 }
 
-dependencies {
-    implementation 'net.neoforged:neoforge:20.4.55-beta'
+tasks.named('gatherNeoForgePlatformDetails', AbstractGatherPlatformDetailsTask).configure {
+    minecraftVersion = '1.20.4'
+    platformVersion = '20.4.55-beta'
 }

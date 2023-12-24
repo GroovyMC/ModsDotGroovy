@@ -6,7 +6,6 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
@@ -167,9 +166,6 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
 
                         if (this.versionRange === null)
                             throw new PluginResult.MDGPluginException("dependency \"${this.modId}\" is missing a versionRange")
-
-                        if (value['mandatory'] === null)
-                            value['mandatory'] = true
 
                         dependencies.add(value)
                         return PluginResult.remove()

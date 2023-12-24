@@ -87,6 +87,11 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
         }
 
         class ModInfo {
+            def onNestEnter(final Deque<String> stack, final Map value) {
+                if (currentPlatform == Platform.QUILT)
+                    return PluginResult.move(["quilt_loader"], value)
+            }
+
             def setAuthors(final authors) {
                 if (MultiplatformPlugin.this.currentPlatform == Platform.FABRIC) {
                     if (authors instanceof List) {
@@ -185,6 +190,8 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             def set(final Deque<String> stack, final String property, final value) {
                 if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move([], property, value)
+                if (currentPlatform == Platform.QUILT)
+                    return PluginResult.move(["quilt_loader"], property, value)
                 MultiplatformPlugin.this.set(stack, property, value)
             }
 
