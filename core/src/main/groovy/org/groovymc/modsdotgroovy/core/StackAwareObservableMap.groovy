@@ -134,7 +134,6 @@ final class StackAwareObservableMap extends ObservableMap {
     void move(final String property, final Deque<String> newLocation, final String newProperty, final Object newValue) {
         var newMap = traverseAndCreate(newLocation)
 
-        this.setIgnoreNextEvent(true)
         newMap.put(newProperty ?: property, newValue ?: get(property))
         this.setIgnoreNextEvent(true)
         remove(property)

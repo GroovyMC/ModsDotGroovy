@@ -37,7 +37,7 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     def setSourcesUrl(final String sourcesUrl) {
         return switch (currentPlatform) {
             case Platform.FORGE -> PluginResult.remove()
-            case Platform.FABRIC -> PluginResult.move(['contact', 'sources'], sourcesUrl)
+            case Platform.FABRIC -> PluginResult.move(['contact'], 'sources', sourcesUrl)
             default -> null
         }
     }
@@ -50,7 +50,7 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
 
     def setIssueTrackerUrl(final String issueTrackerUrl) {
         if (currentPlatform === Platform.FABRIC)
-            return PluginResult.move(['contact', 'issues'], issueTrackerUrl)
+            return PluginResult.move(['contact'], 'issues', issueTrackerUrl)
     }
 
     def setEnvironment(final def environment) {
