@@ -268,12 +268,6 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
         core.pop()
     }
 
-    void onFabric(final Closure closure) {
-        log.debug "onFabric(closure)"
-        if (platform === Platform.FABRIC)
-            closure.call()
-    }
-
     private FabricModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
     }

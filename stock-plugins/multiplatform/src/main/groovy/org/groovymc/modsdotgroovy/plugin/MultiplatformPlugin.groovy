@@ -31,12 +31,12 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     }
 
     def setModLoader(final String modLoader) {
-        if (currentPlatform == Platform.FABRIC)
+        if (isFabricLike(currentPlatform))
             return PluginResult.remove()
     }
 
     def setLoaderVersion(final String loaderVersion) {
-        if (currentPlatform == Platform.FABRIC)
+        if (isFabricLike(currentPlatform))
             return PluginResult.remove()
     }
 
@@ -104,9 +104,14 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                 }
             }
 
-            def onNestEnter(final Deque<String> stack, final value) {
+            def set(final Deque<String> stack, final String property, final value) {
                 if (currentPlatform == Platform.FABRIC)
-                    return PluginResult.move([], value)
+                    return PluginResult.move([], property, value)
+            }
+
+            def onNestEnter(Deque<String> stack, String name, Map value) {
+                if (currentPlatform == Platform.FABRIC)
+                    return PluginResult.move(stack.drop(2).toList(), name, value)
             }
         }
     }

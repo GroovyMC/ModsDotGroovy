@@ -8,7 +8,6 @@ import org.groovymc.modsdotgroovy.core.versioning.BypassVersionRange
 @CompileStatic
 abstract class ModsDotGroovyFrontend {
     final ModsDotGroovyCore core
-    final Platform platform
 
     /**@
      * If running in a Gradle environment, this will be populated with the {@code build.properties}.
@@ -40,9 +39,6 @@ abstract class ModsDotGroovyFrontend {
 
     ModsDotGroovyFrontend(final Map<String, ?> environment) {
         this.core = new ModsDotGroovyCore(environment)
-        this.platform = environment.containsKey('environment')
-                ? (environment.platform as Platform)
-                : Platform.UNKNOWN
 
         if (environment.containsKey('buildProperties'))
             this.@buildProperties.putAll(environment.buildProperties as Map<String, ?>)

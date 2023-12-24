@@ -62,12 +62,6 @@ class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
         core.pop()
     }
 
-    void onForge(final Closure closure) {
-        log.debug "onForge(closure)"
-        if (platform === Platform.FORGE)
-            closure.call()
-    }
-
     protected ForgeModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
     }

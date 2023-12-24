@@ -11,8 +11,8 @@ import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
-class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
+@Log4j2(category = 'MDG - Multiplatform Frontend')
+class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor, OnPlatform {
     /**
      * The modId of the mod. This should match the value of your mod's {@literal @}GMod/{@literal @}Mod annotated main class.
      */

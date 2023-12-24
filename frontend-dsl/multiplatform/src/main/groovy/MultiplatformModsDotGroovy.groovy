@@ -8,14 +8,15 @@ import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.ModInfoBuilder
 import org.groovymc.modsdotgroovy.frontend.ModsBuilder
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
+import org.groovymc.modsdotgroovy.frontend.OnPlatform
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.groovymc.modsdotgroovy.frontend.fabric.IconBuilder
 import org.jetbrains.annotations.Nullable
 
 @PackageScope
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
-class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
+@Log4j2(category = 'MDG - Multiplatform Frontend')
+class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor, OnPlatform {
     /**@
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
      * For GroovyModLoader @GMod mods it should be {@code gml}.
@@ -112,18 +113,6 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
         core.pop()
-    }
-
-    void onForge(final Closure closure) {
-        log.debug "onForge(closure)"
-        if (platform === Platform.FORGE)
-            closure.call()
-    }
-
-    void onFabric(final Closure closure) {
-        log.debug "onForge(closure)"
-        if (platform === Platform.FABRIC)
-            closure.call()
     }
 
     private MultiplatformModsDotGroovy(final Map<String, ?> environment) {

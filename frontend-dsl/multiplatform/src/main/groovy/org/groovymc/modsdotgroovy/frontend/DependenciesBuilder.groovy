@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
-class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
+@Log4j2(category = 'MDG - Multiplatform Frontend')
+class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor, OnPlatform {
     @Nullable String forge
     @Nullable String minecraft
 

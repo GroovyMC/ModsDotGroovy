@@ -6,8 +6,8 @@ import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
-class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
+@Log4j2(category = 'MDG - Multiplatform Frontend')
+class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor, OnPlatform {
     /**@
      * The ID of the mod this dependency is depending on.
      */

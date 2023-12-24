@@ -19,6 +19,8 @@ import java.lang.reflect.Modifier
 final class ModsDotGroovyCore {
     private final PluginRegistry plugins = new PluginRegistry()
 
+    private final Platform platform
+
     @Delegate
     final StackAwareObservableMap backingData = new StackAwareObservableMap()
 
@@ -28,9 +30,16 @@ final class ModsDotGroovyCore {
     ModsDotGroovyCore(final Map<String, ?> environment) {
         log.level = Level.DEBUG
         plugins*.init(environment.asImmutable())
+        platform = environment.containsKey('platform')
+                ? Platform.of(environment['platform'].invokeMethod('name', null) as String)
+                : Platform.UNKNOWN
 
         // Setup backingData event listeners
         backingData.getRootMap().addPropertyChangeListener(this.&listenPropertyChangeEvent)
+    }
+
+    Platform platform() {
+        return platform
     }
 
     Map build() {
@@ -100,6 +109,7 @@ final class ModsDotGroovyCore {
                     // first remove the old property
                     setIgnoreNextEvent(true)
                     remove(propertyName)
+                    setIgnoreNextEvent(false)
 
                     // then add the new property
                     propertyName = result.newPropertyName
@@ -109,6 +119,7 @@ final class ModsDotGroovyCore {
                     log.debug "Plugin \"${plugin.name}\" removed property \"${propertyName}\""
                     setIgnoreNextEvent(true)
                     remove(propertyName)
+                    setIgnoreNextEvent(false)
                     return
                 } else if (result.newValue != event.newValue) {
                     log.debug "Plugin \"${plugin.name}\" changed property \"${propertyName}\" value from \"${mapValue}\" to \"${result.newValue}\""
@@ -148,16 +159,16 @@ final class ModsDotGroovyCore {
 
         def mapValue = event.newValue ?: event.oldValue
 
-        String propertyName = stack.peekLast()
+        String propertyName = stack.last
 
         ModsDotGroovyPlugin plugin = activePlugins.pollFirst()
         log.debug "plugin: ${plugin.name}"
         log.debug "action: ${action}"
         log.debug "newStack: ${event.newStack}"
         log.debug "oldStack: ${event.oldStack}"
-        log.debug "nestName: ${stack.peekLast()}"
+        log.debug "nestName: ${stack.last}"
         log.debug "value: ${mapValue}"
-        PluginResult result = getPluginResult(stack, plugin, action, stack.peekLast(), mapValue)
+        PluginResult result = getPluginResult(stack, plugin, action, stack.last, mapValue)
         log.debug "Plugin \"${plugin.name}\" returned result: ${result}"
         switch (result) {
             case PluginResult.Validate:
@@ -179,6 +190,7 @@ final class ModsDotGroovyCore {
                     // first remove the old property
                     setIgnoreNextEvent(true)
                     remove(propertyName)
+                    setIgnoreNextEvent(false)
 
                     // then add the new property
                     propertyName = change.newPropertyName
@@ -188,6 +200,7 @@ final class ModsDotGroovyCore {
                     log.debug "Plugin \"${plugin.name}\" removed nest \"${propertyName}\""
                     setIgnoreNextEvent(true)
                     remove(propertyName)
+                    setIgnoreNextEvent(false)
                     return
                 } else if (change.newLocation === null && change.newValue != event.newValue && action == PluginAction.ON_NEST_LEAVE) {
                     log.debug "Plugin \"${plugin.name}\" changed nest \"${propertyName}\" value from \"${mapValue}\" to \"${change.newValue}\""
@@ -217,8 +230,6 @@ final class ModsDotGroovyCore {
     }
 
     private static PluginResult getPluginResult(final Deque<String> eventStack, final ModsDotGroovyPlugin plugin, final PluginAction action = PluginAction.SET, final String propertyName, final def propertyValue) {
-        if (propertyName === null) return new PluginResult.Validate()
-
         final String capitalizedPropertyName = propertyName.capitalize()
         boolean useGenericMethod = false
 

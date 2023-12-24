@@ -5,12 +5,13 @@ import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import org.groovymc.modsdotgroovy.core.Platform
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
-class ModsBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
+@Log4j2(category = 'MDG - Multiplatform Frontend')
+class ModsBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor, OnPlatform {
     void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
                  final Closure closure) {
