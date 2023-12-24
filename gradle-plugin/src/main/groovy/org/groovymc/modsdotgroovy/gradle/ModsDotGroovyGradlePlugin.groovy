@@ -28,7 +28,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         mainExtension.setupTasks.convention(true)
 
         sourceSets.configureEach {
-            if (isMain(it)) {
+            if (SourceSet.isMain(it)) {
                 var extension = mainExtension
                 it.extensions.add(MDGExtension, EXTENSION_NAME, extension)
             } else {
