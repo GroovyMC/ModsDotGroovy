@@ -267,7 +267,7 @@ abstract class MDGExtension {
                 case Platform.NEOFORGE:
                     gatherTask = makeGatherTask(platform, GatherNeoForgePlatformDetails)
                     gatherTask.configure {
-                        it.compileClasspathName.set(sourceSet.compileClasspathConfigurationName)
+                        it.conventions(sourceSet.compileClasspathConfigurationName)
                     }
                     break
                 case Platform.FABRIC:
