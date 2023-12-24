@@ -148,16 +148,16 @@ final class ModsDotGroovyCore {
 
         def mapValue = event.newValue ?: event.oldValue
 
-        String propertyName = stack.last
+        String propertyName = stack.peekLast()
 
         ModsDotGroovyPlugin plugin = activePlugins.pollFirst()
         log.debug "plugin: ${plugin.name}"
         log.debug "action: ${action}"
         log.debug "newStack: ${event.newStack}"
         log.debug "oldStack: ${event.oldStack}"
-        log.debug "nestName: ${stack.last}"
+        log.debug "nestName: ${stack.peekLast()}"
         log.debug "value: ${mapValue}"
-        PluginResult result = getPluginResult(stack, plugin, action, stack.last, mapValue)
+        PluginResult result = getPluginResult(stack, plugin, action, stack.peekLast(), mapValue)
         log.debug "Plugin \"${plugin.name}\" returned result: ${result}"
         switch (result) {
             case PluginResult.Validate:
@@ -217,6 +217,8 @@ final class ModsDotGroovyCore {
     }
 
     private static PluginResult getPluginResult(final Deque<String> eventStack, final ModsDotGroovyPlugin plugin, final PluginAction action = PluginAction.SET, final String propertyName, final def propertyValue) {
+        if (propertyName === null) return new PluginResult.Validate()
+
         final String capitalizedPropertyName = propertyName.capitalize()
         boolean useGenericMethod = false
 

@@ -82,6 +82,10 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     }
 
     class Mods {
+        def onNestLeave(final Deque<String> stack, final Map value) {
+            if (currentPlatform == Platform.FABRIC) return PluginResult.remove()
+        }
+
         class ModInfo {
             def setAuthors(final List<String> authors) {
                 if (MultiplatformPlugin.this.currentPlatform == Platform.FABRIC)
@@ -98,6 +102,11 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                     if (isForgeLike(MultiplatformPlugin.this.currentPlatform))
                         return PluginResult.remove()
                 }
+            }
+
+            def onNestEnter(final Deque<String> stack, final value) {
+                if (currentPlatform == Platform.FABRIC)
+                    return PluginResult.move([], value)
             }
         }
     }
