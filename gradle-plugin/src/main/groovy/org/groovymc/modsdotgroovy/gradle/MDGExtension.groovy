@@ -107,9 +107,10 @@ abstract class MDGExtension {
         }
 
         void expose(Object file, Action<? super ConfigurablePublishArtifact> configureAction) {
-            setupDsl.set(false)
             setupPlugins.set(false)
             setupTasks.set(false)
+            multiplatformFlag.set(true)
+            platforms.set([Platform.UNKNOWN])
             var configurationName = forSourceSetName(sourceSet.name, EXPOSE_SOURCE_SET)
             var exposingConfiguration = project.configurations.maybeCreate(configurationName)
             exposingConfiguration.canBeResolved = false

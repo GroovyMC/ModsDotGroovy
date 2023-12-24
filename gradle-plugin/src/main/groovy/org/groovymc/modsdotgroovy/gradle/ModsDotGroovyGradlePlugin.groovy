@@ -108,7 +108,7 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     }
 
     private static void setupDsl(Project project, NamedDomainObjectProvider<Configuration> frontendConfiguration, Platform platform, boolean multiplatform) {
-        if (platform !in Platform.STOCK_PLATFORMS) {
+        if (!multiplatform && platform !in Platform.STOCK_PLATFORMS) {
             throw new UnsupportedOperationException("""
                 There is no stock frontend DSL available for $platform on this version of ModsDotGroovy.
                 Possible solutions:
