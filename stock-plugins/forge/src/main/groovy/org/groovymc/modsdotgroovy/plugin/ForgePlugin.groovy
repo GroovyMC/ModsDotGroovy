@@ -6,6 +6,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
@@ -188,8 +189,10 @@ class ForgePlugin extends ModsDotGroovyPlugin {
             }
 
             class Features {
-                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                    log.debug "mods.modInfo.features.onNestLeave"
+                def onNestLeave(final Deque<String> stack, final Map value) {
+                    log.debug "mods.modInfo.features.onNestEnter: ${value}"
+                    if (ModInfo.this.modId === null)
+                        throw new PluginResult.MDGPluginException('modId must be set before features can be set.')
                     return PluginResult.move(['features'], ModInfo.this.modId, value)
                 }
             }

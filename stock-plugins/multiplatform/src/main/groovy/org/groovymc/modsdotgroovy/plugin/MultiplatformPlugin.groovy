@@ -31,52 +31,52 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     }
 
     def setModLoader(final String modLoader) {
-        if (currentPlatform === Platform.FABRIC)
+        if (currentPlatform == Platform.FABRIC)
             return PluginResult.remove()
     }
 
     def setLoaderVersion(final String loaderVersion) {
-        if (currentPlatform === Platform.FABRIC)
+        if (currentPlatform == Platform.FABRIC)
             return PluginResult.remove()
     }
 
     def setSourcesUrl(final String sourcesUrl) {
         return switch (currentPlatform) {
-            case Platform.FORGE -> PluginResult.remove()
+            case Platform.FORGE, Platform.NEOFORGE -> PluginResult.remove()
             case Platform.FABRIC -> PluginResult.move(['contact'], 'sources', sourcesUrl)
             default -> null
         }
     }
 
     def setLicence(final String licence) {
-        if (currentPlatform === Platform.FABRIC)
+        if (currentPlatform == Platform.FABRIC)
             // ForgePlugin supports the "licence" alias, FabricPlugin does not
             return PluginResult.rename('license', licence)
     }
 
     def setIssueTrackerUrl(final String issueTrackerUrl) {
-        if (currentPlatform === Platform.FABRIC)
+        if (currentPlatform == Platform.FABRIC)
             return PluginResult.move(['contact'], 'issues', issueTrackerUrl)
     }
 
     def setEnvironment(final def environment) {
-        if (currentPlatform === Platform.FORGE)
+        if (isForgeLike(currentPlatform))
             return PluginResult.remove()
     }
 
     def setAccessWidener(final String accessWidener) {
-        if (currentPlatform === Platform.FORGE)
+        if (isForgeLike(currentPlatform))
             return PluginResult.remove()
     }
 
     def setIcon(final String icon) {
-        if (currentPlatform === Platform.FORGE)
+        if (isForgeLike(currentPlatform))
             return PluginResult.remove()
     }
 
     class Icon {
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            if (currentPlatform === Platform.FORGE)
+        def onNestLeave(final Deque<String> stack, final Map value) {
+            if (isForgeLike(currentPlatform))
                 return PluginResult.remove()
         }
     }
@@ -84,20 +84,29 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     class Mods {
         class ModInfo {
             def setAuthors(final List<String> authors) {
-                if (MultiplatformPlugin.this.currentPlatform === Platform.FABRIC)
+                if (MultiplatformPlugin.this.currentPlatform == Platform.FABRIC)
                     return PluginResult.move(['authors'], authors) // todo: see if this works... the structure is different in Fabric
             }
 
-            // todo: fix removing nests
-//            class Entrypoints {
-//                def onNestEnter(final Deque<String> stack, final Map value) {
-//                    return switch (MultiplatformPlugin.this.currentPlatform) {
-//                        case Platform.FORGE -> PluginResult.remove()
-//                        case Platform.FABRIC -> PluginResult.move(['entrypoints'], value)
-//                        default -> null
-//                    }
-//                }
-//            }
+            class Entrypoints {
+                def onNestEnter(final Deque<String> stack, final Map value) {
+                    if (MultiplatformPlugin.this.currentPlatform == Platform.FABRIC)
+                        return PluginResult.move(['entrypoints'], value)
+                }
+
+                def onNestLeave(final Deque<String> stack, final Map value) {
+                    if (isForgeLike(MultiplatformPlugin.this.currentPlatform))
+                        return PluginResult.remove()
+                }
+            }
         }
+    }
+
+    private static boolean isForgeLike(Platform platform) {
+        return platform == Platform.FORGE || platform == Platform.NEOFORGE
+    }
+
+    private static boolean isFabricLike(Platform platform) {
+        return platform == Platform.FABRIC || platform == Platform.QUILT
     }
 }

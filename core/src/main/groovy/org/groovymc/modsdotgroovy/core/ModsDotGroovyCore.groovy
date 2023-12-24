@@ -165,7 +165,7 @@ final class ModsDotGroovyCore {
                 break
             case PluginResult.Change:
                 var change = (PluginResult.Change) result
-                if (change.newLocation !== null && (change.newValue != null || action == PluginAction.ON_NEST_ENTER)) {
+                if (change.newLocation !== null && (change.newValue !== null || action == PluginAction.ON_NEST_ENTER)) {
                     log.debug "Plugin \"${plugin.name}\" moved nest \"${propertyName}\" from \"${event.oldStack.join '->'}\" to \"${change.newLocation.join '->'}\""
                     switch (action) {
                         case PluginAction.ON_NEST_ENTER -> relocate(change.newLocation)
@@ -173,7 +173,7 @@ final class ModsDotGroovyCore {
                         default -> throw new IllegalStateException("Unknown PluginAction type: ${action.class.name}")
                     }
                 }
-                if (change.newPropertyName !== null && change.newValue !== null) {
+                if (change.newLocation === null && change.newPropertyName !== null && change.newValue !== null) {
                     log.debug "Plugin \"${plugin.name}\" renamed nest \"${propertyName}\" to \"${change.newPropertyName}\""
 
                     // first remove the old property
@@ -184,11 +184,12 @@ final class ModsDotGroovyCore {
                     propertyName = change.newPropertyName
                     put(propertyName, change.newValue)
                 }
-                if (change.newValue === null) {
+                if (change.newValue === null && action == PluginAction.ON_NEST_LEAVE) {
                     log.debug "Plugin \"${plugin.name}\" removed nest \"${propertyName}\""
-                    put(propertyName, null)
+                    setIgnoreNextEvent(true)
+                    remove(propertyName)
                     return
-                } else if (change.newValue != event.newValue) {
+                } else if (change.newLocation === null && change.newValue != event.newValue && action == PluginAction.ON_NEST_LEAVE) {
                     log.debug "Plugin \"${plugin.name}\" changed nest \"${propertyName}\" value from \"${mapValue}\" to \"${change.newValue}\""
                     put(propertyName, change.newValue)
                 }
