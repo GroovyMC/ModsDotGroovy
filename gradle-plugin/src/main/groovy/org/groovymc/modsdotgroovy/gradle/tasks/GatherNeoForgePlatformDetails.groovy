@@ -14,10 +14,14 @@ abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetai
 
     @Override
     void run() throws IllegalStateException {
-        var versions = calculateVersions()
+        @Nullable String minecraftVersion = this.minecraftVersion.getOrNull()
+        @Nullable String platformVersion = this.platformVersion.getOrNull()
 
-        @Nullable String minecraftVersion = this.minecraftVersion.getOrNull() ?: versions[0]
-        @Nullable String platformVersion = this.platformVersion.getOrNull() ?: versions[1]
+        if (minecraftVersion === null || platformVersion === null) {
+            var versions = calculateVersions()
+            minecraftVersion ?= versions[0]
+            platformVersion ?= versions[1]
+        }
 
         if (minecraftVersion === null || platformVersion === null)
             throw new IllegalStateException("""

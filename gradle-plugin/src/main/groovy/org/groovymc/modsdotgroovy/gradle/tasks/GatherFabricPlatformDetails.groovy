@@ -28,7 +28,7 @@ abstract class GatherFabricPlatformDetails extends AbstractGatherPlatformDetails
             if (depVer === null)
                 throw new IllegalStateException("""
                     Could not find Minecraft dependency in configuration \"${this.configurationName.get()}\" for project \"${project.name}\".
-                    Try manually setting the minecraftVersion and platformVersion properties.
+                    Try manually setting the minecraftVersion and platformVersion properties for this task.
                 """.strip().stripIndent())
 
             minecraftVersion = depVer
@@ -41,7 +41,7 @@ abstract class GatherFabricPlatformDetails extends AbstractGatherPlatformDetails
             if (dep === null)
                 throw new IllegalStateException("""
                     Could not find Fabric Loader dependency for project \"${project.name}\".
-                    Try manually setting the minecraftVersion and platformVersion properties.
+                    Try manually setting the minecraftVersion and platformVersion properties for this task.
                 """.strip().stripIndent())
 
             platformVersion = dep.version

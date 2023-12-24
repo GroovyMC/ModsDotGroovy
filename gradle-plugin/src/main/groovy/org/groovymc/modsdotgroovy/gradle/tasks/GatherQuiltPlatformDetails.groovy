@@ -41,7 +41,7 @@ abstract class GatherQuiltPlatformDetails extends GatherFabricPlatformDetails {
             if (dep === null)
                 throw new IllegalStateException("""
                     Could not find Fabric Loader dependency for project \"${project.name}\".
-                    Try manually setting the minecraftVersion and platformVersion properties.
+                    Try manually setting the minecraftVersion and platformVersion properties for this task.
                 """.strip().stripIndent())
 
             platformVersion = dep.version
