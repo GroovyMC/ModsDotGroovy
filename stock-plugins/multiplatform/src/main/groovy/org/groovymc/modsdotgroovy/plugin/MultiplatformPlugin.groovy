@@ -152,10 +152,47 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                 }
             }
 
+            def setModId(final String modId) {
+                if (currentPlatform == Platform.FABRIC)
+                    return PluginResult.move([], 'id', modId)
+            }
+
+            def setDisplayName(final String value) {
+                if (currentPlatform == Platform.FABRIC)
+                    return PluginResult.move([], 'name', value)
+            }
+
+            def setDisplayUrl(final String value) {
+                if (currentPlatform == Platform.FABRIC)
+                    return PluginResult.move(['contact'], 'homepage', value)
+            }
+
+            def setLogoFile(final value) {
+                if (isFabricLike(currentPlatform))
+                    return PluginResult.remove()
+            }
+
+            def setDisplayTest(final value) {
+                if (isFabricLike(currentPlatform))
+                    return PluginResult.remove()
+            }
+
+            def setUpdateJsonUrl(final value) {
+                if (isFabricLike(currentPlatform))
+                    return PluginResult.remove()
+            }
+
             def set(final Deque<String> stack, final String property, final value) {
                 if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move([], property, value)
                 MultiplatformPlugin.this.set(stack, property, value)
+            }
+
+            class Features {
+                def onNestLeave(final Deque<String> stack, final Map value) {
+                    if (isFabricLike(currentPlatform))
+                        return PluginResult.remove()
+                }
             }
         }
     }

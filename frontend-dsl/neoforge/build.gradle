@@ -29,7 +29,3 @@ publishing {
 signing {
     sign publishing.publications.frontendDslNeoForge
 }
-
-dependencies {
-    api projects.frontendDsl.forge
-}

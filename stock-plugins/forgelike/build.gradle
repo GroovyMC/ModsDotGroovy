@@ -2,19 +2,19 @@ import net.minecraftforge.gradleutils.PomUtils
 
 tasks.named('groovydoc', Groovydoc).configure {
     source = sourceSets.main.allSource
-    docTitle = "ModsDotGroovy v${project.version} - NeoForge plugin"
+    docTitle = "ModsDotGroovy v${project.version} - Forge-like plugin"
 }
 
 publishing {
-    publications.register('stockPluginNeoForge', MavenPublication) {
-        artifactId = 'neoforge'
+    publications.register('stockPluginForgeLike', MavenPublication) {
+        artifactId = 'forge'
         version = project.version
 
         artifacts = [jar, sourcesJar, groovydocJar]
 
         pom {
-            name = 'mods.groovy stock plugin for NeoForge'
-            description = 'The stock plugin for mods.groovy on NeoForge'
+            name = 'mods.groovy stock plugin for Forge-like modloaders'
+            description = 'The stock plugin for mods.groovy on Forge-like modloaders'
             url = 'https://github.com/GroovyMC/ModsDotGroovy'
 
             PomUtils.setGitHubDetails(pom, 'GroovyMC', 'ModsDotGroovy')
@@ -27,9 +27,9 @@ publishing {
 }
 
 signing {
-    sign publishing.publications.stockPluginNeoForge
+    sign publishing.publications.stockPluginForgeLike
 }
 
 dependencies {
-    api projects.stockPlugins.forgelike
+    api libs.groovy4.json.get()
 }

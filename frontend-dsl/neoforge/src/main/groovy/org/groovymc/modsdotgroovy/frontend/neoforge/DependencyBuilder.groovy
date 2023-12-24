@@ -1,9 +1,12 @@
-package org.groovymc.modsdotgroovy.frontend
+package org.groovymc.modsdotgroovy.frontend.neoforge
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
+import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
+import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Forge Frontend')
@@ -15,8 +18,9 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapCl
 
     /**@
      * Does this dependency have to exist? If not, ordering must also be specified.
+     * <p>Tip: Use the {@code DependencyType} enum when setting this.</p>
      */
-    boolean mandatory = true
+    def type = 'required'
 
     /**@
      * The range of the versions of the mod you're compatible with.

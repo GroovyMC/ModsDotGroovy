@@ -1,10 +1,13 @@
-package org.groovymc.modsdotgroovy.frontend
+package org.groovymc.modsdotgroovy.frontend.forge
 
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
+import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
+import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
@@ -12,7 +15,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @Log4j2(category = 'MDG - Forge Frontend')
 class ModsBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
     void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
+                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.forge.ModInfoBuilder')
                  final Closure closure) {
         log.debug "modInfo(closure)"
         core.push('modInfo')
@@ -25,7 +28,7 @@ class ModsBuilder extends DslBuilder implements PropertyInterceptor, MapClosureI
 
     void modInfo(final String modId,
                  @DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModInfoBuilder') final Closure closure) {
+                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.forge.ModInfoBuilder') final Closure closure) {
         log.debug "modInfo(closure)"
         core.push('modInfo')
         final modInfoBuilder = new ModInfoBuilder(core)

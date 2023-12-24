@@ -3,11 +3,10 @@ import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
-import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
-import org.groovymc.modsdotgroovy.frontend.ModInfoBuilder
-import org.groovymc.modsdotgroovy.frontend.ModsBuilder
+import org.groovymc.modsdotgroovy.frontend.forge.ModInfoBuilder
+import org.groovymc.modsdotgroovy.frontend.forge.ModsBuilder
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.jetbrains.annotations.Nullable
@@ -45,13 +44,13 @@ class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
      * @param closure
      */
     void mod(@DelegatesTo(value = ModInfoBuilder, strategy = Closure.DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
+             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.forge.ModInfoBuilder')
              final Closure closure) {
         mods { modInfo(closure) }
     }
 
     void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_FIRST)
-              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModsBuilder')
+              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.forge.ModsBuilder')
               final Closure closure) {
         log.debug "mods(closure)"
         core.push('mods')

@@ -13,7 +13,7 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
 
     @Override
     byte getPriority() {
-        return -10 // we want to run after ForgePlugin
+        return -10 // we want to run after ForgeLikePlugin
     }
 
     @Override
