@@ -12,6 +12,11 @@ final mdg = MultiplatformModsDotGroovy.make {
         description = 'This is an example mod.'
         //authors = ['Example Mod Author']
         author = 'Example Mod Author'
+        authors {
+            person('Example Mod Author') {
+                email = 'example@example.com'
+            }
+        }
         logoFile = 'logo.png'
 
         // for testing the inferred updateJsonUrl feature - issueTrackerUrl and links to GitHub repos are also supported by this feature

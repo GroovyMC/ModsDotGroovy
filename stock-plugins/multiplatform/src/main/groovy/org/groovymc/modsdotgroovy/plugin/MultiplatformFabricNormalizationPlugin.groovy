@@ -45,4 +45,11 @@ class MultiplatformFabricNormalizationPlugin extends ModsDotGroovyPlugin impleme
     boolean filterAtLevel() {
         return isFabric
     }
+
+    class Features {
+        def onNestLeave(final Deque<String> stack, final Map value) {
+            if (isFabric)
+                return PluginResult.remove()
+        }
+    }
 }

@@ -87,9 +87,57 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
         }
 
         class ModInfo {
-            def setAuthors(final List<String> authors) {
-                if (MultiplatformPlugin.this.currentPlatform == Platform.FABRIC)
-                    return PluginResult.move(['authors'], authors) // todo: see if this works... the structure is different in Fabric
+            def setAuthors(final authors) {
+                if (MultiplatformPlugin.this.currentPlatform == Platform.FABRIC) {
+                    if (authors instanceof List) {
+                        return PluginResult.move([], authors.collect { ['name': it] })
+                    } else {
+                        return PluginResult.move([], authors)
+                    }
+                }
+            }
+
+            class Authors {
+                private final List authors = []
+
+                def onNestLeave(final Deque<String> stack, final Map value) {
+                    if (isForgeLike(currentPlatform)) {
+                        log.debug "authors.onNestLeave: ${value}"
+                        return authors
+                    }
+                }
+
+                def onNestEnter(final Deque<String> stack, final Map value) {
+                    if (isForgeLike(currentPlatform)) {
+                        log.debug "authors.onNestEnter: ${value}"
+                        authors.clear()
+                        return new PluginResult.Validate()
+                    } else if (currentPlatform == Platform.FABRIC) {
+                        return PluginResult.move(['authors'], value)
+                    }
+                }
+
+                class Author {
+                    String name
+
+                    def onNestLeave(final Deque<String> stack, final Map value) {
+                        if (isForgeLike(currentPlatform)) {
+                            log.debug "authors.author.onNestLeave: ${value}"
+
+                            if (!value.containsKey("name")) {
+                                throw new PluginResult.MDGPluginException("Author name is required")
+                            }
+                            authors.add(value["name"])
+                            return PluginResult.remove()
+                        }
+                    }
+                }
+            }
+
+            def setAuthor(final value) {
+                if (MultiplatformPlugin.this.currentPlatform == Platform.FABRIC) {
+                    return PluginResult.move([], 'authors', ['name':value])
+                }
             }
 
             class Entrypoints {
@@ -107,11 +155,7 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             def set(final Deque<String> stack, final String property, final value) {
                 if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move([], property, value)
-            }
-
-            def onNestEnter(Deque<String> stack, String name, Map value) {
-                if (currentPlatform == Platform.FABRIC)
-                    return PluginResult.move(stack.drop(2).toList(), name, value)
+                MultiplatformPlugin.this.set(stack, property, value)
             }
         }
     }
@@ -122,5 +166,15 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
 
     private static boolean isFabricLike(Platform platform) {
         return platform == Platform.FABRIC || platform == Platform.QUILT
+    }
+
+    @Override
+    def onNestEnter(Deque<String> stack, String name, Map value) {
+        if (currentPlatform == Platform.FABRIC) {
+            if (stack.size() == 3 && stack.getAt(0) == "mods" && stack.getAt(1) == "modInfo") {
+                return PluginResult.move([name], value)
+            }
+        }
+        return super.onNestEnter(stack, name, value)
     }
 }

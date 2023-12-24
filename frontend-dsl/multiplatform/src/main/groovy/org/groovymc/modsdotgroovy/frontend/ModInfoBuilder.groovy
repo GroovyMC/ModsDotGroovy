@@ -5,6 +5,7 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.frontend.fabric.EntrypointsBuilder
+import org.groovymc.modsdotgroovy.frontend.fabric.PersonsBuilder
 import org.jetbrains.annotations.Nullable
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
@@ -75,7 +76,20 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
      */
     String author = ''
 
-
+    /**@
+     * A list of authors of the mod.
+     */
+    void authors(@DelegatesTo(value = PersonsBuilder, strategy = DELEGATE_FIRST)
+                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.PersonsBuilder')
+                 final Closure closure) {
+        log.debug "authors(closure)"
+        core.push('authors')
+        final authorsBuilder = new PersonsBuilder(core, 'author')
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.delegate = authorsBuilder
+        closure.call(authorsBuilder)
+        core.pop()
+    }
 
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                       @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.DependenciesBuilder')

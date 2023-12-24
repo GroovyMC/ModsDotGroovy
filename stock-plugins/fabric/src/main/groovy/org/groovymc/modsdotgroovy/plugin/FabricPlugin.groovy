@@ -6,6 +6,7 @@ import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
 import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
+import org.jetbrains.annotations.Nullable
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
@@ -297,5 +298,11 @@ class FabricPlugin extends ModsDotGroovyPlugin {
                 return PluginResult.remove()
             }
         }
+    }
+
+    @Override
+    @Nullable
+    Map build(Map buildingMap) {
+        return [schemaVersion: 1]
     }
 }
