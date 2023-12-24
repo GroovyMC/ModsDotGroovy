@@ -4,7 +4,6 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.TaskAction
 import org.jetbrains.annotations.Nullable
 
 @CacheableTask

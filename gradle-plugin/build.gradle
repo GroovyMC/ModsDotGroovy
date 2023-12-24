@@ -10,12 +10,7 @@ group = 'org.groovymc.modsdotgroovy'
 base.archivesName = 'modsdotgroovy'
 
 repositories {
-    // These extra repos are needed by net.neoforged.gradle:common
     gradlePluginPortal()
-    maven {
-        name = 'NeoForged'
-        url = 'https://maven.neoforged.net/releases'
-    }
 }
 
 dependencies {
@@ -26,8 +21,6 @@ dependencies {
 
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
     implementation 'org.yaml:snakeyaml:2.1'
-
-    implementation 'net.neoforged.gradle:common:7.0.43'
 }
 
 gradlePlugin {
