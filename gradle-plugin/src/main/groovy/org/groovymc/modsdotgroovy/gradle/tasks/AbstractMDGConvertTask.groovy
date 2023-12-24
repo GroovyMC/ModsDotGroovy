@@ -65,7 +65,6 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     abstract Property<String> getProjectGroup()
 
     @Input
-    @Nested
     abstract Property<MDGConversionOptions> getConversionOptions()
 
     /**
