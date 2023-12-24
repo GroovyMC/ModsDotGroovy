@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable
 @PackageScope
 @CompileStatic
 @Log4j2(category = 'MDG - Forge Frontend')
-class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
+class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
      * For GroovyModLoader @GMod mods it should be {@code gml}.
@@ -68,25 +68,25 @@ class ModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor
             closure.call()
     }
 
-    protected ModsDotGroovy(final Map<String, ?> environment) {
+    protected ForgeModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
     }
 
-    static ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') final Closure closure) {
+    static ForgeModsDotGroovy make(@DelegatesTo(value = ForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+                              @ClosureParams(value = SimpleType, options = 'ForgeModsDotGroovy') final Closure closure) {
         return make(closure, [:])
     }
 
-    static ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') final Closure closure,
-                              final Binding scriptBinding) {
+    static ForgeModsDotGroovy make(@DelegatesTo(value = ForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+                              @ClosureParams(value = SimpleType, options = 'ForgeModsDotGroovy') final Closure closure,
+                                   final Binding scriptBinding) {
         return make(closure, scriptBinding.variables)
     }
 
-    static ModsDotGroovy make(@DelegatesTo(value = ModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'ModsDotGroovy') final Closure closure,
-                              final Map<String, ?> environment) {
-        final ModsDotGroovy val = new ModsDotGroovy(environment)
+    static ForgeModsDotGroovy make(@DelegatesTo(value = ForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+                              @ClosureParams(value = SimpleType, options = 'ForgeModsDotGroovy') final Closure closure,
+                                   final Map<String, ?> environment) {
+        final ForgeModsDotGroovy val = new ForgeModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)

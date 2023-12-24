@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
 import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
@@ -30,6 +31,11 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     }
 
     def setModLoader(final String modLoader) {
+        if (currentPlatform === Platform.FABRIC)
+            return PluginResult.remove()
+    }
+
+    def setLoaderVersion(final String loaderVersion) {
         if (currentPlatform === Platform.FABRIC)
             return PluginResult.remove()
     }

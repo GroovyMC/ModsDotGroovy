@@ -280,27 +280,27 @@ class BarebonesExampleModsDotGroovy extends ModsDotGroovyFrontend {
     }
     
     // the superclass needs to be provided the environment so that it can pass it along to the core and plugins
-    private ModsDotGroovy(final Map<String, ?> environment) {
+    private BarebonesExampleModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
     }
 
     // boilerplate for the "make" method - we need one for users (just a closure) and one that also includes the environment map param
     // we need all of these for good IDE support. Make sure the delegatesto and closureparam values are correct
-    static ModsDotGroovy make(@DelegatesTo(value = BarebonesExampleModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'BarebonesExampleModsDotGroovy') final Closure closure) {
+    static BarebonesExampleModsDotGroovy make(@DelegatesTo(value = BarebonesExampleModsDotGroovy, strategy = Closure.DELEGATE_FIRST) 
+                                              @ClosureParams(value = SimpleType, options = 'BarebonesExampleModsDotGroovy') final Closure closure) {
         return make(closure, [:])
     }
 
-    static ModsDotGroovy make(@DelegatesTo(value = BarebonesExampleModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'BarebonesExampleModsDotGroovy') final Closure closure,
-                              final Binding scriptBinding) {
+    static BarebonesExampleModsDotGroovy make(@DelegatesTo(value = BarebonesExampleModsDotGroovy, strategy = Closure.DELEGATE_FIRST) 
+                                              @ClosureParams(value = SimpleType, options = 'BarebonesExampleModsDotGroovy') final Closure closure, 
+                                              final Binding scriptBinding) {
         return make(closure, scriptBinding.variables)
     }
 
-    static ModsDotGroovy make(@DelegatesTo(value = BarebonesExampleModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'BarebonesExampleModsDotGroovy') final Closure closure,
-                              final Map<String, ?> environment) {
-        final ModsDotGroovy val = new ModsDotGroovy(environment)
+    static BarebonesExampleModsDotGroovy make(@DelegatesTo(value = BarebonesExampleModsDotGroovy, strategy = Closure.DELEGATE_FIRST) 
+                                              @ClosureParams(value = SimpleType, options = 'BarebonesExampleModsDotGroovy') final Closure closure, 
+                                              final Map<String, ?> environment) {
+        final BarebonesExampleModsDotGroovy val = new BarebonesExampleModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)

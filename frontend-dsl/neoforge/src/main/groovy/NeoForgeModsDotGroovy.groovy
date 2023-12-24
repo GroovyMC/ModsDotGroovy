@@ -13,7 +13,7 @@ import org.jetbrains.annotations.ApiStatus
 @CompileStatic
 @ApiStatus.Experimental // NeoForged hasn't yet finalised their mods.toml spec at the time of writing
 @Log4j2(category = 'MDG - NeoForge Frontend')
-class NeoForgeModsDotGroovy extends ModsDotGroovy implements PropertyInterceptor, MapClosureInterceptor {
+class NeoForgeModsDotGroovy extends ForgeModsDotGroovy implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * Alias for <code>mods { modInfo {} }</code>
      * @param closure

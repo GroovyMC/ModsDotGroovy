@@ -2,7 +2,7 @@ final mdg = MultiplatformModsDotGroovy.make {
     modLoader = 'gml'
     loaderVersion = '[1,)'
 
-    licence = 'All Rights Reserved'
+    license = 'All Rights Reserved'
     issueTrackerUrl = 'https://example.com/issues'
 
     mod {

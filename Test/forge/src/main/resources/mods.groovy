@@ -1,4 +1,4 @@
-final mdg = ModsDotGroovy.make {
+final mdg = ForgeModsDotGroovy.make {
     modLoader = 'gml'
     loaderVersion = rawVersionRange('[1,)')
 
