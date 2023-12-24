@@ -6,6 +6,7 @@ import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ConfigurablePublishArtifact
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.attributes.Bundling
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.LibraryElements
@@ -23,6 +24,7 @@ import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.gradle.tasks.*
 
 import javax.inject.Inject
+import java.util.stream.Collectors
 
 @CompileStatic
 abstract class MDGExtension {
@@ -263,15 +265,34 @@ abstract class MDGExtension {
             switch (platform) {
                 case Platform.FORGE:
                     gatherTask = makeGatherTask(platform, GatherForgePlatformDetails)
+                    gatherTask.configure { task ->
+                        Configuration modImplementation = project.configurations.getByName("minecraft")
+                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
+                        task.artifactIds.set(artifacts.map { it.stream().map { it.id }.collect(Collectors.toList()) })
+                    }
                     break
                 case Platform.NEOFORGE:
                     gatherTask = makeGatherTask(platform, GatherNeoForgePlatformDetails, sourceSet.compileClasspathConfigurationName)
                     break
                 case Platform.FABRIC:
-                    gatherTask = makeGatherTask(platform, GatherFabricPlatformDetails)
+                    gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
+                    gatherTask.configure { task ->
+                        Configuration modImplementation = project.configurations.getByName("modCompileClasspath")
+                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
+                        task.artifactIds.set(artifacts.map { it.stream().map { it.id }.collect(Collectors.toList()) })
+                        task.targetModule.set("fabric-loader")
+                        task.targetGroup.set("net.fabricmc")
+                    }
                     break
                 case Platform.QUILT:
-                    gatherTask = makeGatherTask(platform, GatherQuiltPlatformDetails)
+                    gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
+                    gatherTask.configure { task ->
+                        Configuration modImplementation = project.configurations.getByName("modCompileClasspath")
+                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
+                        task.artifactIds.set(artifacts.map { it.stream().map { it.id }.collect(Collectors.toList()) })
+                        task.targetModule.set("quilt-loader")
+                        task.targetGroup.set("org.quiltmc")
+                    }
                     break
                 default:
                     gatherTask = makeGatherTask(platform, AbstractGatherPlatformDetailsTask)

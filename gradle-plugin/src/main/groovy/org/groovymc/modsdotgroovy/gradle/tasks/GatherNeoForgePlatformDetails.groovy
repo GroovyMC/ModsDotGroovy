@@ -13,6 +13,7 @@ import javax.inject.Inject
 abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetailsTask {
     @Inject
     GatherNeoForgePlatformDetails(String configurationName) {
+        // query neogradle after project evaluate instead of during a task run for the sake of better caching
         try {
             project.afterEvaluate {
                 var versions = calculateVersions(configurationName)
