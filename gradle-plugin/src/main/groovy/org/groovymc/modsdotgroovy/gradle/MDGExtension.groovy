@@ -246,7 +246,7 @@ abstract class MDGExtension {
         })
     }
 
-    private <T extends AbstractGatherPlatformDetailsTask> TaskProvider<T> gatherTask(Platform platform, Class<T> gatherType) {
+    private <T extends AbstractGatherPlatformDetailsTask> TaskProvider<T> makeGatherTask(Platform platform, Class<T> gatherType) {
         return project.tasks.register(forSourceSetName(sourceSet.name, "gather${platform.name().capitalize()}PlatformDetails"), gatherType)
     }
 
@@ -258,28 +258,31 @@ abstract class MDGExtension {
 
         final TaskProvider<ProcessResources> processResourcesTask = project.tasks.named(sourceSet.processResourcesTaskName, ProcessResources)
 
-        final Class<? extends AbstractGatherPlatformDetailsTask> gatherType
+        TaskProvider<? extends AbstractGatherPlatformDetailsTask> gatherTask
         if (inferGather.get()) {
             switch (platform) {
                 case Platform.FORGE:
-                    gatherType = GatherForgePlatformDetails
+                    gatherTask = makeGatherTask(platform, GatherForgePlatformDetails)
                     break
                 case Platform.NEOFORGE:
-                    gatherType = GatherNeoForgePlatformDetails
+                    gatherTask = makeGatherTask(platform, GatherNeoForgePlatformDetails)
+                    gatherTask.configure {
+                        it.compileClasspathName.set(sourceSet.compileClasspathConfigurationName)
+                    }
                     break
                 case Platform.FABRIC:
-                    gatherType = GatherFabricPlatformDetails
+                    gatherTask = makeGatherTask(platform, GatherFabricPlatformDetails)
                     break
                 case Platform.QUILT:
-                    gatherType = GatherQuiltPlatformDetails
+                    gatherTask = makeGatherTask(platform, GatherQuiltPlatformDetails)
                     break
                 default:
-                    gatherType = AbstractGatherPlatformDetailsTask
+                    gatherTask = makeGatherTask(platform, AbstractGatherPlatformDetailsTask)
             }
         } else {
-            gatherType = AbstractGatherPlatformDetailsTask
+            gatherTask = makeGatherTask(platform, AbstractGatherPlatformDetailsTask)
         }
-        final TaskProvider<? extends AbstractGatherPlatformDetailsTask> gatherTask = gatherTask(platform, gatherType)
+
 
         TaskProvider<? extends AbstractMDGConvertTask> convertTask
         switch (platform) {

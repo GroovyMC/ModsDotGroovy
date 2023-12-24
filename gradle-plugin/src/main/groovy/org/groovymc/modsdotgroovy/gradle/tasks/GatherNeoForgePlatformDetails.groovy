@@ -2,15 +2,25 @@ package org.groovymc.modsdotgroovy.gradle.tasks
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.transform.Memoized
-import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.file.FileCollection
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.Input
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.Nullable
 
 @CacheableTask
 @CompileStatic
 abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetailsTask {
+    /*
+    TODO: This is a string property because you cannot and should not pass configurations as inputs; however, neogradle
+          needs a configuration to look in. The plan is to extract this logic entirely in the future, so as to support
+          configuration caching, but it's not fun to figure out how to do that cleanly. We shouldn't be passing a
+          configuration by name either, but... till we get configuration caching set up it'll have to do.
+     */
+    @Input
+    @ApiStatus.Internal
+    abstract Property<String> getCompileClasspathName()
 
     @Override
     void run() throws IllegalStateException {
@@ -40,28 +50,17 @@ abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetai
         @Nullable String mcVersion = null
         @Nullable String neoForgeVersion = null
 
-        final NamedDomainObjectContainer runs = project.extensions.findByName('runs') as NamedDomainObjectContainer
-        for (run in runs) {
-            try {
-                final taskDependencyUtils = Class.forName('net.neoforged.gradle.common.util.TaskDependencyUtils', true, run.class.classLoader)
+        try {
+            final neoFormRuntime = project.extensions.getByName('userDevRuntime')
+            final conf = project.configurations.getByName(compileClasspathName.get())
+            final runtimeDef = neoFormRuntime.findIn(conf).first()
+            if (runtimeDef !== null) {
+                final spec = runtimeDef.specification
 
-                for (SourceSet sourceSet in run.modSources.get()) {
-
-
-                    final @Nullable runtimeDef = taskDependencyUtils.findRuntimeDefinition(project, sourceSet).orElse(null)
-                    if (runtimeDef === null) continue
-
-                    final spec = runtimeDef.specification
-
-                    println spec
-
-                    mcVersion ?= spec.minecraftVersion
-                    neoForgeVersion ?= spec.forgeVersion
-                }
-            } catch (e) {
-                throw e
+                mcVersion ?= spec.minecraftVersion
+                neoForgeVersion ?= spec.forgeVersion
             }
-        }
+        } catch (ignored) {}
 
         return new String[] { mcVersion, neoForgeVersion }
     }
