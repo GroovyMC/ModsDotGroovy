@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
+@Log4j2(category = 'MDG - NeoForge Frontend')
 class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
     /**
      * The modId of the mod. This should match the value of your mod's {@literal @}GMod/{@literal @}Mod annotated main class.

@@ -12,7 +12,7 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
+@Log4j2(category = 'MDG - NeoForge Frontend')
 class ModsBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
     void modInfo(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.ModInfoBuilder')

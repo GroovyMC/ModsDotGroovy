@@ -7,10 +7,15 @@ import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
+import org.groovymc.modsdotgroovy.frontend.neoforge.FeaturesBuilder
+import org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.ModInfoBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.ModsBuilder
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.Nullable
+
+import static groovy.lang.Closure.DELEGATE_FIRST
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 @PackageScope
 @CompileStatic
@@ -41,6 +46,13 @@ class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInt
      */
     @Nullable String issueTrackerUrl = null
 
+    boolean showAsResourcePack = false
+    boolean showAsDataPack = false
+
+    List<String> services
+
+    List<String> accessTransformers
+
     /**@
      * Alias for <code>mods { modInfo {} }</code>
      * @param closure
@@ -60,6 +72,18 @@ class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInt
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
+        core.pop()
+    }
+
+    void mixins(@DelegatesTo(value = MixinsBuilder, strategy = DELEGATE_FIRST)
+                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder')
+                  final Closure closure) {
+        log.debug "mixins(closure)"
+        core.push('mixins')
+        final mixinsBuilder = new MixinsBuilder(core)
+        closure.delegate = mixinsBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(mixinsBuilder)
         core.pop()
     }
 

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
+@Log4j2(category = 'MDG - NeoForge Frontend')
 class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
     @VersionRangeAware
     @Nullable String forge = null

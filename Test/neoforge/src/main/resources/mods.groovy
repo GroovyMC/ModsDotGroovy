@@ -47,6 +47,10 @@ final mdg = NeoForgeModsDotGroovy.make {
         }
     }
 
+    mixins {
+        config 'examplemod.mixins.json'
+    }
+
     unrecognisedByFrontend {
         hello = 'world'
         x = 24

@@ -74,6 +74,16 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             return PluginResult.remove()
     }
 
+    def setShowAsDataPack(final value) {
+        if (isFabricLike(currentPlatform))
+            return PluginResult.remove()
+    }
+
+    def setShowAsResourcePack(final value) {
+        if (isFabricLike(currentPlatform))
+            return PluginResult.remove()
+    }
+
     class Icon {
         def onNestLeave(final Deque<String> stack, final Map value) {
             if (isForgeLike(currentPlatform))

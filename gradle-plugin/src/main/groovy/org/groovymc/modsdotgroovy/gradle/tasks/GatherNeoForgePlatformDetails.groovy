@@ -22,7 +22,7 @@ abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetai
      * Due to gradle classloader limitations, this has to be done dynamically
      */
     @CompileDynamic
-    private @Nullable Provider<String[]> calculateVersions(String configurationName) {
+    private Provider<String @Nullable []> calculateVersions(String configurationName) {
         return project.provider {
             @Nullable String mcVersion = null
             @Nullable String neoForgeVersion = null

@@ -39,6 +39,9 @@ class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
      */
     @Nullable String issueTrackerUrl = null
 
+    boolean showAsResourcePack = false
+    boolean showAsDataPack = false
+
     /**@
      * Alias for <code>mods { modInfo {} }</code>
      * @param closure

@@ -9,7 +9,7 @@ import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
+@Log4j2(category = 'MDG - NeoForge Frontend')
 class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * The ID of the mod this dependency is depending on.

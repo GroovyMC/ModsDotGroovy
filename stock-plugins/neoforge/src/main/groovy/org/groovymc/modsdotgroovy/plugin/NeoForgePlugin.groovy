@@ -3,7 +3,6 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
@@ -19,6 +18,30 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
     @Override
     Logger getLog() {
         return log
+    }
+
+    class Mixins {
+        private final List mixins = []
+
+        def onNestEnter(final Deque<String> stack, final Map value) {
+            log.debug "mixins.onNestEnter: ${value}"
+
+            mixins.clear()
+            return new PluginResult.Validate()
+        }
+
+        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            log.debug "mixins.onNestLeave"
+            return PluginResult.move(['mixins'], mixins)
+        }
+
+        class Config {
+            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                log.debug "mixins.config.onNestLeave"
+                mixins.add(value)
+                return PluginResult.remove()
+            }
+        }
     }
 
     class Mods {
