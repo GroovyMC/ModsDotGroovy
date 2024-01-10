@@ -7,9 +7,10 @@ plugins {
 
 modsDotGroovy {
     platform = Platform.SPIGOT
+    apply()
 }
 
-tasks.withType(AbstractGatherPlatformDetailsTask).configureEach {
+tasks.named('gatherSpigotPlatformDetails', AbstractGatherPlatformDetailsTask).configure {
     minecraftVersion = '1.20.2'
-    // platformVersion = '???' // todo: find out what this should be - Spigot's docs aren't obvious
+    platformVersion = '???' // TODO: find out what this should be - Spigot's docs aren't obvious
 }

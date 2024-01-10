@@ -5,69 +5,46 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.artifacts.UnknownConfigurationException
+import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier
 import org.jetbrains.annotations.Nullable
 
 @CacheableTask
 @CompileStatic
 abstract class GatherForgePlatformDetails extends AbstractGatherPlatformDetailsTask {
-    private final ConfigurableFileCollection dependencyJars = objectFactory.fileCollection()
+    @Input
+    abstract ListProperty<ComponentArtifactIdentifier> getArtifactIds()
 
-    // defined here to trigger the task when dep versions change
-    @InputFiles
-    @Classpath
-    protected ConfigurableFileCollection getDependencyJars() {
-        return dependencyJars
+    String calculateCombinedVersion() {
+        return artifactIds.get().findResult {
+            if (it instanceof ModuleComponentArtifactIdentifier) {
+                return it.componentIdentifier.version
+            }
+            return null
+        }
     }
 
-    GatherForgePlatformDetails() {
-        this.configurationName.convention('minecraft')
-        this.dependencyJars.from(providerFactory.provider(() -> configuration ?: []))
-    }
-
-    @TaskAction
+    @Override
     void run() throws IllegalStateException {
         @Nullable String minecraftVersion = this.minecraftVersion.getOrNull()
         @Nullable String platformVersion = this.platformVersion.getOrNull()
 
         if (minecraftVersion === null || platformVersion === null) {
-            final @Nullable Dependency dep = this.dependencies?.find()
-            if (dep === null)
-                throw new IllegalStateException("""
-                    Could not find Minecraft dependency in configuration \"${this.configurationName.get()}\" for project \"${project.name}\".
-                    Try manually setting the minecraftVersion and platformVersion properties for this task.
-                """.strip().stripIndent())
-
-            final String[] version = dep.version.split('-')
+            String combinedVersion = calculateCombinedVersion()
+            final String[] version = combinedVersion.split('-')
             if (version.length === 1)
-                throw new IllegalStateException("""
-                    Could not find Forge version in Minecraft dependency version \"$version\" for project \"${project.name}\".
-                    Try manually setting the minecraftVersion and platformVersion properties for this task.
-                """.strip().stripIndent())
+                throw new IllegalStateException("Could not find Forge version in Minecraft dependency version \"$version\". Try manually setting the minecraftVersion and platformVersion properties for this task.")
 
             minecraftVersion ?= version[0]
             platformVersion ?= version[1].split('_mapped_')[0]
         }
 
         this.writePlatformDetails(minecraftVersion, platformVersion)
-    }
-
-    private @Nullable DependencySet getDependencies() {
-        return configuration?.dependencies
-    }
-
-    private @Nullable Configuration getConfiguration() {
-        try {
-            return project.configurations.named(configurationName.get()).getOrNull()
-        } catch (UnknownConfigurationException ignored) {
-            project.logger.warn "Warning: Configuration \"${configurationName.get()}\" not found for project \"${project.name}\""
-            return null
-        }
     }
 }

@@ -1,0 +1,5 @@
+plugins {
+    id 'org.groovymc.modsdotgroovy'
+}
+
+modsDotGroovy.multiplatform.expose()

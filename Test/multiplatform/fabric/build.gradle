@@ -1,11 +1,14 @@
-import org.groovymc.modsdotgroovy.core.Platform
-
 plugins {
     id 'fabric-loom' version '1.4-SNAPSHOT'
+    id 'org.groovymc.modsdotgroovy'
 }
 
 dependencies {
     minecraft 'com.mojang:minecraft:1.20.2'
     mappings 'net.fabricmc:yarn:1.20.2+build.1:v2'
     modImplementation 'net.fabricmc:fabric-loader:0.14.24'
+}
+
+modsDotGroovy.multiplatform {
+    from ':multiplatform:common'
 }

@@ -35,5 +35,6 @@ enableFeaturePreview 'STABLE_CONFIGURATION_CACHE'
 
 includeBuild '../'
 
-//include 'forge', /*'neoforge',*/ 'fabric', 'quilt', 'spigot'
-include 'multiplatform', 'multiplatform:forge', 'multiplatform:fabric'
+//include 'neoforge'
+include 'forge', 'fabric', 'quilt', 'spigot'
+//include 'multiplatform', 'multiplatform:forge', 'multiplatform:fabric', 'multiplatform:common'
