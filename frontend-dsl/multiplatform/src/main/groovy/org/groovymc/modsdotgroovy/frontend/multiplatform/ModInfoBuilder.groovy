@@ -1,11 +1,14 @@
-package org.groovymc.modsdotgroovy.frontend
+package org.groovymc.modsdotgroovy.frontend.multiplatform
 
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
-import org.groovymc.modsdotgroovy.frontend.fabric.EntrypointsBuilder
-import org.groovymc.modsdotgroovy.frontend.fabric.PersonsBuilder
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
+import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
+import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
+import org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.EntrypointsBuilder
+import org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.PersonsBuilder
 import org.jetbrains.annotations.Nullable
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
@@ -80,7 +83,7 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
      * A list of authors of the mod.
      */
     void authors(@DelegatesTo(value = PersonsBuilder, strategy = DELEGATE_FIRST)
-                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.PersonsBuilder')
+                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.PersonsBuilder')
                  final Closure closure) {
         log.debug "authors(closure)"
         core.push('authors')
@@ -92,7 +95,7 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
     }
 
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
-                      @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.DependenciesBuilder')
+                      @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.DependenciesBuilder')
                       final Closure closure) {
         log.debug "dependencies(closure)"
         core.push('dependencies')
@@ -104,7 +107,7 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
     }
 
     void features(@DelegatesTo(value = FeaturesBuilder, strategy = DELEGATE_FIRST)
-                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.FeaturesBuilder')
+                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.FeaturesBuilder')
                   final Closure closure) {
         log.debug "features(closure)"
         core.push('features')
@@ -120,7 +123,7 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
      * Ignored on Forge.
      */
     void entrypoints(@DelegatesTo(value = EntrypointsBuilder, strategy = DELEGATE_FIRST)
-                     @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.EntrypointsBuilder')
+                     @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.EntrypointsBuilder')
                      final Closure closure) {
         log.debug "entrypoints(closure)"
         core.push('entrypoints')

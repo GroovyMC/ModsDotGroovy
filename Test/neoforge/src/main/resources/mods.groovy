@@ -48,7 +48,11 @@ final mdg = NeoForgeModsDotGroovy.make {
     }
 
     mixins {
-        config 'examplemod.mixins.json'
+        mixin 'examplemod.mixins.json'
+    }
+
+    accessTransformers {
+        accessTransformer 'accesstransformer.cfg'
     }
 
     unrecognisedByFrontend {

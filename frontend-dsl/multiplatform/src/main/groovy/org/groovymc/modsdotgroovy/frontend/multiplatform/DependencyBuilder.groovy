@@ -1,9 +1,12 @@
-package org.groovymc.modsdotgroovy.frontend
+package org.groovymc.modsdotgroovy.frontend.multiplatform
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
+import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
+import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Multiplatform Frontend')

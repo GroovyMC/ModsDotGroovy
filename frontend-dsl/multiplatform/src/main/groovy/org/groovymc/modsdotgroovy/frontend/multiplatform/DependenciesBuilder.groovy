@@ -1,4 +1,4 @@
-package org.groovymc.modsdotgroovy.frontend
+package org.groovymc.modsdotgroovy.frontend.multiplatform
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
@@ -6,6 +6,8 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.frontend.DslBuilder
+import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.jetbrains.annotations.Nullable
 
 import static groovy.lang.Closure.DELEGATE_FIRST
@@ -17,7 +19,7 @@ class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor, O
     @Nullable String minecraft
 
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.DependencyBuilder')
+             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.DependencyBuilder')
              final Closure closure) {
         log.debug "mod(closure)"
         core.push('dependency')
@@ -30,7 +32,7 @@ class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor, O
 
     void mod(final String modId,
              @DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.DependencyBuilder')
+             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.DependencyBuilder')
              final Closure closure) {
         log.debug "mod(string, closure)"
         core.push('dependency')

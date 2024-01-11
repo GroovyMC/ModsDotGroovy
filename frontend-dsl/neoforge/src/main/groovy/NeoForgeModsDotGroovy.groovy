@@ -7,6 +7,7 @@ import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
+import org.groovymc.modsdotgroovy.frontend.neoforge.AccessTransformersBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.FeaturesBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.ModInfoBuilder
@@ -76,14 +77,26 @@ class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInt
     }
 
     void mixins(@DelegatesTo(value = MixinsBuilder, strategy = DELEGATE_FIRST)
-                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder')
-                  final Closure closure) {
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder')
+                final Closure closure) {
         log.debug "mixins(closure)"
         core.push('mixins')
         final mixinsBuilder = new MixinsBuilder(core)
         closure.delegate = mixinsBuilder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(mixinsBuilder)
+        core.pop()
+    }
+
+    void accessTransformers(@DelegatesTo(value = AccessTransformersBuilder, strategy = DELEGATE_FIRST)
+                            @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.AccessTransformersBuilder')
+                            final Closure closure) {
+        log.debug "accessTransformers(closure)"
+        core.push('accessTransformers')
+        final accessTransformersBuilder = new AccessTransformersBuilder(core)
+        closure.delegate = accessTransformersBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(accessTransformersBuilder)
         core.pop()
     }
 

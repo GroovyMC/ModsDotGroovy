@@ -15,7 +15,7 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
     @Override
     void init(final Map<String, ?> environment) {
         this.currentPlatform = Platform.of(environment['platform'].invokeMethod('name', null) as String)
-        if (currentPlatform !in [Platform.FORGE, Platform.FABRIC])
+        if (currentPlatform !in [Platform.FORGE, Platform.FABRIC, Platform.NEOFORGE, Platform.QUILT])
             throw new PluginResult.MDGPluginException('Unknown platform: ' + currentPlatform)
     }
 

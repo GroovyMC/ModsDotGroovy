@@ -35,10 +35,34 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
             return PluginResult.move(['mixins'], mixins)
         }
 
-        class Config {
+        class Mixin {
             PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                log.debug "mixins.config.onNestLeave"
+                log.debug "mixins.mixin.onNestLeave"
                 mixins.add(value)
+                return PluginResult.remove()
+            }
+        }
+    }
+
+    class AccessTransformers {
+        private final List accessTransformers = []
+
+        def onNestEnter(final Deque<String> stack, final Map value) {
+            log.debug "accessTransformers.onNestEnter: ${value}"
+
+            accessTransformers.clear()
+            return new PluginResult.Validate()
+        }
+
+        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            log.debug "accessTransformers.onNestLeave"
+            return PluginResult.move(['accessTransformers'], accessTransformers)
+        }
+
+        class AccessTransformer {
+            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                log.debug "accessTransformers.accessTransformer.onNestLeave"
+                accessTransformers.add(value)
                 return PluginResult.remove()
             }
         }

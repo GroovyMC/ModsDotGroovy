@@ -1,4 +1,4 @@
-package org.groovymc.modsdotgroovy.frontend.fabric
+package org.groovymc.modsdotgroovy.frontend.multiplatform.fabric
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
@@ -8,14 +8,14 @@ import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
-import org.groovymc.modsdotgroovy.frontend.OnPlatform
+import org.groovymc.modsdotgroovy.frontend.multiplatform.OnPlatform
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
 @Log4j2(category = 'MDG - Multiloader Frontend')
 class EntrypointsBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor, OnPlatform {
     void main(@DelegatesTo(value = EntrypointBuilder, strategy = Closure.DELEGATE_FIRST)
-              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.EntrypointBuilder')
+              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.EntrypointBuilder')
               final Closure closure) {
         entrypoint('main', closure)
     }
@@ -33,20 +33,20 @@ class EntrypointsBuilder extends DslBuilder implements PropertyInterceptor, MapC
     }
 
     void client(@DelegatesTo(value = EntrypointBuilder, strategy = Closure.DELEGATE_FIRST)
-                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.EntrypointBuilder')
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.EntrypointBuilder')
                 final Closure closure) {
         entrypoint('client', closure)
     }
 
     void server(@DelegatesTo(value = EntrypointBuilder, strategy = Closure.DELEGATE_FIRST)
-                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.EntrypointBuilder')
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.EntrypointBuilder')
                 final Closure closure) {
         entrypoint('server', closure)
     }
 
     void entrypoint(final String type,
                     @DelegatesTo(value = EntrypointBuilder, strategy = Closure.DELEGATE_FIRST)
-                    @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.EntrypointBuilder')
+                    @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.EntrypointBuilder')
                     final Closure closure) {
         log.debug "entrypoint(closure)"
         core.push('entrypoint')

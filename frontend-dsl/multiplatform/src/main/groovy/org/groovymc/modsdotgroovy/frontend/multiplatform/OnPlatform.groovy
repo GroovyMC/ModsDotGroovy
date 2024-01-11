@@ -1,4 +1,4 @@
-package org.groovymc.modsdotgroovy.frontend
+package org.groovymc.modsdotgroovy.frontend.multiplatform
 
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore

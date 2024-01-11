@@ -37,4 +37,4 @@ includeBuild '../'
 
 //include 'neogradle'
 include 'forge', 'fabric', 'quilt', 'spigot', 'neoforge'
-include 'multiplatform:forge', 'multiplatform:fabric', 'multiplatform:common'
+include 'multiplatform:forge', 'multiplatform:fabric', 'multiplatform:neoforge', 'multiplatform:common'

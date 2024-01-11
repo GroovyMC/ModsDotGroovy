@@ -1,4 +1,4 @@
-package org.groovymc.modsdotgroovy.frontend.fabric
+package org.groovymc.modsdotgroovy.frontend.multiplatform.fabric
 
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
@@ -6,7 +6,7 @@ import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
-import org.groovymc.modsdotgroovy.frontend.OnPlatform
+import org.groovymc.modsdotgroovy.frontend.multiplatform.OnPlatform
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
@@ -15,7 +15,7 @@ class PersonsBuilder extends DslBuilder implements OnPlatform {
 
     void person(final String name,
                 @DelegatesTo(value = ContactBuilder, strategy = Closure.DELEGATE_FIRST)
-                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.ContactBuilder')
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.ContactBuilder')
                 final Closure closure = null) {
         log.debug "${fieldName}(name: $name)"
         core.push(fieldName)
@@ -32,7 +32,7 @@ class PersonsBuilder extends DslBuilder implements OnPlatform {
     }
 
     void person(@DelegatesTo(value = PersonBuilder, strategy = Closure.DELEGATE_FIRST)
-                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.PersonBuilder')
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.PersonBuilder')
                 final Closure closure) {
         log.debug "${fieldName}(closure)"
         core.push(fieldName)
