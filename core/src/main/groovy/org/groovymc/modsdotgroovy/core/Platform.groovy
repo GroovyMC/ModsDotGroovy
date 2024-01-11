@@ -2,16 +2,23 @@ package org.groovymc.modsdotgroovy.core
 
 import groovy.transform.*
 import groovy.transform.options.Visibility
+import groovy.transform.stc.POJO
 
-/*
- * Note: This is an emulated record as Gradle 8.4 doesn't seem to support serialising native records into the configuration cache yet
- */
+import java.util.concurrent.ConcurrentHashMap
+
 @CompileStatic
-@VisibilityOptions(constructor = Visibility.PRIVATE)
-@EqualsAndHashCode(pojo = true, cache = true, useGetters = false)
-@RecordOptions(mode = RecordTypeMode.EMULATE, toList = false, toMap = false)
-record Platform(String name) implements Serializable {
-    private static final Map<String, Platform> REGISTRY = [:]
+@POJO
+@EqualsAndHashCode(pojo = true, cache = true, includeFields = true)
+class Platform implements Serializable {
+    private final String name
+
+    private Platform(String name) {
+        if (name == null)
+            throw new IllegalArgumentException("Platform must have a name")
+        this.name = name
+    }
+
+    private static final Map<String, Platform> REGISTRY = new ConcurrentHashMap<>()
 
     public static final Platform FORGE = new Platform("forge")
     public static final Platform NEOFORGE = new Platform("neoForge")
@@ -21,6 +28,17 @@ record Platform(String name) implements Serializable {
     public static final Platform UNKNOWN = new Platform("unknown")
 
     public static final Set<Platform> STOCK_PLATFORMS = Set.of(FORGE, NEOFORGE, FABRIC, QUILT, SPIGOT)
+
+    static {
+        for (def platform : STOCK_PLATFORMS) {
+            REGISTRY[platform.name().toLowerCase(Locale.ROOT)] = platform
+        }
+        REGISTRY['unknown'] = UNKNOWN
+    }
+
+    String name() {
+        return this.name
+    }
 
     String toString() {
         return name.capitalize()
@@ -51,22 +69,11 @@ record Platform(String name) implements Serializable {
      */
     private static Platform internalOf(String name, final boolean create) {
         name = name.toLowerCase(Locale.ROOT)
-        return switch (name) {
-            case "forge" -> FORGE
-            case "neoforge" -> NEOFORGE
-            case "fabric" -> FABRIC
-            case "quilt" -> QUILT
-            case "spigot" -> SPIGOT
-            default -> {
-                final platform = REGISTRY.get(name)
-                if (platform === null) {
-                    yield create ? REGISTRY.putIfAbsent(name, new Platform(name)) : UNKNOWN
-                } else {
-                    yield platform
-                }
-            }
+        final platform = REGISTRY.get(name)
+        if (platform === null) {
+            return create ? REGISTRY.putIfAbsent(name, new Platform(name)) : UNKNOWN
+        } else {
+            return platform
         }
     }
-
-    private Platform {}
 }

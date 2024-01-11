@@ -210,12 +210,6 @@ class QuiltModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
         core.pop()
     }
 
-    void onQuilt(final Closure closure) {
-        log.debug 'onQuilt(closure)'
-        if (platform === Platform.QUILT)
-            closure.call()
-    }
-
     private QuiltModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
     }

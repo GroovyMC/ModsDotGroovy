@@ -9,7 +9,7 @@ import org.groovymc.modsdotgroovy.frontend.DslBuilder
 @Log4j2(category = 'MDG - Fabric Frontend')
 class MixinsBuilder extends DslBuilder {
     void mixin(final String config, final Environment environment = null) {
-        log.debug "mixins(config: $config)"
+        log.debug "mixin(config: $config)"
         core.push('mixin')
         core.put('config', config)
         if (environment !== null) {

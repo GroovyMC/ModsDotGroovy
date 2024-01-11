@@ -3,7 +3,6 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
@@ -13,7 +12,7 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
 
     @Override
     byte getPriority() {
-        return -10 // we want to run after ForgePlugin
+        return 5 // we want to run before ForgeLikePlugin
     }
 
     @Override
@@ -21,47 +20,68 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
         return log
     }
 
+    class Mixins {
+        private final List mixins = []
+
+        def onNestEnter(final Deque<String> stack, final Map value) {
+            log.debug "mixins.onNestEnter: ${value}"
+
+            mixins.clear()
+            return new PluginResult.Validate()
+        }
+
+        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            log.debug "mixins.onNestLeave"
+            return PluginResult.move(['mixins'], mixins)
+        }
+
+        class Mixin {
+            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                log.debug "mixins.mixin.onNestLeave"
+                mixins.add(value)
+                return PluginResult.remove()
+            }
+        }
+    }
+
+    class AccessTransformers {
+        private final List accessTransformers = []
+
+        def onNestEnter(final Deque<String> stack, final Map value) {
+            log.debug "accessTransformers.onNestEnter: ${value}"
+
+            accessTransformers.clear()
+            return new PluginResult.Validate()
+        }
+
+        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            log.debug "accessTransformers.onNestLeave"
+            return PluginResult.move(['accessTransformers'], accessTransformers)
+        }
+
+        class AccessTransformer {
+            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                log.debug "accessTransformers.accessTransformer.onNestLeave"
+                accessTransformers.add(value)
+                return PluginResult.remove()
+            }
+        }
+    }
+
     class Mods {
         class ModInfo {
             @Nullable String modId = null
 
-            class Aliases {
-                private final List aliases = []
-
-                PluginResult onNestEnter(final Deque<String> stack, final Map value) {
-                    log.debug "mods.modInfo.aliases.onNestEnter: ${value}"
-                    if (ModInfo.this.modId === null)
-                        throw new PluginResult.MDGPluginException('modId must be set before aliases can be set.')
-
-                    aliases.clear()
-                    return new PluginResult.Validate()
-                }
-
-                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                    log.debug "mods.modInfo.aliases.onNestLeave"
-                    return PluginResult.move(['aliases'], ModInfo.this.modId, aliases)
-                }
-
-                class Alias {
-                    @Nullable String modId = null
-                    @Nullable VersionRange versionRange = null
-
-                    PluginResult setVersionRange(final VersionRange versionRange) {
-                        log.debug "mods.modInfo.aliases.alias.versionRange: ${versionRange}"
-                        this.versionRange = versionRange
-                        return new PluginResult.Change(newValue: versionRange.toMaven())
+            class Dependencies {
+                class Dependency {
+                    def setType(final type) {
+                        if (type instanceof Enum)
+                            PluginResult.of(type.name().toLowerCase(Locale.ROOT))
                     }
 
-                    PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-                        log.debug "mods.modInfo.aliases.alias.onNestLeave"
-                        if (modId === null)
-                            throw new PluginResult.MDGPluginException('alias is missing a modId')
-
-                        if (versionRange === null)
-                            throw new PluginResult.MDGPluginException("alias \"${this.modId}\" is missing a versionRange")
-
-                        aliases.add(value)
-                        return PluginResult.remove()
+                    void onNestLeave(final Deque<String> stack, final Map value) {
+                        if (value['type'] === null)
+                            value['type'] = 'required'
                     }
                 }
             }

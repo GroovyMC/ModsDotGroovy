@@ -1,4 +1,4 @@
-final mdg = ModsDotGroovy.make {
+final mdg = ForgeModsDotGroovy.make {
     modLoader = 'gml'
     loaderVersion = rawVersionRange('[1,)')
 
@@ -24,13 +24,11 @@ final mdg = ModsDotGroovy.make {
             forge = "[44,)"
             minecraft = '[1.19.3]'
 
-            onForge {
-                mod {
-                    modId = 'patchouli'
-                    versionRange = '>=1.1'
-                    ordering = DependencyOrdering.AFTER
-                    side = DependencySide.BOTH
-                }
+            mod {
+                modId = 'patchouli'
+                versionRange = '>=1.1'
+                ordering = DependencyOrdering.AFTER
+                side = DependencySide.BOTH
             }
 
             mod('exampledep') {

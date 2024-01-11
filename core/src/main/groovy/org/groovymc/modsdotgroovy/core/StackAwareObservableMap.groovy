@@ -129,15 +129,22 @@ final class StackAwareObservableMap extends ObservableMap {
         // add the nestedMap
         this.setIgnoreNextEvent(true) // we already fired a StackChangedEvent earlier
         putAt(oldStack, key, nestedData)
+        this.setIgnoreNextEvent(false)
     }
 
     void move(final String property, final Deque<String> newLocation, final String newProperty, final Object newValue) {
-        var newMap = traverseAndCreate(newLocation)
-
-        this.setIgnoreNextEvent(true)
-        newMap.put(newProperty ?: property, newValue ?: get(property))
+        var value = newValue ?: get(property)
         this.setIgnoreNextEvent(true)
         remove(property)
+        this.setIgnoreNextEvent(false)
+
+        var oldStack = new ArrayDeque<>(stack)
+        stack.clear()
+        stack.addAll(newLocation)
+        traverseAndCreate()
+        put(newProperty ?: property, value)
+        stack.clear()
+        stack.addAll(oldStack)
     }
 
     void pop() {
@@ -170,8 +177,10 @@ final class StackAwareObservableMap extends ObservableMap {
     }
 
     protected void fireStackChangedEvent(final Deque<String> oldStack, final Object oldValue, final Object newValue) {
-        log.debug "fireStackChangedEvent: $oldStack -> ${this.getStack()}"
-        ((PropertyChangeSupport) pcsField.get(this.getRootMap())).firePropertyChange(new StackChangedEvent(this, oldStack, this.getStack(), oldValue, newValue))
+        if (!this.ignoreNextEvent) {
+            log.debug "fireStackChangedEvent: $oldStack -> ${this.getStack()}"
+            ((PropertyChangeSupport) pcsField.get(this.getRootMap())).firePropertyChange(new StackChangedEvent(this, oldStack, this.getStack(), oldValue, newValue))
+        }
     }
     //endregion Stack
 
@@ -206,6 +215,7 @@ final class StackAwareObservableMap extends ObservableMap {
                 newTraversedMap = makeObservableMap()
                 this.setIgnoreNextEvent(true)
                 traversedMap[stackKey] = newTraversedMap
+                this.setIgnoreNextEvent(false)
             }
             traversedMap = newTraversedMap
         }

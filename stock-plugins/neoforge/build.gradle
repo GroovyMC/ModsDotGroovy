@@ -29,3 +29,7 @@ publishing {
 signing {
     sign publishing.publications.stockPluginNeoForge
 }
+
+dependencies {
+    api projects.stockPlugins.forgelike
+}

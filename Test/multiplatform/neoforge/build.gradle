@@ -1,0 +1,20 @@
+import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.gradle.tasks.AbstractGatherPlatformDetailsTask
+
+plugins {
+    id 'org.groovymc.modsdotgroovy'
+}
+
+modsDotGroovy {
+    platform = Platform.NEOFORGE
+    inferGather.set false
+    multiplatform {
+        from ':multiplatform:common'
+    }
+    apply()
+}
+
+tasks.named('gatherNeoForgePlatformDetails', AbstractGatherPlatformDetailsTask).configure {
+    minecraftVersion = '1.20.4'
+    platformVersion = '20.4.55-beta'
+}

@@ -3,19 +3,22 @@ import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
-import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.frontend.multiplatform.neoforge.AccessTransformersBuilder
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
-import org.groovymc.modsdotgroovy.frontend.ModInfoBuilder
-import org.groovymc.modsdotgroovy.frontend.ModsBuilder
+import org.groovymc.modsdotgroovy.frontend.multiplatform.ModInfoBuilder
+import org.groovymc.modsdotgroovy.frontend.multiplatform.ModsBuilder
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
+import org.groovymc.modsdotgroovy.frontend.multiplatform.OnPlatform
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
-import org.groovymc.modsdotgroovy.frontend.fabric.IconBuilder
+import org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.IconBuilder
 import org.jetbrains.annotations.Nullable
+
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 @PackageScope
 @CompileStatic
-@Log4j2(category = 'MDG - Forge Frontend')
-class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
+@Log4j2(category = 'MDG - Multiplatform Frontend')
+class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor, OnPlatform {
     /**@
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
      * For GroovyModLoader @GMod mods it should be {@code gml}.
@@ -81,7 +84,7 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
      * Ignored on Forge.
      */
     void icon(@DelegatesTo(value = IconBuilder, strategy = Closure.DELEGATE_FIRST)
-              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.IconBuilder')
+              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.IconBuilder')
               final Closure closure) {
         log.debug "icon(closure)"
         core.push('icon')
@@ -97,13 +100,13 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
      * @param closure
      */
     void mod(@DelegatesTo(value = ModInfoBuilder, strategy = Closure.DELEGATE_FIRST)
-             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModInfoBuilder')
+             @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.ModInfoBuilder')
              final Closure closure) {
         mods { modInfo(closure) }
     }
 
     void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_FIRST)
-              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.ModsBuilder')
+              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.ModsBuilder')
               final Closure closure) {
         log.debug "mods(closure)"
         core.push('mods')
@@ -114,16 +117,28 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
         core.pop()
     }
 
-    void onForge(final Closure closure) {
-        log.debug "onForge(closure)"
-        if (platform === Platform.FORGE)
-            closure.call()
+    void mixins(@DelegatesTo(value = MixinsBuilder, strategy = DELEGATE_FIRST)
+                @ClosureParams(value = SimpleType, options = 'MixinsBuilder')
+                final Closure closure) {
+        log.debug "mixins(closure)"
+        core.push('mixins')
+        final mixinsBuilder = new MixinsBuilder(core)
+        closure.delegate = mixinsBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(mixinsBuilder)
+        core.pop()
     }
 
-    void onFabric(final Closure closure) {
-        log.debug "onForge(closure)"
-        if (platform === Platform.FABRIC)
-            closure.call()
+    void accessTransformers(@DelegatesTo(value = AccessTransformersBuilder, strategy = DELEGATE_FIRST)
+                            @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.neoforge.AccessTransformersBuilder')
+                            final Closure closure) {
+        log.debug "accessTransformers(closure)"
+        core.push('accessTransformers')
+        final accessTransformersBuilder = new AccessTransformersBuilder(core)
+        closure.delegate = accessTransformersBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(accessTransformersBuilder)
+        core.pop()
     }
 
     private MultiplatformModsDotGroovy(final Map<String, ?> environment) {

@@ -31,5 +31,5 @@ signing {
 }
 
 dependencies {
-    api libs.groovy4.json.get()
+    api projects.stockPlugins.forgelike
 }

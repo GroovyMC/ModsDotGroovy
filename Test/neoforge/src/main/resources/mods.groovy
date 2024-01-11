@@ -24,33 +24,35 @@ final mdg = NeoForgeModsDotGroovy.make {
             forge = "[47.1.3,)"
             minecraft = '[1.20.1]'
 
-            onForge {
-                mod {
-                    modId = 'patchouli'
-                    versionRange = '>=1.1'
-                    ordering = DependencyOrdering.AFTER
-                    side = DependencySide.BOTH
-                }
+            mod {
+                modId = 'patchouli'
+                versionRange = '>=1.1'
+                ordering = DependencyOrdering.AFTER
+                side = DependencySide.BOTH
             }
 
             mod('exampledep') {
                 versionRange = '1.*'
                 side = DependencySide.CLIENT
-                mandatory = false
+                type = DependencyType.OPTIONAL
             }
 
             exampledep2 = '[1,)'
-            exampledep3 = "[${libs.versions['exampledep3']},)" // to test reading from version catalogues
+            //exampledep3 = "[${libs.versions['exampledep3']},)" // to test reading from version catalogues
         }
 
         features {
             openGLVersion = '[3.2,)'
             javaVersion = '[17,)' // for testing features that mods.groovy doesn't recognise yet
         }
+    }
 
-        aliases {
-            forge = '>=47.1.3'
-        }
+    mixins {
+        mixin 'examplemod.mixins.json'
+    }
+
+    accessTransformers {
+        accessTransformer 'accesstransformer.cfg'
     }
 
     unrecognisedByFrontend {

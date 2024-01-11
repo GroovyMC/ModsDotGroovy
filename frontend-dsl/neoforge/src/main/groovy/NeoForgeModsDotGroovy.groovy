@@ -3,59 +3,121 @@ import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
+import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
+import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
-import org.groovymc.modsdotgroovy.frontend.neoforge.NeoForgeModsBuilder
-import org.groovymc.modsdotgroovy.frontend.neoforge.NeoForgeModInfoBuilder
+import org.groovymc.modsdotgroovy.frontend.neoforge.AccessTransformersBuilder
+import org.groovymc.modsdotgroovy.frontend.neoforge.FeaturesBuilder
+import org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder
+import org.groovymc.modsdotgroovy.frontend.neoforge.ModInfoBuilder
+import org.groovymc.modsdotgroovy.frontend.neoforge.ModsBuilder
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.Nullable
+
+import static groovy.lang.Closure.DELEGATE_FIRST
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 @PackageScope
 @CompileStatic
 @ApiStatus.Experimental // NeoForged hasn't yet finalised their mods.toml spec at the time of writing
 @Log4j2(category = 'MDG - NeoForge Frontend')
-class NeoForgeModsDotGroovy extends ModsDotGroovy implements PropertyInterceptor, MapClosureInterceptor {
+class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
+    /**@
+     * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
+     * For GroovyModLoader @GMod mods it should be {@code gml}.
+     */
+    String modLoader = 'javafml'
+
+    /**@
+     * A version range to match for the {@link #setModLoader(java.lang.String)}.
+     */
+    @VersionRangeAware
+    String loaderVersion = '[1,)'
+
+    /**@
+     * The license for your mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.<br>
+     * Review your options at <a href="https://choosealicense.com/">https://choosealicense.com/</a>.<br>
+     * All rights reserved is the default copyright stance, and is thus the default here.
+     */
+    String license = 'All Rights Reserved'
+
+    /**@
+     * A URL to refer people to when problems occur with this mod.
+     */
+    @Nullable String issueTrackerUrl = null
+
+    boolean showAsResourcePack = false
+    boolean showAsDataPack = false
+
+    List<String> services
+
+    List<String> accessTransformers
+
     /**@
      * Alias for <code>mods { modInfo {} }</code>
      * @param closure
      */
-    @Override
-    void mod(@DelegatesTo(value = NeoForgeModInfoBuilder, strategy = Closure.DELEGATE_FIRST)
+    void mod(@DelegatesTo(value = ModInfoBuilder, strategy = Closure.DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.ModInfoBuilder')
              final Closure closure) {
         mods { modInfo(closure) }
     }
 
-    @Override
-    void mods(@DelegatesTo(value = NeoForgeModsBuilder, strategy = Closure.DELEGATE_FIRST)
-              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.NeoForgeModsBuilder')
+    void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_FIRST)
+              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.ModsBuilder')
               final Closure closure) {
         log.debug "mods(closure)"
         core.push('mods')
-        final modsBuilder = new NeoForgeModsBuilder(core)
+        final modsBuilder = new ModsBuilder(core)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
         core.pop()
     }
 
-    private NeoForgeModsDotGroovy(final Map<String, ?> environment) {
+    void mixins(@DelegatesTo(value = MixinsBuilder, strategy = DELEGATE_FIRST)
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder')
+                final Closure closure) {
+        log.debug "mixins(closure)"
+        core.push('mixins')
+        final mixinsBuilder = new MixinsBuilder(core)
+        closure.delegate = mixinsBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(mixinsBuilder)
+        core.pop()
+    }
+
+    void accessTransformers(@DelegatesTo(value = AccessTransformersBuilder, strategy = DELEGATE_FIRST)
+                            @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.AccessTransformersBuilder')
+                            final Closure closure) {
+        log.debug "accessTransformers(closure)"
+        core.push('accessTransformers')
+        final accessTransformersBuilder = new AccessTransformersBuilder(core)
+        closure.delegate = accessTransformersBuilder
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.call(accessTransformersBuilder)
+        core.pop()
+    }
+
+    protected NeoForgeModsDotGroovy(final Map<String, ?> environment) {
         super(environment)
     }
 
     static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                      @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure) {
+                                   @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure) {
         return make(closure, [:])
     }
 
     static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                      @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
-                                      final Binding scriptBinding) {
+                                   @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
+                                   final Binding scriptBinding) {
         return make(closure, scriptBinding.variables)
     }
 
     static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                      @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
-                                      final Map<String, ?> environment) {
+                                   @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
+                                   final Map<String, ?> environment) {
         final NeoForgeModsDotGroovy val = new NeoForgeModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val
