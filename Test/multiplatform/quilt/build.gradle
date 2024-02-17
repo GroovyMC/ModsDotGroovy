@@ -1,12 +1,12 @@
 plugins {
-    id 'fabric-loom' version '1.4.6'
+    id 'org.quiltmc.loom' version '1.4.1'
     id 'org.groovymc.modsdotgroovy'
 }
 
 dependencies {
     minecraft 'com.mojang:minecraft:1.20.2'
-    mappings 'net.fabricmc:yarn:1.20.2+build.1:v2'
-    modImplementation 'net.fabricmc:fabric-loader:0.14.24'
+    mappings 'org.quiltmc:quilt-mappings:1.20.2+build.3:intermediary-v2'
+    modImplementation 'org.quiltmc:quilt-loader:0.21.0'
 }
 
 modsDotGroovy.multiplatform {

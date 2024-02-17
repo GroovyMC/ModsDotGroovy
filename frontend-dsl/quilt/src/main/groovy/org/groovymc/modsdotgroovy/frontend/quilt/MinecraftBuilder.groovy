@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable
 @Log4j2(category = 'MDG - Quilt Frontend')
 class MinecraftBuilder extends DslBuilder implements PropertyInterceptor {
     /**@
-     * Defines where mod runs
+     * Defines where mod runs.
      */
     @Nullable def environment = null
 

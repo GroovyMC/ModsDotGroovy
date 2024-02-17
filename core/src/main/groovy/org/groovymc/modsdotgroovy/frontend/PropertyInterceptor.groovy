@@ -22,10 +22,10 @@ trait PropertyInterceptor {
         log.debug "setProperty(name: $name, value: $value) stack: ${core.getStack()}"
 
         // if the value is a String and the field is annotated with @VersionRangeAware, convert it to a VersionRange
-        if (value instanceof String) {
+        if (value instanceof String || value instanceof GString) {
             try {
                 if (this.class.getDeclaredField(name).isAnnotationPresent(VersionRangeAware)) {
-                    core.put(name, new VersionRange(value))
+                    core.put(name, VersionRange.of(value.toString()))
                     return
                 }
             } catch (final NoSuchFieldException ignored) {}

@@ -28,13 +28,13 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
      * Defines the mod's identifier - a string of Latin letters, digits, underscores with length from 2 to 64.
      * Mandatory
      */
-    String id = "examplemod"
+    String id
 
     /**@
      * Defines the mod's version - a string value, optionally matching the <a href="https://semver.org/">Semantic Versioning 2.0.0</a> specification.
      * Mandatory
      */
-    String version = "1.0.0"
+    String version
 
     /**@
      * Defines the user-friendly mod's name. If not present, assume it matches id.

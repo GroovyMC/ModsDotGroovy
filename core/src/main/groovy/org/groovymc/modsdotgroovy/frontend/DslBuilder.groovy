@@ -5,7 +5,7 @@ import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.core.Platform
 
 @CompileStatic
-abstract class DslBuilder {
+abstract class DslBuilder implements VersionProducer {
     protected final ModsDotGroovyCore core
 
     ModsDotGroovyCore getCore() {

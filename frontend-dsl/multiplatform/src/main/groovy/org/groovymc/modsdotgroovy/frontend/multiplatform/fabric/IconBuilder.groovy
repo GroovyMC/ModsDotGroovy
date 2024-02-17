@@ -10,7 +10,7 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
-@Log4j2(category = 'MDG - Multiloader Frontend')
+@Log4j2(category = 'MDG - Multiplatform Frontend')
 class IconBuilder extends DslBuilder implements PropertyInterceptor, OnPlatform {
     @Nullable String x16
     @Nullable String x32

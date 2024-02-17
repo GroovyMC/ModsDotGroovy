@@ -9,7 +9,7 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
-@Log4j2(category = 'MDG - Multiloader Frontend')
+@Log4j2(category = 'MDG - Multiplatform Frontend')
 class EntrypointBuilder extends DslBuilder implements PropertyInterceptor, OnPlatform {
     @Nullable String adapter
 

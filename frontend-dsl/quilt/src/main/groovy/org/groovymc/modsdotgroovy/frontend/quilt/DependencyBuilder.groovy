@@ -20,20 +20,16 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor {
     /**@
      * Alias for {@link #setVersions(String)}
      */
-    void setVersion(final @VersionRangeAware String version) {
-        core.put('versions', new VersionRange(version))
+    void setVersion(def version) {
+        setVersions(version)
     }
 
-    void setVersions(final @VersionRangeAware String versions) {
-        core.put('versions', new VersionRange(versions))
+    void setVersions(def versions) {
+        if (versions instanceof String || versions instanceof GString) {
+            versions = VersionRange.of(versions as String)
+        }
+        core.put('versions', versions)
     }
-
-    @Deprecated
-    void setVersions(final @VersionRangeAware List<String> versions) {
-        core.put('versions', new VersionRange(versions))
-    }
-
-    // todo: support object type for versions field. https://github.com/QuiltMC/rfcs/blob/main/specification/0002-quilt.mod.json.md#object
 
     /**@
      * A short, human-readable reason for the dependency object to exist.

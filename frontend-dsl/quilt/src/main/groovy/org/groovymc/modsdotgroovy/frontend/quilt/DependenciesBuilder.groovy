@@ -13,12 +13,13 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 @CompileStatic
 @Log4j2(category = 'MDG - Quilt Frontend')
 class DependenciesBuilder extends DslBuilder implements PropertyInterceptor {
-    void mod(final String id, final @VersionRangeAware String versions) {
-        core.put(id, new VersionRange(versions))
-    }
-
-    void mod(final String id, final @VersionRangeAware List<String> versions) {
-        core.put(id, new VersionRange(versions))
+    void mod(final String id, def versions) {
+        if (versions instanceof String || versions instanceof GString) {
+            versions = VersionRange.of(versions as String)
+        }
+        mod(id) {
+            it.versions = versions
+        }
     }
 
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = Closure.DELEGATE_FIRST)

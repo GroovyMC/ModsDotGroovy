@@ -12,7 +12,7 @@ import org.groovymc.modsdotgroovy.frontend.multiplatform.OnPlatform
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 
 @CompileStatic
-@Log4j2(category = 'MDG - Multiloader Frontend')
+@Log4j2(category = 'MDG - Multiplatform Frontend')
 class EntrypointsBuilder extends DslBuilder implements PropertyInterceptor, MapClosureInterceptor, OnPlatform {
     void main(@DelegatesTo(value = EntrypointBuilder, strategy = Closure.DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.EntrypointBuilder')

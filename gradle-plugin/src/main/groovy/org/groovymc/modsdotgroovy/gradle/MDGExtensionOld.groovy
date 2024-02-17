@@ -20,7 +20,7 @@ abstract class MDGExtensionOld {
 
     abstract Property<Boolean> getAutomaticConfiguration()
     abstract Property<SourceSet> getSource()
-    abstract Property<MultiloaderConfiguration> getMultiloader()
+    abstract Property<MultiplatformConfiguration> getMultiplatform()
     abstract MapProperty<String, Object> getArguments()
     abstract ListProperty<String> getCatalogs()
     abstract Property<Boolean> getSetupDsl()
@@ -85,16 +85,16 @@ abstract class MDGExtensionOld {
         this.setEnvironmentBlacklist(blacklist as List<String>)
     }
 
-    void multiloader(@DelegatesTo(value = MultiloaderConfiguration, strategy = Closure.DELEGATE_FIRST)
-                     @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.MDGExtension$MultiloaderConfiguration') final Closure closure) {
-        final conf = new MultiloaderConfiguration()
+    void multiplatform(@DelegatesTo(value = MultiplatformConfiguration, strategy = Closure.DELEGATE_FIRST)
+                     @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.MDGExtension$MultiplatformConfiguration') final Closure closure) {
+        final conf = new MultiplatformConfiguration()
         closure.delegate = conf
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.call(conf)
-        multiloader.set(conf)
+        multiplatform.set(conf)
     }
 
-    static class MultiloaderConfiguration {
+    static class MultiplatformConfiguration {
         Project common
         List<Project> forge = []
         List<Project> fabric = []

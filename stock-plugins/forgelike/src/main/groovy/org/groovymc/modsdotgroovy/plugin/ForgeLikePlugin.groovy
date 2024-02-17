@@ -167,6 +167,8 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
                         if (this.versionRange === null)
                             throw new PluginResult.MDGPluginException("dependency \"${this.modId}\" is missing a versionRange")
 
+                        value.put('versionRange', this.versionRange.toMaven())
+
                         dependencies.add(value)
                         return PluginResult.remove()
                     }

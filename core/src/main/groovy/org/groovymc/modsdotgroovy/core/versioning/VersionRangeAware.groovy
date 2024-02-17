@@ -10,7 +10,7 @@ import java.lang.annotation.Target
 /**@
  * Marker annotation for fields that should be treated as version ranges.
  * <p>Traits such as {@link org.groovymc.modsdotgroovy.frontend.PropertyInterceptor} will automatically convert
- * {@link String} properties/fields annotated with this annotation to {@link VersionRange} objects.</p>
+ * {@link String} or {@link List} properties/fields annotated with this annotation to {@link VersionRange} objects.</p>
  */
 @CompileStatic
 @Target([ElementType.FIELD, ElementType.PARAMETER])
