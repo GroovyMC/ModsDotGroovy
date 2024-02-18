@@ -30,7 +30,7 @@ final mdg = QuiltModsDotGroovy.make {
         }
 
         depends {
-            quilt_networking_api = '*'
+            quilt_networking_api = v('*')
             quilt_rendering_api = '*'
 
             mod('modmenu') {

@@ -6,6 +6,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.OnPutTransform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
@@ -151,12 +152,10 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
 
                 class Dependency {
                     @Nullable String modId = null
-                    @Nullable VersionRange versionRange = null
 
-                    PluginResult setVersionRange(final VersionRange versionRange) {
-                        log.debug "mods.modInfo.dependencies.dependency.versionRange: ${versionRange}"
-                        this.versionRange = versionRange
-                        return new PluginResult.Change(newValue: versionRange.toMaven())
+                    def setVersionRange(def value) {
+                        log.debug "mods.modInfo.dependencies.dependency.versionRange: ${value}"
+                        return handleVersionRange(value)
                     }
 
                     PluginResult onNestLeave(final Deque<String> stack, final Map value) {
@@ -164,10 +163,8 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
                         if (this.modId === null)
                             throw new PluginResult.MDGPluginException('dependency is missing a modId')
 
-                        if (this.versionRange === null)
+                        if (value.versionRange === null)
                             throw new PluginResult.MDGPluginException("dependency \"${this.modId}\" is missing a versionRange")
-
-                        value.put('versionRange', this.versionRange.toMaven())
 
                         dependencies.add(value)
                         return PluginResult.remove()
@@ -322,5 +319,17 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
         }
 
         return null
+    }
+
+    private static def handleVersionRange(final Object value) {
+        if (value instanceof String || value instanceof GString) {
+            return VersionRange.of(value.toString())
+        }
+        return value
+    }
+
+    @Override
+    List<OnPutTransform> onPutTransforms() {
+        return [OnPutTransform.of(VersionRange, { it.toMaven() })]
     }
 }

@@ -36,6 +36,9 @@ final class ModsDotGroovyCore {
 
         // Setup backingData event listeners
         backingData.getRootMap().addPropertyChangeListener(this.&listenPropertyChangeEvent)
+        plugins.each {
+            backingData.transforms().addAll(it.onPutTransforms())
+        }
     }
 
     Platform platform() {

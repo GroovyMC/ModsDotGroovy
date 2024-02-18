@@ -16,11 +16,9 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @CompileStatic
 @Log4j2(category = 'MDG - NeoForge Frontend')
 class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
-    @VersionRangeAware
-    @Nullable String forge = null
+    @Nullable def forge = null
 
-    @VersionRangeAware
-    @Nullable String minecraft = null
+    @Nullable def minecraft = null
 
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.DependencyBuilder')

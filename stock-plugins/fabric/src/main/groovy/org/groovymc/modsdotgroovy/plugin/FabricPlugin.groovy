@@ -4,6 +4,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.OnPutTransform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
@@ -120,34 +121,55 @@ class FabricPlugin extends ModsDotGroovyPlugin {
 
     class Depends {
         Mod mod = new Mod()
+
+        def set(final Deque<String> stack, final String property, final value) {
+            return PluginResult.rename(property, handleVersionRange(value))
+        }
     }
 
     class Recommends {
         Mod mod = new Mod()
+
+        def set(final Deque<String> stack, final String property, final value) {
+            return PluginResult.rename(property, handleVersionRange(value))
+        }
     }
 
     class Suggests {
         Mod mod = new Mod()
+
+        def set(final Deque<String> stack, final String property, final value) {
+            return PluginResult.rename(property, handleVersionRange(value))
+        }
     }
 
     class Breaks {
         Mod mod = new Mod()
+
+        def set(final Deque<String> stack, final String property, final value) {
+            return PluginResult.rename(property, handleVersionRange(value))
+        }
     }
 
     class Conflicts {
         Mod mod = new Mod()
+
+        def set(final Deque<String> stack, final String property, final value) {
+            return PluginResult.rename(property, handleVersionRange(value))
+        }
     }
 
     class Mod {
         String modId
-        def versionRange
+
+        def setVersionRange(value) {
+            return handleVersionRange(value)
+        }
 
         PluginResult onNestLeave(final Deque<String> stack, final Map value) {
             log.info "mod.onNestLeave: ${value}"
-            if (versionRange instanceof VersionRange)
-                versionRange = versionRange.toSemver()
 
-            return PluginResult.rename(modId, versionRange)
+            return PluginResult.rename(modId, value.versionRange)
         }
     }
 
@@ -303,5 +325,23 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     @Nullable
     Map build(Map buildingMap) {
         return [schemaVersion: 1]
+    }
+
+    private static def handleVersionRange(final Object value) {
+        if (value instanceof String || value instanceof GString) {
+            return VersionRange.of(value.toString())
+        } else if (value instanceof List) {
+            return new VersionRange.OrVersionRange(value.collect { (it instanceof String || it instanceof GString) ? VersionRange.of(it as String) : it as VersionRange })
+        }
+        return value
+    }
+
+    @Override
+    List<OnPutTransform> onPutTransforms() {
+        return [OnPutTransform.of(VersionRange, {
+            var vs = it.toSemver()
+            if (vs.size() == 1) return vs.get(0)
+            return vs
+        })]
     }
 }

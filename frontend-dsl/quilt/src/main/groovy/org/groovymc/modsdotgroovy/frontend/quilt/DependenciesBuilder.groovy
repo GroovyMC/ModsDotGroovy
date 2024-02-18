@@ -14,12 +14,7 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 @Log4j2(category = 'MDG - Quilt Frontend')
 class DependenciesBuilder extends DslBuilder implements PropertyInterceptor {
     void mod(final String id, def versions) {
-        if (versions instanceof String || versions instanceof GString) {
-            versions = VersionRange.of(versions as String)
-        }
-        mod(id) {
-            it.versions = versions
-        }
+        core.put(id, versions)
     }
 
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = Closure.DELEGATE_FIRST)

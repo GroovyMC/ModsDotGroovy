@@ -3,6 +3,7 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.OnPutTransform
 import org.groovymc.modsdotgroovy.core.Platform
 import org.jetbrains.annotations.Nullable
 
@@ -39,6 +40,10 @@ abstract class ModsDotGroovyPlugin {
      * environment you're running in.
      */
     void init(final Map<String, ?> environment) {}
+
+    List<OnPutTransform> onPutTransforms() {
+        return []
+    }
 
     /**
      * A generic method that's called when a property is set.

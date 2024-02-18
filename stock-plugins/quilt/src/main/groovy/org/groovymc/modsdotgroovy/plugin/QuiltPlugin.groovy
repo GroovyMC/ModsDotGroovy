@@ -4,6 +4,7 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.OnPutTransform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
@@ -155,7 +156,11 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
                 if (value instanceof Map) {
                     map.putAll(value)
                 } else {
-                    map.put("versions", value)
+                    def versions = handleVersionRange(value)
+                    if (versions instanceof VersionRange) {
+                        versions = makeVersionMap(versions)
+                    }
+                    map.put("versions", versions)
                 }
                 mod.mods.add(map)
                 return PluginResult.remove()
@@ -176,7 +181,11 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
                 if (value instanceof Map) {
                     map.putAll(value)
                 } else {
-                    map.put("versions", value)
+                    def versions = handleVersionRange(value)
+                    if (versions instanceof VersionRange) {
+                        versions = makeVersionMap(versions)
+                    }
+                    map.put("versions", versions)
                 }
                 mod.mods.add(map)
                 return PluginResult.remove()
@@ -292,59 +301,31 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
         }
     }
 
+    private static def handleVersionRange(final value) {
+        if (value instanceof String || value instanceof GString) {
+            return VersionRange.of(value as String)
+        }
+        return value
+    }
+
     class Mod {
         private final List<Map> mods = []
 
         String id
-        def versions
 
         def setVersion(final value) {
             return PluginResult.rename('versions', setVersions(value))
         }
 
-        def setVersions(value) {
-            System.out.println("setVersions (id = ${id}): (${value.class}) ${value}")
-            if (value instanceof String || value instanceof GString) {
-                value = VersionRange.of(value.toString())
-            }
-            versions = value
-            return value
-        }
-
-        private Object makeVersionMap(VersionRange range) {
-            if (range instanceof VersionRange.SingleVersionRange) {
-                def parts = range.version.toSemver().split(' ')
-                if (parts.size() == 1) {
-                    return parts[0]
-                } else {
-                    return [
-                            'all': parts.toList()
-                    ]
-                }
-            } else if (range instanceof VersionRange.OrVersionRange) {
-                return [
-                        'any': range.versions.collect { makeVersionMap(it) }
-                ]
-            } else if (range instanceof VersionRange.AndVersionRange) {
-                return [
-                        'all': range.versions.collect { makeVersionMap(it) }
-                ]
-            } else {
-                return range.toSemver()
-            }
+        def setVersions(def value) {
+            return handleVersionRange(value)
         }
 
         def onNestLeave(final Deque<String> stack, final Map value) {
             log.info "mod.onNestLeave: ${value}"
-            if (versions instanceof VersionRange) {
-                versions = makeVersionMap(versions)
-            }
 
             Map map = [id:id]
             map.putAll(value)
-            if (versions !== null) {
-                map.versions = versions
-            }
             mods.add(map)
             return PluginResult.remove()
         }
@@ -366,6 +347,36 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
     PluginResult setAccessWidener(final List<String> accessWidener) {
         log.debug "accessWidener: ${accessWidener}"
         return PluginResult.rename('access_widener', accessWidener)
+    }
+
+    private Object makeVersionMap(VersionRange range) {
+        if (range instanceof VersionRange.SingleVersionRange) {
+            def parts = range.version.toSemver().split(' ')
+            if (parts.size() == 1) {
+                return parts[0]
+            } else {
+                return [
+                        'all': parts.toList()
+                ]
+            }
+        } else if (range instanceof VersionRange.OrVersionRange) {
+            return [
+                    'any': range.versions.collect { makeVersionMap(it) }
+            ]
+        } else if (range instanceof VersionRange.AndVersionRange) {
+            return [
+                    'all': range.versions.collect { makeVersionMap(it) }
+            ]
+        } else {
+            return range.toSemver()
+        }
+    }
+
+    @Override
+    List<OnPutTransform> onPutTransforms() {
+        return [OnPutTransform.of(VersionRange, {
+            makeVersionMap(it)
+        })]
     }
 
     @Override

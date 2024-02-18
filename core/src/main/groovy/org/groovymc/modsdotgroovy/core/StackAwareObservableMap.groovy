@@ -13,6 +13,8 @@ import java.lang.reflect.Field
 @CompileStatic
 @Log4j2(category = 'MDG - StackAwareObservableMap')
 final class StackAwareObservableMap extends ObservableMap {
+    private final List<OnPutTransform> transforms = []
+
     private static final Field pcsField = ObservableMap.getDeclaredField('pcs')
 
     private final ObservableMap rootMap = makeObservableMap()
@@ -25,6 +27,11 @@ final class StackAwareObservableMap extends ObservableMap {
     StackAwareObservableMap() {
         super()
         pcsField.accessible = true
+    }
+
+    @PackageScope
+    List<OnPutTransform> transforms() {
+        return transforms
     }
 
     //region Map
@@ -55,6 +62,9 @@ final class StackAwareObservableMap extends ObservableMap {
 
     @Override
     Object put(Object key, Object value) {
+        for (def transform : transforms) {
+            value = transform.transform(value)
+        }
         return traverse().put(key, value)
     }
 
@@ -88,6 +98,9 @@ final class StackAwareObservableMap extends ObservableMap {
     }
 
     Object putAt(Deque<String> stack, Object key, Object value) {
+        for (def transform : transforms) {
+            value = transform.transform(value)
+        }
         return traverse(stack)[key] = value
     }
     //endregion Map
