@@ -106,7 +106,7 @@ final class ModsDotGroovyCore {
                     move(propertyName, result.newLocation, result.newPropertyName, result.newValue)
                     return
                 }
-                if (result.newPropertyName !== null && result.newValue !== null) {
+                if (result.newPropertyName !== null && result.newPropertyName != propertyName && result.newValue !== null) {
                     log.debug "Plugin \"${plugin.name}\" renamed property \"${propertyName}\" to \"${result.newPropertyName}\""
 
                     // first remove the old property
