@@ -55,7 +55,7 @@ final mdg = FabricModsDotGroovy.make {
         it.'fabric-api' = "*"
 
         mod "another-mod", ">=1.5.0"
-        mod "something-else", [">0.5", '<1.0']
+        mod("something-else", v(">0.5") & v('<1.0'))
         mod {
             modId = "rats"
             versionRange = "*"
