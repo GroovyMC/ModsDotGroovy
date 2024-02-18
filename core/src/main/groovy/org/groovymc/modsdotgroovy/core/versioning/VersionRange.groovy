@@ -226,10 +226,11 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
                     boolean includeUpper2 = single.version.includeUpper
 
                     if (
+                            single.version instanceof BypassVersionEntry ||
                             (!lower2.empty && !upper1.empty && FlexVerComparator.compare(lower2, upper1) < 0) ||
                             (!lower1.empty && !upper2.empty && FlexVerComparator.compare(lower1, upper2) < 0)
                     ) {
-                        // ranges are non-overlapping
+                        // ranges are non-overlapping, or contain incomparable bypassversionentry
                         range = new VersionRangeEntry()
                         range.includeUpper = true
                         range.empty = true
@@ -321,7 +322,7 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
                 }
                 alternatives = newAlternatives
             }
-            return new OrVersionRange(alternatives.collect { it.collapse() })
+            return new OrVersionRange(alternatives.collect { (VersionRange) new AndVersionRange(it.versions.collect { it.collapse() }) })
         }
     }
 }

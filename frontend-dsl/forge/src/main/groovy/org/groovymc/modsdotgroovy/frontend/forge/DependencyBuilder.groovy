@@ -3,7 +3,6 @@ package org.groovymc.modsdotgroovy.frontend.forge
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
-import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
@@ -24,8 +23,7 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapCl
     /**@
      * The range of the versions of the mod you're compatible with.
      */
-    @VersionRangeAware
-    String versionRange
+    def versionRange
 
     /**@
      * An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory

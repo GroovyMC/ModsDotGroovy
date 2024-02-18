@@ -3,19 +3,16 @@ import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
-import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.groovymc.modsdotgroovy.frontend.neoforge.AccessTransformersBuilder
-import org.groovymc.modsdotgroovy.frontend.neoforge.FeaturesBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.ModInfoBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.ModsBuilder
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.Nullable
 
-import static groovy.lang.Closure.DELEGATE_FIRST
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @PackageScope
@@ -32,8 +29,7 @@ class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInt
     /**@
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
-    @VersionRangeAware
-    String loaderVersion = '[1,)'
+    def loaderVersion = '[1,)'
 
     /**@
      * The license for your mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.<br>
@@ -58,19 +54,19 @@ class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInt
      * Alias for <code>mods { modInfo {} }</code>
      * @param closure
      */
-    void mod(@DelegatesTo(value = ModInfoBuilder, strategy = Closure.DELEGATE_FIRST)
+    void mod(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.ModInfoBuilder')
              final Closure closure) {
         mods { modInfo(closure) }
     }
 
-    void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_FIRST)
+    void mods(@DelegatesTo(value = ModsBuilder, strategy = DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.ModsBuilder')
               final Closure closure) {
         log.debug "mods(closure)"
         core.push('mods')
         final modsBuilder = new ModsBuilder(core)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
         core.pop()
@@ -104,22 +100,22 @@ class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInt
         super(environment)
     }
 
-    static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+    static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = DELEGATE_FIRST)
                                    @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure) {
         return make(closure, [:])
     }
 
-    static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+    static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = DELEGATE_FIRST)
                                    @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
                                    final Binding scriptBinding) {
         return make(closure, scriptBinding.variables)
     }
 
-    static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+    static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = DELEGATE_FIRST)
                                    @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
                                    final Map<String, ?> environment) {
         final NeoForgeModsDotGroovy val = new NeoForgeModsDotGroovy(environment)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)
         return val

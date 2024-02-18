@@ -6,7 +6,6 @@ import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
-import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.jetbrains.annotations.Nullable
@@ -16,10 +15,8 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @CompileStatic
 @Log4j2(category = 'MDG - Forge Frontend')
 class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
-    @VersionRangeAware
     @Nullable def forge = null
 
-    @VersionRangeAware
     @Nullable def minecraft = null
 
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = DELEGATE_FIRST)

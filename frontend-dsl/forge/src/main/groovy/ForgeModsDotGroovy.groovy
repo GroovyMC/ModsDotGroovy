@@ -3,12 +3,11 @@ import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
-import org.groovymc.modsdotgroovy.core.versioning.VersionRangeAware
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
-import org.groovymc.modsdotgroovy.frontend.forge.ModInfoBuilder
-import org.groovymc.modsdotgroovy.frontend.forge.ModsBuilder
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
+import org.groovymc.modsdotgroovy.frontend.forge.ModInfoBuilder
+import org.groovymc.modsdotgroovy.frontend.forge.ModsBuilder
 import org.jetbrains.annotations.Nullable
 
 @PackageScope
@@ -24,8 +23,7 @@ class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
     /**@
      * A version range to match for the {@link #setModLoader(java.lang.String)}.
      */
-    @VersionRangeAware
-    String loaderVersion = '[1,)'
+    def loaderVersion = '[1,)'
 
     /**@
      * The license for your mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.<br>

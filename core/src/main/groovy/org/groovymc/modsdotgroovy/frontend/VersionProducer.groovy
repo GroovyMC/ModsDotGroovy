@@ -14,7 +14,7 @@ interface VersionProducer {
      * If you need to declare a custom version range that ModsDotGroovy doesn't support, you can use this method to
      * bypass the version range parsing.
      */
-    default BypassVersionEntry rawVersionRange(final String string) {
-        return new BypassVersionEntry(string)
+    default VersionRange rawVersionRange(final String string) {
+        return new VersionRange.SingleVersionRange(new BypassVersionEntry(string))
     }
 }

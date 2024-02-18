@@ -32,9 +32,9 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
             throw new PluginResult.MDGPluginException('modLoader must not start with a number.')
     }
 
-    PluginResult setLoaderVersion(final VersionRange loaderVersion) {
-        log.debug "loaderVersion: ${loaderVersion}"
-        return new PluginResult.Change(newValue: loaderVersion.toMaven())
+    def setVersionRange(def value) {
+        log.debug "loaderVersion: ${value}"
+        return handleVersionRange(value)
     }
 
     void setLicense(final String license) {
