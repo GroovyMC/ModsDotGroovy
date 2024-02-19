@@ -204,7 +204,7 @@ class ExamplePlugin extends ModsDotGroovyPlugin {
    // ...
    
    class Contact {
-      void onNestEnter(final Deque<String> stack, final String name, Map value) {
+      void onNestEnter(Map value) {
          log.debug "entering ${stack}"
       }
       
@@ -214,7 +214,7 @@ class ExamplePlugin extends ModsDotGroovyPlugin {
             throw new PluginResult.MDGPluginException('username cannot be blank')
       }
       
-      void onNestLeave(final Deque<String> stack, final String name, Map value) {
+      void onNestLeave(Map value) {
          log.debug "leaving ${stack}"
       }
    }
@@ -227,7 +227,7 @@ set by the generated setter method:
 class Contact {
    String username
    
-   void onNestLeave(final Deque<String> stack, final String name, Map value) {
+   void onNestLeave(Map value) {
       log.debug "username is ${username}" // assuming the above core.put() code, will say "username is Paint_Ninja" on core.pop()
    }
 }
@@ -241,7 +241,7 @@ You can also call the core.push() method without popping first to nest inside a 
 In some cases you may not always know the property or nest name statically. In these cases you can use the generic `set()` method:
 ```groovy
 @CompileDynamic
-def set(final Deque<String> stack, final String name, def value) {
+def set(final String name, def value) {
     if (value instanceof Number && value == 42)
        log.debug "Meaning of life detected on property ${name} in ${stack}"
 }

@@ -76,20 +76,20 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
     void icon(final int size, final String path) {
         log.debug "icon(int, string)"
         core.push('icon')
-        core.put(size, path)
+        core.put(size as String, path)
         core.pop()
     }
 
     /**@
      * Ignored on Forge.
      */
-    void icon(@DelegatesTo(value = IconBuilder, strategy = Closure.DELEGATE_FIRST)
+    void icon(@DelegatesTo(value = IconBuilder, strategy = DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.IconBuilder')
               final Closure closure) {
         log.debug "icon(closure)"
         core.push('icon')
         final customFieldsBuilder = new IconBuilder(core)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = customFieldsBuilder
         closure.call(customFieldsBuilder)
         core.pop()
@@ -99,19 +99,19 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
      * Alias for <code>mods { modInfo {} }</code>
      * @param closure
      */
-    void mod(@DelegatesTo(value = ModInfoBuilder, strategy = Closure.DELEGATE_FIRST)
+    void mod(@DelegatesTo(value = ModInfoBuilder, strategy = DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.ModInfoBuilder')
              final Closure closure) {
         mods { modInfo(closure) }
     }
 
-    void mods(@DelegatesTo(value = ModsBuilder, strategy = Closure.DELEGATE_FIRST)
+    void mods(@DelegatesTo(value = ModsBuilder, strategy = DELEGATE_FIRST)
               @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.ModsBuilder')
               final Closure closure) {
         log.debug "mods(closure)"
         core.push('mods')
         final modsBuilder = new ModsBuilder(core)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = modsBuilder
         closure.call(modsBuilder)
         core.pop()
@@ -145,22 +145,22 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
         super(environment)
     }
 
-    static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+    static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = DELEGATE_FIRST)
                               @ClosureParams(value = SimpleType, options = 'MultiplatformModsDotGroovy') final Closure closure) {
         return make(closure, [:])
     }
 
-    static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+    static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = DELEGATE_FIRST)
                               @ClosureParams(value = SimpleType, options = 'MultiplatformModsDotGroovy') final Closure closure,
                               final Binding scriptBinding) {
         return make(closure, scriptBinding.variables)
     }
 
-    static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
+    static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = DELEGATE_FIRST)
                               @ClosureParams(value = SimpleType, options = 'MultiplatformModsDotGroovy') final Closure closure,
                               final Map<String, ?> environment) {
         final MultiplatformModsDotGroovy val = new MultiplatformModsDotGroovy(environment)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = val
         closure.call(val)
         return val

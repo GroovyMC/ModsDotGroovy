@@ -56,7 +56,7 @@ class SpigotPlugin extends ModsDotGroovyPlugin {
         class Command {
             String name
 
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug 'commands.command.onNestLeave'
                 return PluginResult.move(['commands', name], value)
             }
@@ -65,7 +65,7 @@ class SpigotPlugin extends ModsDotGroovyPlugin {
 
     class Permissions {
         class Permission {
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug 'permissions.permission.onNestLeave'
                 return PluginResult.move(['permissions', name], value)
             }
