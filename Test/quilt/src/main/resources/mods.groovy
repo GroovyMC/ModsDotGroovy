@@ -93,7 +93,15 @@ final mdg = QuiltModsDotGroovy.make {
                 discord = 'https://discord.gg/example'
             }
 
-            license = ['MIT', 'CC0-1.0']
+            licenses {
+                license 'MIT'
+                license {
+                    name = 'CC0 1.0 Universal'
+                    id = 'CC0-1.0'
+                    url = 'https://creativecommons.org/publicdomain/zero/1.0/'
+                    description = 'A public domain dedication'
+                }
+            }
 
             icon {
                 x16 = 'small.png'

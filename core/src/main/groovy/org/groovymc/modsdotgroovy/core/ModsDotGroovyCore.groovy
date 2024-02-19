@@ -41,12 +41,17 @@ final class ModsDotGroovyCore {
         for (final ModsDotGroovyPlugin plugin in plugins.collect().reverse()) {
             def oldListener = listener
             listener = new PluginListener(plugin, oldListener)
+            plugin.initializeStackPut({ stack, value -> layeredMap.putStackedWatched(stack, value, listener) }, this)
         }
         this.listener = listener
     }
 
     void put(final String key, final Object value) {
         layeredMap.putWatched(key, value, listener)
+    }
+
+    void putStacked(final List<String> stack, final Object value) {
+        layeredMap.putStackedWatched(stack, value, listener)
     }
 
     void push(final String key) {
@@ -204,6 +209,7 @@ final class ModsDotGroovyCore {
                     delegateObject = oldObject
                     var classSearchName = s.capitalize()
                     Class<?> innerClass = null
+                    //noinspection GroovyUnusedCatchParameter
                     try {
                         innerClass = findFirstInnerClass(delegateObject.class, classSearchName)
                     } catch (IllegalStateException ignored2) {

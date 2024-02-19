@@ -11,7 +11,6 @@ final mdg = MultiplatformModsDotGroovy.make {
         version = '1.0.0'
         description = 'This is an example mod.'
         //authors = ['Example Mod Author']
-        author = 'Example Mod Author'
         authors {
             person('Example Mod Author') {
                 email = 'example@example.com'
@@ -55,7 +54,7 @@ final mdg = MultiplatformModsDotGroovy.make {
             mod('exampledep') {
                 versionRange = '[1,)'
                 side = DependencySide.CLIENT
-                mandatory = false
+                type = 'optional'
             }
 
             exampledep2 = '[1,)'

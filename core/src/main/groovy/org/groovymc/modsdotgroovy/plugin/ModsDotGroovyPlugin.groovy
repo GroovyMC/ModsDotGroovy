@@ -4,7 +4,11 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.logging.log4j.core.Logger
 import org.groovymc.modsdotgroovy.core.MapTransform
+import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.Nullable
+
+import java.util.function.BiConsumer
 
 @CompileStatic
 abstract class ModsDotGroovyPlugin {
@@ -88,8 +92,26 @@ abstract class ModsDotGroovyPlugin {
 
     private final Map<NestKey, Object> nests = [:]
 
+    @ApiStatus.Internal
     final void initializeNest(final NestKey key, final Object nest) {
         nests[key] = nest
+    }
+
+    private BiConsumer<List<String>, Object> putter
+    private ModsDotGroovyCore core
+
+    @ApiStatus.Internal
+    final void initializeStackPut(BiConsumer<List<String>, Object> putter, ModsDotGroovyCore core) {
+        this.putter = putter
+        this.core = core
+    }
+
+    final void put(final List<String> stack, final Object value, final boolean reentrant) {
+        if (reentrant) {
+            core.putStacked(stack, value)
+        } else {
+            putter.accept(stack, value)
+        }
     }
 
     @Nullable

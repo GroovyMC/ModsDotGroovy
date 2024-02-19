@@ -237,6 +237,38 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
                 }
             }
 
+            class License {
+                def onNestLeave(final value) {
+                    return PluginResult.move(['quiltLoader', 'metadata', 'licenses', 'license'], value, true)
+                }
+            }
+
+            class Licenses {
+                final List licenses = []
+
+                def setLicense(final value) {
+                    licenses.add(value)
+                    return PluginResult.remove()
+                }
+
+                def onNestLeave(final Map value) {
+                    return PluginResult.rename('license', licenses)
+                }
+
+                class License {
+                    def onNestLeave(final Map value) {
+                        licenses.add(value)
+                        return PluginResult.remove()
+                    }
+
+                    def setUrl(final String url) {
+                        log.debug "license.url: ${url}"
+                        if (!PluginUtils.isValidHttpUrl(url))
+                            throw new PluginResult.MDGPluginException('license url must start with http:// or https://')
+                    }
+                }
+            }
+
             class Contact {
                 void setEmail(final String email) {
                     log.debug "contact.email: ${email}"

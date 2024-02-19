@@ -3,6 +3,7 @@ package org.groovymc.modsdotgroovy.frontend.multiplatform
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
@@ -18,7 +19,7 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapCl
     /**@
      * Does this dependency have to exist? If not, ordering must also be specified.
      */
-    boolean mandatory = true
+    boolean type = 'required'
 
     /**@
      * A version range of the versions of the mod you're compatible with.

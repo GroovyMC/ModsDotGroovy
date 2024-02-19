@@ -15,7 +15,7 @@ enum Environment {
     /**@
      * Runs on the dedicated server.
      */
-    SERVER("server")
+    SERVER("dedicated_server")
     
     public final String value
 

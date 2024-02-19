@@ -51,9 +51,14 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
 
     def setLicence(final String licence) {
         if (currentPlatform == Platform.FABRIC)
-            // ForgePlugin supports the "licence" alias, FabricPlugin does not
+        // ForgePlugin supports the "licence" alias, FabricPlugin does not
             return PluginResult.rename('license', licence)
         else if (currentPlatform == Platform.QUILT)
+            return PluginResult.move(['quiltLoader', 'metadata', 'license'], licence)
+    }
+
+    def setLicense(final String licence) {
+        if (currentPlatform == Platform.QUILT)
             return PluginResult.move(['quiltLoader', 'metadata', 'license'], licence)
     }
 
@@ -64,10 +69,12 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             return PluginResult.move(['quiltLoader', 'metadata', 'contact', 'issues'], issueTrackerUrl)
     }
 
-    def setEnvironment(final def environment) {
+    def setEnvironment(def environment) {
+        environment = platformedSide(environment)
         if (isForgeLike(currentPlatform))
             return PluginResult.remove()
-        return new PluginResult.Validate()
+        else if (currentPlatform == Platform.QUILT)
+            return PluginResult.move(['minecraft', 'environment'], environment)
     }
 
     def setAccessWidener(final String accessWidener) {
@@ -75,7 +82,6 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             return PluginResult.remove()
         if (currentPlatform == Platform.QUILT)
             return PluginResult.move(['quiltLoader', 'accessWidener'], accessWidener)
-        return new PluginResult.Validate()
     }
 
     def setIcon(final String icon) {
@@ -83,7 +89,6 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             return PluginResult.remove()
         if (currentPlatform == Platform.QUILT)
             return PluginResult.move(['quiltLoader', 'icon'], icon)
-        return new PluginResult.Validate()
     }
 
     def setShowAsDataPack(final value) {
@@ -96,13 +101,20 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             return PluginResult.remove()
     }
 
+    class Mixins {
+        class Mixin {
+            def setEnvironment(final environment) {
+                return platformedSide(environment)
+            }
+        }
+    }
+
     class Icon {
         def onNestLeave(final Deque<String> stack, final Map value) {
             if (isForgeLike(currentPlatform))
                 return PluginResult.remove()
             if (currentPlatform == Platform.QUILT)
                 return PluginResult.move(['quiltLoader', 'icon'], value)
-            return new PluginResult.Validate()
         }
     }
 
@@ -118,19 +130,67 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                 }
             }
 
+            def setRepositories(final value) {
+                if (currentPlatform != Platform.QUILT)
+                    return PluginResult.remove()
+            }
+
+            def setLoadType(final value) {
+                if (currentPlatform != Platform.QUILT)
+                    return PluginResult.remove()
+            }
+
+            def setIntermediateMappings(final value) {
+                if (currentPlatform != Platform.QUILT)
+                    return PluginResult.remove()
+            }
+
             def setAuthors(final authors) {
+                if (isForgeLike(currentPlatform)) {
+                    if (authors instanceof List) {
+                        if (authors.size() == 1) {
+                            return authors[0]
+                        } else {
+                            def parts = authors.collect()
+                            parts[parts.size() - 1] = "and " + parts[parts.size() - 1]
+                            return authors.size() == 2 ? parts.join(' ') : parts.join(', ')
+                        }
+                    }
+                }
                 if (currentPlatform == Platform.FABRIC) {
                     if (authors instanceof List) {
-                        return PluginResult.move([], authors.collect { ['name': it] })
+                        return PluginResult.move([], authors.collect { it instanceof Map ? it : ['name': it] })
                     } else {
                         return PluginResult.move([], authors)
                     }
                 } else if (currentPlatform == Platform.QUILT) {
-                    def roles = [(authors): 'Author']
+                    def roles = [[(authors): 'Author']]
                     if (authors instanceof List) {
-                        roles = authors.collect { [(it): 'Author'] }
+                        roles = authors.collect { it instanceof Map ? it : [(it): 'Author'] }
                     }
-                    return PluginResult.move(['quiltLoader', 'metadata', 'contributors'], roles)
+                    roles.each {
+                        put(['quiltLoader', 'metadata', 'contributors', 'contributor'], it, false)
+                    }
+                    return PluginResult.remove()
+                }
+            }
+
+            def setContributors(final contributors) {
+                if (currentPlatform == Platform.FABRIC) {
+                    if (contributors instanceof List) {
+                        return PluginResult.move([], contributors.collect { it instanceof Map ? it : ['name': it] })
+                    } else {
+                        return PluginResult.move([], contributors)
+                    }
+                } else if (currentPlatform == Platform.QUILT) {
+                    def roles = [[(contributors): 'Contributor']]
+                    if (contributors instanceof List) {
+                        roles = contributors.collect { it instanceof Map ? it : [(it): 'Contributor'] }
+                    }
+                    roles.each {
+                        put(['quiltLoader', 'metadata', 'contributors', 'contributor'], it, false)
+                    }
+                    return PluginResult.remove()
                 }
             }
 
@@ -141,11 +201,8 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                     if (isForgeLike(currentPlatform)) {
                         log.debug "authors.onNestLeave: ${value}"
                         return authors
-                    } else if (currentPlatform == Platform.FABRIC) {
-                        return PluginResult.move(['authors'], value)
-                    } else if (currentPlatform == Platform.QUILT) {
-                        return PluginResult.move(['quiltLoader', 'metadata', 'contributors'], value)
                     }
+                    return PluginResult.remove()
                 }
 
                 class Author {
@@ -160,6 +217,36 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                             }
                             authors.add(value["name"])
                             return PluginResult.remove()
+                        } else if (currentPlatform == Platform.FABRIC) {
+                            return PluginResult.move(['authors', 'author'], value)
+                        } else if (currentPlatform == Platform.QUILT) {
+                            if (!value.containsKey('role)')) {
+                                value['role'] = 'Author'
+                            }
+                            return PluginResult.move(['quiltLoader', 'metadata', 'contributors', 'contributor'], value)
+                        }
+                    }
+                }
+            }
+
+            class Contributors {
+                def onNestLeave(final Map value) {
+                    return PluginResult.remove()
+                }
+
+                class Contributor {
+                    String name
+
+                    def onNestLeave(final Map value) {
+                        if (isForgeLike(currentPlatform)) {
+                            return PluginResult.remove()
+                        } else if (currentPlatform == Platform.FABRIC) {
+                            return PluginResult.move(['contributors', 'contributor'], value)
+                        } else if (currentPlatform == Platform.QUILT) {
+                            if (!value.containsKey('role)')) {
+                                value['role'] = 'Contributor'
+                            }
+                            return PluginResult.move(['quiltLoader', 'metadata', 'contributors', 'contributor'], value)
                         }
                     }
                 }
@@ -167,24 +254,26 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
 
             def setAuthor(final value) {
                 if (currentPlatform == Platform.FABRIC) {
-                    return PluginResult.move(['authors'], ['name':value])
+                    return PluginResult.move(['authors', 'author'], ['name':value], true)
                 } else if (currentPlatform == Platform.QUILT) {
-                    return PluginResult.move(['quiltLoader', 'metadata', 'contributors'], ['name':value])
+                    return PluginResult.move(['quiltLoader', 'metadata', 'contributors', 'contributor'], ['name':value, 'role':'Author'], true)
                 }
                 return new PluginResult.Validate()
             }
 
             class Entrypoints {
-                def onNestEnter(final Map value) {
-                    if (currentPlatform == Platform.FABRIC)
-                        return PluginResult.move(['entrypoints'], value)
-                    else if (currentPlatform == Platform.QUILT)
-                        return PluginResult.move(['quiltLoader', 'entrypoints'], value)
-                }
-
                 def onNestLeave(final Map value) {
                     if (isForgeLike(MultiplatformPlugin.this.currentPlatform))
                         return PluginResult.remove()
+                }
+
+                class Entrypoint {
+                    def onNestLeave(final Map value) {
+                        if (currentPlatform == Platform.FABRIC)
+                            return PluginResult.move(['entrypoints', 'entrypoint'], value)
+                        else if (currentPlatform == Platform.QUILT)
+                            return PluginResult.move(['quiltLoader', 'entrypoints', 'entrypoint'], value)
+                    }
                 }
             }
 
@@ -223,6 +312,27 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                     return PluginResult.move(['quiltLoader', 'metadata', 'icon'], value)
                 else
                     return PluginResult.remove()
+            }
+
+            class Contact {
+                def onNestLeave(final Map value) {
+                    if (currentPlatform == Platform.FABRIC) {
+                        return PluginResult.move(['contact'], value)
+                    } else if (currentPlatform == Platform.QUILT) {
+                        return PluginResult.move(['quiltLoader', 'metadata', 'contact'], value)
+                    } else {
+                        if (value.homepage !== null) {
+                            put(['mods', 'modInfo', 'displayUrl'], value.homepage, false)
+                        }
+                        if (value.issues !== null) {
+                            put(['issueTrackerUrl'], value.issues, false)
+                        }
+                        if (value.sources !== null) {
+                            put(['sourcesUrl'], value.sources, false)
+                        }
+                        return PluginResult.remove()
+                    }
+                }
             }
 
             class Icon {
@@ -268,6 +378,164 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                     if (isFabricLike(currentPlatform))
                         return PluginResult.remove()
                 }
+            }
+
+            class Dependencies {
+                def onNestLeave(final Map value) {
+                    if (currentPlatform == Platform.FABRIC)
+                        return PluginResult.remove()
+                    else if (currentPlatform == Platform.QUILT)
+                        return PluginResult.remove()
+                }
+
+                def set(final String property, final value) {
+                    if (currentPlatform == Platform.FABRIC) {
+                        return PluginResult.move(['depends', property], value)
+                    } else if (currentPlatform == Platform.QUILT) {
+                        return PluginResult.move(['quiltLoader', 'depends', property], value)
+                    }
+                }
+
+                class Dependency {
+                    def setVersionRange(final value) {
+                        if (currentPlatform == Platform.QUILT) {
+                            return PluginResult.rename('versions', value)
+                        }
+                    }
+
+                    def setOrder(final value) {
+                        if (!isForgeLike(currentPlatform)) {
+                            return PluginResult.remove()
+                        }
+                    }
+
+                    def setSide(final value) {
+                        if (!isForgeLike(currentPlatform)) {
+                            return PluginResult.rename('environment', platformedSide(value))
+                        }
+                    }
+
+                    def setModId(final value) {
+                        if (currentPlatform == Platform.QUILT) {
+                            return PluginResult.rename('id', value)
+                        }
+                    }
+
+                    def onNestLeave(final Map value) {
+                        if (currentPlatform == Platform.FORGE) {
+                            if (!value.containsKey('mandatory') && value.containsKey('type')) {
+                                switch (value.type) {
+                                    case 'required':
+                                        value.mandatory = true
+                                        break
+                                    case 'optional':
+                                        value.mandatory = false
+                                        break
+                                    default:
+                                        return PluginResult.remove()
+                                }
+                            }
+                            return value
+                        } else if (currentPlatform == Platform.NEOFORGE) {
+                            if (!value.containsKey('type') && value.containsKey('mandatory')) {
+                                value.type = value.mandatory ? 'required' : 'optional'
+                            }
+                            return value
+                        } else if (currentPlatform == Platform.FABRIC) {
+                            def type = 'required'
+                            if (value.containsKey('type')) {
+                                type = value.type
+                            } else if (value.containsKey('mandatory')) {
+                                type = value.mandatory ? 'required' : 'optional'
+                            }
+                            value.remove('type')
+                            value.remove('mandatory')
+                            switch (type as String) {
+                                case 'required':
+                                    return PluginResult.move(['depends', 'mod'], value)
+                                    break
+                                case 'optional':
+                                    def version = value.versionRange
+                                    version = version == null ? null : handleVersionRange(version)
+                                    if (version instanceof VersionRange) {
+                                        value.versionRange = ~version
+                                        return PluginResult.move(['breaks', 'mod'], value)
+                                    }
+                                    return PluginResult.move(['suggests', 'mod'], value)
+                                    break
+                                case 'incompatible':
+                                    return PluginResult.move(['breaks', 'mod'], value)
+                                    break
+                                case 'discouraged':
+                                    return PluginResult.move(['conflicts', 'mod'], value)
+                                    break
+                                default:
+                                    return PluginResult.move([type as String, 'mod'], value)
+                            }
+                        } else if (currentPlatform == Platform.QUILT) {
+                            def type = 'required'
+                            if (value.containsKey('type')) {
+                                type = value.type
+                            } else if (value.containsKey('mandatory')) {
+                                type = value.mandatory ? 'required' : 'optional'
+                            }
+                            value.remove('type')
+                            value.remove('mandatory')
+                            switch (type as String) {
+                                case 'required':
+                                    return PluginResult.move(['quiltLoader', 'depends', 'mod'], value)
+                                    break
+                                case 'optional':
+                                    def version = value.versions
+                                    version = version == null ? null : handleVersionRange(version)
+                                    if (version instanceof VersionRange) {
+                                        value.versions = ~version
+                                        return PluginResult.move(['quiltLoader', 'breaks', 'mod'], value)
+                                    }
+                                    break
+                                case 'incompatible':
+                                    return PluginResult.move(['quiltLoader', 'breaks', 'mod'], value)
+                                    break
+                                default:
+                                    return PluginResult.move(['quiltLoader', type as String, 'mod'], value)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static def handleVersionRange(final Object value) {
+        if (value instanceof String || value instanceof GString) {
+            return VersionRange.of(value.toString())
+        } else if (value instanceof List) {
+            return new VersionRange.OrVersionRange(value.collect { (it instanceof String || it instanceof GString) ? VersionRange.of(it as String) : it as VersionRange })
+        }
+        return value
+    }
+
+    def platformedSide(final side) {
+        if (currentPlatform == Platform.QUILT) {
+            def s = (side as String).toLowerCase(Locale.ROOT)
+            return switch (s) {
+                case 'both' -> '*'
+                case 'server' -> 'dedicated_server'
+                default -> s
+            }
+        } else if (currentPlatform == Platform.FABRIC) {
+            def s = (side as String).toLowerCase(Locale.ROOT)
+            return switch (s) {
+                case 'both' -> '*'
+                case 'dedicated_server' -> 'server'
+                default -> s
+            }
+        } else {
+            def s = (side as String).toUpperCase(Locale.ROOT)
+            return switch (s) {
+                case '*' -> 'BOTH'
+                case 'DEDICATED_SERVER' -> 'SERVER'
+                default -> s
             }
         }
     }

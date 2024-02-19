@@ -22,4 +22,9 @@ enum Environment {
     Environment(final String value) {
         this.value = value
     }
+
+    @Override
+    String toString() {
+        return value
+    }
 }

@@ -62,6 +62,30 @@ class MetadataBuilder extends DslBuilder implements PropertyInterceptor {
         core.pop()
     }
 
+    void licenses(@DelegatesTo(value = LicensesBuilder, strategy = Closure.DELEGATE_FIRST)
+                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.quilt.LicensesBuilder')
+                  final Closure closure) {
+        log.debug "licenses(closure)"
+        core.push('licenses')
+        final licensesBuilder = new LicensesBuilder(core)
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = licensesBuilder
+        closure.call(licensesBuilder)
+        core.pop()
+    }
+
+    void license(@DelegatesTo(value = LicenseBuilder, strategy = Closure.DELEGATE_FIRST)
+                  @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.quilt.LicenseBuilder')
+                  final Closure closure) {
+        log.debug "license(closure)"
+        core.push('license')
+        final licenseBuilder = new LicenseBuilder(core)
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = licenseBuilder
+        closure.call(licenseBuilder)
+        core.pop()
+    }
+
     /**@
      * Defines the contact information for the project.
      * The list is not exhaustive - mods may provide additional, non-standard keys (such as discord, slack, twitter, etc) - if possible, they should be valid URLs.

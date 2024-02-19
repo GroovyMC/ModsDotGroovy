@@ -7,6 +7,7 @@ import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
+import org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.ContactBuilder
 import org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.EntrypointsBuilder
 import org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.PersonsBuilder
 import org.jetbrains.annotations.Nullable
@@ -27,6 +28,23 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
      * Defaults to a capitalized version of the modId if omitted/null.
      */
     @Nullable String displayName
+
+    /**@
+     * A list of Maven repository URL strings where dependencies can be looked for in addition to Quilt's central repository.
+     */
+    @Nullable List<String> repositories = null
+
+    /**@
+     * Influences whether or not a mod candidate should be loaded or not.
+     */
+    @Nullable def loadType = null
+
+    /**@
+     * The intermediate mappings used for this mod. The intermediate mappings string must be a valid maven coordinate
+     * and match the {@code ^[a-zA-Z0-9-_.]+:[a-zA-Z0-9-_.]+$} regular expression. This field currently only officially
+     * supports {@code org.quiltmc:hashed} and {@code net.fabricmc:intermediary}.
+     */
+    @Nullable String intermediateMappings = "net.fabricmc:intermediary"
 
     /**
      * The version number of the mod - there's a few well known ${} variables usable here or just hardcode it.<br>
@@ -94,6 +112,21 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
         core.pop()
     }
 
+    /**@
+     * A list of authors of the mod.
+     */
+    void contributors(@DelegatesTo(value = PersonsBuilder, strategy = DELEGATE_FIRST)
+                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.PersonsBuilder')
+                 final Closure closure) {
+        log.debug "contributors(closure)"
+        core.push('contributors')
+        final authorsBuilder = new PersonsBuilder(core, 'contributors')
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.delegate = authorsBuilder
+        closure.call(authorsBuilder)
+        core.pop()
+    }
+
     void dependencies(@DelegatesTo(value = DependenciesBuilder, strategy = DELEGATE_FIRST)
                       @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.DependenciesBuilder')
                       final Closure closure) {
@@ -115,6 +148,23 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
         closure.delegate = featuresBuilder
         closure.resolveStrategy = DELEGATE_FIRST
         closure.call(featuresBuilder)
+        core.pop()
+    }
+
+    /**@
+     * Defines the contact information for the project.
+     * The list is not exhaustive - mods may provide additional, non-standard keys (such as discord, slack, twitter, etc) - if possible, they should be valid URLs.
+     * @param closure
+     */
+    void contact(@DelegatesTo(value = ContactBuilder, strategy = DELEGATE_FIRST)
+                 @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.ContactBuilder')
+                 final Closure closure) {
+        log.debug "contact(closure)"
+        core.push('contact')
+        final contactBuilder = new ContactBuilder(core)
+        closure.resolveStrategy = DELEGATE_FIRST
+        closure.delegate = contactBuilder
+        closure.call(contactBuilder)
         core.pop()
     }
 

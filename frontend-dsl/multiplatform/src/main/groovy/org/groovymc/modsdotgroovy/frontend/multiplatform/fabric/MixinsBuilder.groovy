@@ -1,3 +1,5 @@
+package org.groovymc.modsdotgroovy.frontend.multiplatform.fabric
+
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
@@ -18,7 +20,7 @@ class MixinsBuilder extends DslBuilder implements MapClosureInterceptor, OnPlatf
     }
 
     void mixin(@DelegatesTo(value = MixinBuilder, strategy = Closure.DELEGATE_FIRST)
-               @ClosureParams(value = SimpleType, options = 'MixinBuilder')
+               @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.MixinBuilder')
                final Closure closure) {
         log.debug 'mixin(closure)'
         core.push('mixin')

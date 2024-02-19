@@ -19,7 +19,12 @@ enum Environment {
     
     public final String value
 
-    Environment(String value) {
+    Environment(final String value) {
         this.value = value
+    }
+
+    @Override
+    String toString() {
+        return value
     }
 }

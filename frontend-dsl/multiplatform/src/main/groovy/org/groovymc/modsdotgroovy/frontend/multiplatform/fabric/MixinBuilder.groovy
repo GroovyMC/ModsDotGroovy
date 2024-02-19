@@ -1,4 +1,4 @@
-
+package org.groovymc.modsdotgroovy.frontend.multiplatform.fabric
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
@@ -18,7 +18,7 @@ class MixinBuilder extends DslBuilder implements PropertyInterceptor, OnPlatform
     /**@
      * The same as upper level environment field.
      */
-    Environment environment = Environment.ANY
+    def environment = '*'
 
     MixinBuilder(final ModsDotGroovyCore core) {
         super(core)

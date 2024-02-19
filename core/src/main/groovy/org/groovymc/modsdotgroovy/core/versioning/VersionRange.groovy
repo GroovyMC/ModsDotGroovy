@@ -31,6 +31,8 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
         return new OrVersionRange([this, other])
     }
 
+    abstract VersionRange bitwiseNegate()
+
     private static List<String> splitMavenParts(final String string) {
         // Split on commas outside of version ranges
         boolean inRange = false
@@ -144,6 +146,28 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
             }
             return super.or(other)
         }
+
+        @Override
+        VersionRange bitwiseNegate() {
+            if (version instanceof BypassVersionEntry) {
+                throw new IllegalArgumentException("Cannot negate a bypass version entry")
+            }
+            if (version.empty) {
+                return new SingleVersionRange(new VersionRangeEntry())
+            } else if (version.upper.empty) {
+                if (version.lower.empty) {
+                    return new SingleVersionRange(new VersionRangeEntry(empty: true))
+                }
+                return new SingleVersionRange(new VersionRangeEntry(upper: version.lower, includeUpper: !version.includeLower))
+            } else if (version.lower.empty) {
+                return new SingleVersionRange(new VersionRangeEntry(lower: version.upper, includeLower: !version.includeUpper))
+            } else {
+                return new OrVersionRange([
+                        new VersionRangeEntry(upper: version.lower, includeUpper: !version.includeLower),
+                        new VersionRangeEntry(lower: version.upper, includeLower: !version.includeUpper)
+                ].collect { (VersionRange) new SingleVersionRange(it) })
+            }
+        }
     }
 
     @ToString(useGetters = false)
@@ -196,6 +220,11 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
                 vs.add(other)
             }
             return new OrVersionRange(vs)
+        }
+
+        @Override
+        VersionRange bitwiseNegate() {
+            return new AndVersionRange(versions.collect { ~it })
         }
     }
 
@@ -294,6 +323,11 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
                 vs.add(other)
             }
             return new AndVersionRange(vs)
+        }
+
+        @Override
+        VersionRange bitwiseNegate() {
+            return new OrVersionRange(versions.collect { ~it })
         }
 
         @Override

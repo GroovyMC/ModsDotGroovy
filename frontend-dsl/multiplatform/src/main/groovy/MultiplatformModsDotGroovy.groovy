@@ -3,6 +3,7 @@ import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
+import org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.MixinsBuilder
 import org.groovymc.modsdotgroovy.frontend.multiplatform.neoforge.AccessTransformersBuilder
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.multiplatform.ModInfoBuilder
@@ -51,7 +52,7 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
      * Defines where mod runs: only on the client side (client mod), only on the server side (plugin) or on both sides (regular mod). Contains the environment identifier.
      * Ignored on Forge.
      */
-    @Nullable Environment environment = null
+    @Nullable def environment = null
 
     /**@
      * Defines the mod's icon. Icons are square PNG files.
@@ -118,7 +119,7 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
     }
 
     void mixins(@DelegatesTo(value = MixinsBuilder, strategy = DELEGATE_FIRST)
-                @ClosureParams(value = SimpleType, options = 'MixinsBuilder')
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.MixinsBuilder')
                 final Closure closure) {
         log.debug "mixins(closure)"
         core.push('mixins')

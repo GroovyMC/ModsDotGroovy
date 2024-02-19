@@ -10,6 +10,9 @@ class LayeredMap {
     Map current = main
 
     void push(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Null key provided at stack position ${stack}")
+        }
         stack.addLast(key)
         def maybeMap = current.computeIfAbsent(key, { [:] })
         if (maybeMap instanceof Map) {
@@ -22,7 +25,7 @@ class LayeredMap {
     }
 
     private String pop() {
-        def str = stack.pollLast()
+        def str = stack.removeLast()
         current = main
         stack.each { current = current[it] }
         return str
@@ -104,6 +107,48 @@ class LayeredMap {
 
     void remove(final String key) {
         current.remove(key)
+    }
+
+    void putStackedWatched(List<String> location, Object value, Listener listener) {
+        var oldStack = new ArrayList<>(stack)
+        int shared = 0
+        final List<String> unique = new ArrayList(location)
+
+        for (int i = 0; i < location.size(); i++) {
+            if (i < oldStack.size() && oldStack.get(i) == location.get(i)) {
+                shared++
+            } else {
+                unique.add(location.get(i))
+            }
+        }
+        while (stack.size() > shared) {
+            pop()
+        }
+        if (value instanceof Map) {
+            for (String s : location) {
+                push(s)
+            }
+            value.each { k, v ->
+                putWatched(k as String, v, listener)
+            }
+            for (String s : unique) {
+                popWatched(listener)
+            }
+        } else {
+            if (unique.empty) {
+                throw new IllegalArgumentException("Cannot put a non-map value at a location used by an active map.")
+            }
+            for (int i = 0; i < unique.size() - 1; i++) {
+                push((String) unique.get(i))
+            }
+            putWatched((String) unique[unique.size() - 1], value, listener)
+            for (int i = 0; i < unique.size() - 1; i++) {
+                popWatched(listener)
+            }
+        }
+        for (int i = shared; i < oldStack.size(); i++) {
+            push(oldStack.get(i))
+        }
     }
 
     static interface Listener {

@@ -71,16 +71,28 @@ class PluginResult {
         }
     }
 
+    static Rename rename(final String newPropertyName, final def value, final boolean reentrant) {
+        return new Rename(newPropertyName: newPropertyName, newValue: value, reentrant: reentrant)
+    }
+
+    static Move move(final List<String> newLocation, final def value, final boolean reentrant) {
+        return new Move(newLocation: newLocation, newValue: value, reentrant: reentrant)
+    }
+
+    static Change change(final def value, final boolean reentrant) {
+        return new Change(newValue: value, reentrant: reentrant)
+    }
+
     static Rename rename(final String newPropertyName, final def value) {
-        return new Rename(newPropertyName: newPropertyName, newValue: value)
+        rename(newPropertyName, value, false)
     }
 
     static Move move(final List<String> newLocation, final def value) {
-        return new Move(newLocation: newLocation, newValue: value)
+        move(newLocation, value, false)
     }
 
     static Change change(final def value) {
-        return new Change(newValue: value)
+        change(value, false)
     }
 
     static Change remove() {
