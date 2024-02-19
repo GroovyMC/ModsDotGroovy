@@ -84,7 +84,7 @@ class MetadataBuilder extends DslBuilder implements PropertyInterceptor {
     void icon(final int size, final String path) {
         log.debug "icon(int, string)"
         core.push('icon')
-        core.put(size, path)
+        core.put(size as String, path)
         core.pop()
     }
 

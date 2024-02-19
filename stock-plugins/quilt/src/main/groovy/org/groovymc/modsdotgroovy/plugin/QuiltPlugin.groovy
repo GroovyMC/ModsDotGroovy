@@ -26,7 +26,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
     }
 
     class QuiltLoader {
-        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+        PluginResult onNestLeave(final Map value) {
             log.debug "quiltLoader.onNestLeave: ${value}"
             return PluginResult.rename('quilt_loader', value)
         }
@@ -63,7 +63,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
         class Entrypoints {
             private final List<Map> entrypoints = []
 
-            def onNestLeave(final Deque<String> stack, final Map value) {
+            def onNestLeave(final Map value) {
                 log.debug "entrypoints.onNestLeave: ${value}"
                 Map<String, List> entrypointsByType = [:]
                 entrypoints.each { Map val ->
@@ -80,18 +80,12 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
                 return PluginResult.rename('entrypoints', entrypointsByType)
             }
 
-            def onNestEnter(final Deque<String> stack, final Map value) {
-                log.debug "entrypoints.onNestEnter: ${value}"
-                entrypoints.clear()
-                return new PluginResult.Validate()
-            }
-
             class Entrypoint {
                 String type
                 String adapter
                 String value
 
-                def onNestLeave(final Deque<String> stack, final Map value) {
+                def onNestLeave(final Map value) {
                     log.debug "entrypoints.entrypoint.onNestLeave: ${value}"
                     if (value["replace"] === true) {
                         entrypoints.removeIf { it["type"] == type }
@@ -103,7 +97,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
         }
 
         class Plugins {
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "plugins.onNestLeave: ${value}"
                 return new PluginResult.Validate()
             }
@@ -112,20 +106,15 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
         class Jars {
             private final List jars = []
 
-            def onNestLeave(final Deque<String> stack, final Map value) {
+            def onNestLeave(final Map value) {
                 log.debug "jars.onNestLeave: ${value}"
                 return jars
-            }
-
-            void onNestEnter(final Deque<String> stack, final Map value) {
-                log.debug "jars.onNestEnter: ${value}"
-                jars.clear()
             }
 
             class Jar {
                 String file
 
-                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                PluginResult onNestLeave(final Map value) {
                     log.debug "jars.jar.onNestLeave: ${value}"
                     if (!file.contains('.'))
                         throw new PluginResult.MDGPluginException("jar ${file} is missing a file extension. Did you forget to put \".jar\" at the end?")
@@ -136,7 +125,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
         }
 
         class LanguageAdapters {
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "languageAdapters.onNestLeave: ${value}"
                 return PluginResult.rename('language_adapters', value)
             }
@@ -145,12 +134,12 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
         class Depends {
             Mod mod = new Mod()
 
-            def onNestLeave(final Deque<String> stack, final Map value) {
+            def onNestLeave(final Map value) {
                 log.info "depends.onNestLeave: ${value}"
                 return mod.mods
             }
 
-            def set(final Deque<String> stack, final String property, final value) {
+            def set(final String property, final value) {
                 Map map = [:]
                 map.put("id", property)
                 if (value instanceof Map) {
@@ -170,12 +159,12 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
         class Breaks {
             Mod mod = new Mod()
 
-            def onNestLeave(final Deque<String> stack, final Map value) {
+            def onNestLeave(final Map value) {
                 log.info "breaks.onNestLeave: ${value}"
                 return mod.mods
             }
 
-            def set(final Deque<String> stack, final String property, final value) {
+            def set(final String property, final value) {
                 Map map = [:]
                 map.put("id", property)
                 if (value instanceof Map) {
@@ -195,7 +184,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
         class Provides {
             private final List provides = []
 
-            def onNestLeave(final Deque<String> stack, final Map value) {
+            def onNestLeave(final Map value) {
                 log.info "provides.onNestLeave: ${value}"
                 return PluginResult.rename('provides', provides)
             }
@@ -203,7 +192,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
             class ProvidesEntry {
                 String id
 
-                def onNestLeave(final Deque<String> stack, final Map value) {
+                def onNestLeave(final Map value) {
                     log.info "provides.providesEntry.onNestLeave: ${value}"
                     if (id === null)
                         throw new PluginResult.MDGPluginException("Provides entry is missing an id.")
@@ -231,7 +220,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
             class Contributors {
                 Map contributors = [:]
 
-                Map onNestLeave(final Deque<String> stack, final Map value) {
+                Map onNestLeave(final Map value) {
                     log.debug "contributors.onNestLeave: ${value}"
                     contributors.putAll(value)
                     return contributors
@@ -241,7 +230,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
                     def name
                     def role
 
-                    def onNestLeave(final Deque<String> stack, final Map value) {
+                    def onNestLeave(final Map value) {
                         contributors.put(name, role)
                         return PluginResult.remove()
                     }
@@ -283,7 +272,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
             class Icon {
                 private final Map icons = [:]
 
-                Map onNestLeave(final Deque<String> stack, final Map value) {
+                Map onNestLeave(final Map value) {
                     log.debug "icon.onNestLeave: ${value}"
                     value.each { key, val ->
                         if (!val.toString().contains('.'))
@@ -291,11 +280,6 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
                     }
                     icons.putAll(value)
                     return icons
-                }
-
-                PluginResult onNestEnter(final Deque<String> stack, final Map value) {
-                    log.debug "icon.onNestEnter: ${value}"
-                    return new PluginResult.Validate()
                 }
             }
         }
@@ -321,7 +305,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
             return handleVersionRange(value)
         }
 
-        def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Map value) {
             log.info "mod.onNestLeave: ${value}"
 
             Map map = [id:id]
