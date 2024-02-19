@@ -46,7 +46,7 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
     /** Support British spelling as an alias */
     PluginResult setLicence(final String licence) {
         log.debug "licence: ${licence}"
-        return PluginResult.rename('license', licence)
+        return new PluginResult.Rename(newPropertyName: 'license', newValue: licence, reentrant: true)
     }
 
     void setIssueTrackerUrl(final String issueTrackerUrl) {
@@ -58,15 +58,9 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
     class Mods {
         private final List modInfos = []
 
-        def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Map value) {
             log.debug "mods.onNestLeave: ${value}"
             return modInfos
-        }
-
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            log.debug "mods.onNestEnter: ${value}"
-            modInfos.clear()
-            return new PluginResult.Validate()
         }
 
         class ModInfo {
@@ -75,7 +69,7 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
             @Nullable String issueTrackerUrl = null
             @Nullable String updateJsonUrl = null
 
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "mods.modInfo.onNestLeave"
 
                 if (updateJsonUrl === null || updateJsonUrl.isBlank())
@@ -136,18 +130,11 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
             class Dependencies {
                 private final List dependencies = []
 
-                def onNestEnter(final Deque<String> stack, final Map value) {
-                    log.debug "mods.modInfo.dependencies.onNestEnter: ${value}"
+                PluginResult onNestLeave(final Map value) {
                     if (ModInfo.this.modId === null)
                         throw new PluginResult.MDGPluginException('modId must be set before dependencies can be set.')
-
-                    dependencies.clear()
-                    return new PluginResult.Validate()
-                }
-
-                PluginResult onNestLeave(final Deque<String> stack, final Map value) {
                     log.debug "mods.modInfo.dependencies.onNestLeave"
-                    return PluginResult.move(['dependencies'], ModInfo.this.modId, dependencies)
+                    return PluginResult.move(['dependencies', ModInfo.this.modId], dependencies)
                 }
 
                 class Dependency {
@@ -158,7 +145,7 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
                         return handleVersionRange(value)
                     }
 
-                    PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+                    PluginResult onNestLeave(final Map value) {
                         log.debug "mods.modInfo.dependencies.dependency.onNestLeave"
                         if (this.modId === null)
                             throw new PluginResult.MDGPluginException('dependency is missing a modId')
@@ -173,11 +160,11 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
             }
 
             class Features {
-                def onNestLeave(final Deque<String> stack, final Map value) {
+                def onNestLeave(final Map value) {
                     log.debug "mods.modInfo.features.onNestEnter: ${value}"
                     if (ModInfo.this.modId === null)
                         throw new PluginResult.MDGPluginException('modId must be set before features can be set.')
-                    return PluginResult.move(['features'], ModInfo.this.modId, value)
+                    return PluginResult.move(['features', ModInfo.this.modId], value)
                 }
             }
         }
@@ -194,19 +181,6 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
     def set(final List<String> stack, final String name, def value) {
         log.debug "set(name: $name, value: $value)"
 
-        if (!stack.isEmpty() && name == 'modLoader') {
-            log.warn "modLoader should be set at the root but it was found in ${stack.join '->'}"
-
-            // move the modLoader to the root by returning an empty stack
-            return PluginResult.move([], value as String)
-        }
-
-        return new PluginResult.Unhandled()
-    }
-
-    @Override
-    PluginResult onNestEnter(final Deque<String> stack, final String name, final Map value) {
-        log.debug "onNestEnter(name: $name, value: $value)"
         return new PluginResult.Unhandled()
     }
 

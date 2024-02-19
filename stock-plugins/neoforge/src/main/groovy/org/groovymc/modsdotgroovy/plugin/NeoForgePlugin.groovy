@@ -23,20 +23,13 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
     class Mixins {
         private final List mixins = []
 
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            log.debug "mixins.onNestEnter: ${value}"
-
-            mixins.clear()
-            return new PluginResult.Validate()
-        }
-
-        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+        PluginResult onNestLeave(final Map value) {
             log.debug "mixins.onNestLeave"
             return PluginResult.move(['mixins'], mixins)
         }
 
         class Mixin {
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "mixins.mixin.onNestLeave"
                 mixins.add(value)
                 return PluginResult.remove()
@@ -47,20 +40,13 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
     class AccessTransformers {
         private final List accessTransformers = []
 
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            log.debug "accessTransformers.onNestEnter: ${value}"
-
-            accessTransformers.clear()
-            return new PluginResult.Validate()
-        }
-
-        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+        PluginResult onNestLeave(final Map value) {
             log.debug "accessTransformers.onNestLeave"
             return PluginResult.move(['accessTransformers'], accessTransformers)
         }
 
         class AccessTransformer {
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "accessTransformers.accessTransformer.onNestLeave"
                 accessTransformers.add(value)
                 return PluginResult.remove()
@@ -79,7 +65,7 @@ class NeoForgePlugin extends ModsDotGroovyPlugin {
                             PluginResult.of(type.name().toLowerCase(Locale.ROOT))
                     }
 
-                    void onNestLeave(final Deque<String> stack, final Map value) {
+                    void onNestLeave(final Map value) {
                         if (value['type'] === null)
                             value['type'] = 'required'
                     }

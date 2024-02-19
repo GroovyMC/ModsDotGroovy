@@ -27,7 +27,7 @@ class ForgePlugin extends ModsDotGroovyPlugin {
 
             class Dependencies {
                 class Dependency {
-                    void onNestLeave(final Deque<String> stack, final Map value) {
+                    void onNestLeave(final Map value) {
                         if (value['mandatory'] === null)
                             value['mandatory'] = true
                     }

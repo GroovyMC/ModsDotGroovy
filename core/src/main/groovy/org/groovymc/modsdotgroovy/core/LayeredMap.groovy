@@ -63,7 +63,7 @@ class LayeredMap {
 
         var oldStack = new ArrayList<>(stack)
         int shared = 0
-        var unique = new ArrayList(newLocation.size())
+        final List<String> unique = new ArrayList(newLocation.size())
 
         for (int i = 0; i < newLocation.size(); i++) {
             if (i < oldStack.size() && oldStack.get(i) == newLocation.get(i)) {
@@ -89,16 +89,16 @@ class LayeredMap {
             if (unique.empty) {
                 throw new IllegalArgumentException("Cannot move a non-map value to a location already occupied by a map.")
             }
-            for (String s : unique) {
-                push(s)
+            for (int i = 0; i < unique.size() - 1; i++) {
+                push((String) unique.get(i))
             }
-            putWatched(key, value, listener)
-            for (String s : unique) {
+            putWatched((String) unique[unique.size() - 1], value, listener)
+            for (int i = 0; i < unique.size() - 1; i++) {
                 popWatched(listener)
             }
         }
-        for (int i = shared; i < newLocation.size(); i++) {
-            push(newLocation.get(i))
+        for (int i = shared; i < oldStack.size(); i++) {
+            push(oldStack.get(i))
         }
     }
 
