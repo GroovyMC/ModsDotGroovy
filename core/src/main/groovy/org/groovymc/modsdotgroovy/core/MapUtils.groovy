@@ -13,11 +13,23 @@ class MapUtils {
         copy.forEach((key, value) -> {
             switch (value) {
                 case null -> data.remove(key)
-                case List -> (value as List).removeIf(it -> it === null)
+                case List -> sanitizeList(value as List)
                 case Map -> sanitizeMap(value as Map)
                 case GString -> data[key] = value.toString()
             }
         })
+    }
+
+    static void sanitizeList(final List list) {
+        list.removeIf(it -> it === null)
+        for (def i = 0; i < list.size(); i++) {
+            final value = list[i]
+            switch (value) {
+                case List -> sanitizeList(value as List)
+                case Map -> sanitizeMap(value as Map)
+                case GString -> list[i] = value.toString()
+            }
+        }
     }
 
     /**

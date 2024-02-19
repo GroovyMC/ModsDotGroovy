@@ -1,17 +1,17 @@
 package org.groovymc.modsdotgroovy.core
 
-import groovy.transform.CompileDynamic
+
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
+import groovy.transform.TupleConstructor
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.Level
+import org.codehaus.groovy.runtime.StringGroovyMethods
 import org.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import org.groovymc.modsdotgroovy.plugin.NestKey
 import org.groovymc.modsdotgroovy.plugin.PluginRegistry
 import org.groovymc.modsdotgroovy.plugin.PluginResult
-import org.codehaus.groovy.runtime.StringGroovyMethods
 
-import java.beans.PropertyChangeEvent
 import java.lang.reflect.Modifier
 
 @CompileStatic
@@ -21,11 +21,9 @@ final class ModsDotGroovyCore {
 
     private final Platform platform
 
-    @Delegate
-    final StackAwareObservableMap backingData = new StackAwareObservableMap()
+    final LayeredMap layeredMap = new LayeredMap()
 
-    final Deque<ModsDotGroovyPlugin> activePlugins = new ArrayDeque<>(plugins.size())
-    boolean inside = false
+    final LayeredMap.Listener listener
 
     ModsDotGroovyCore(final Map<String, ?> environment) {
         log.level = Level.DEBUG
@@ -34,11 +32,29 @@ final class ModsDotGroovyCore {
                 ? Platform.of(environment['platform'].invokeMethod('name', null) as String)
                 : Platform.UNKNOWN
 
-        // Setup backingData event listeners
-        backingData.getRootMap().addPropertyChangeListener(this.&listenPropertyChangeEvent)
+        // Setup transforms
         plugins.each {
-            backingData.transforms().addAll(it.onPutTransforms())
+            layeredMap.transforms.addAll(it.mapTransforms())
         }
+
+        LayeredMap.Listener listener = { }
+        for (final ModsDotGroovyPlugin plugin in plugins.collect().reverse()) {
+            def oldListener = listener
+            listener = new PluginListener(plugin, oldListener)
+        }
+        this.listener = listener
+    }
+
+    void put(final String key, final Object value) {
+        layeredMap.putWatched(key, value, listener)
+    }
+
+    void push(final String key) {
+        layeredMap.push(key)
+    }
+
+    void pop() {
+        layeredMap.popWatched(listener)
     }
 
     Platform platform() {
@@ -46,7 +62,7 @@ final class ModsDotGroovyCore {
     }
 
     Map build() {
-        Map result = backingData.getRootMap()
+        Map result = layeredMap.main
         for (final ModsDotGroovyPlugin plugin in plugins) {
             result = MapUtils.recursivelyMerge(result, plugin.build(result))
             MapUtils.sanitizeMap(result)
@@ -54,172 +70,61 @@ final class ModsDotGroovyCore {
         return result
     }
 
-    private void listenPropertyChangeEvent(final PropertyChangeEvent event) {
-        if (!inside) {
-            activePlugins.clear()
-            activePlugins.addAll(plugins)
-        }
-        inside = true
-        switch (event) {
-            case StackAwareObservableMap.StackChangedEvent:
-                onStackChangedEvent((StackAwareObservableMap.StackChangedEvent) event)
-                break
-            case ObservableMap.MultiPropertyEvent:
-                onMultiPropertyEvent((ObservableMap.MultiPropertyEvent) event)
-                break
-            case ObservableMap.PropertyEvent:
-                onSinglePropertyEvent((ObservableMap.PropertyEvent) event)
-                break
-            default:
-                if (event.propertyName == 'size' && event.newValue != event.oldValue) return // ignore size changes
-                else throw new IllegalArgumentException("Unknown event type: ${event.class.name}")
-        }
-        inside = false
-    }
+    @TupleConstructor
+    class PluginListener implements LayeredMap.Listener {
+        final ModsDotGroovyPlugin plugin
+        final LayeredMap.Listener rest
 
-    @CompileDynamic
-    private void onSinglePropertyEvent(final ObservableMap.PropertyEvent event) {
-        if (activePlugins.isEmpty()) {
-            activePlugins.clear()
-            activePlugins.addAll(plugins)
-            return
+        @Override
+        void call(LayeredMap.MapEvent event) {
+            if (event.onPop) {
+                runEvent(event, PluginAction.ON_NEST_LEAVE)
+            } else {
+                runEvent(event, PluginAction.SET)
+            }
         }
 
-        if (event instanceof ObservableMap.PropertyRemovedEvent) return // ignore removals
+        void runEvent(LayeredMap.MapEvent event, PluginAction action) {
+            String propertyName = event.key
+            def mapValue = event.value
+            List<String> originalStack = new ArrayList<>(event.stack)
 
-        String propertyName = event.propertyName
-        def mapValue = event.newValue
+            PluginResult result = getPluginResult(originalStack, plugin, action, propertyName, mapValue)
 
-        ModsDotGroovyPlugin plugin = activePlugins.pollFirst()
-        // Notify each of the plugins in the PriorityQueue
-        Deque<String> originalStack = new ArrayDeque<>(getStack())
-        PluginResult result = getPluginResult(getStack(), plugin, PluginAction.SET, propertyName, mapValue)
-        switch (result) {
-            case PluginResult.Validate:
+            if (result instanceof PluginResult.Validate) {
                 log.debug "Plugin \"${plugin.name}\" validated property \"$propertyName\""
-                break
-            case PluginResult.Change:
-                result = (PluginResult.Change) result
+                rest.call(event)
+            } else if (result instanceof PluginResult.Change) {
+                LayeredMap.Listener listener = rest
+                if (result.reentrant) listener = this
+                mapValue = result.newValue ?: mapValue
 
-                if (result.newLocation !== null && result.newLocation != originalStack && result.newValue !== null) {
-                    log.debug "Plugin \"${plugin.name}\" moved property from \"${getStack().join '->'}\" to \"${result.newLocation.join '->'}\""
-                    move(propertyName, result.newLocation, result.newPropertyName, result.newValue)
-                    return
+                if (result.newValue == null) {
+                    log.debug "Plugin \"${plugin.name}\" removed property \"$propertyName\""
+                    layeredMap.remove(propertyName)
+                } else if (result instanceof PluginResult.Rename && result.newPropertyName !== null && result.newPropertyName != propertyName) {
+                    log.debug "Plugin \"${plugin.name}\" renamed property \"$propertyName\" to \"${result.newPropertyName}\""
+                    if (result.newPropertyName === null) throw new IllegalStateException("Rename result must have a new property name")
+                    layeredMap.remove(propertyName)
+                    layeredMap.putWatched(result.newPropertyName, mapValue, listener)
+                } else if (result instanceof PluginResult.Move && result.newLocation !== null && result.newLocation != (originalStack + [propertyName])) {
+                    log.debug "Plugin \"${plugin.name}\" moved \"${originalStack.join('.')}.$propertyName\" to \"${result.newLocation.join('.')}\""
+                    if (result.newLocation === null) throw new IllegalStateException("Move result must have a new location")
+                    layeredMap.moveWatched(propertyName, result.newLocation, mapValue, listener)
+                } else {
+                    log.debug "Plugin \"${plugin.name}\" changed property \"$propertyName\""
+                    layeredMap.putWatched(propertyName, mapValue, listener)
                 }
-                if (result.newPropertyName !== null && result.newPropertyName != propertyName && result.newValue !== null) {
-                    log.debug "Plugin \"${plugin.name}\" renamed property \"${propertyName}\" to \"${result.newPropertyName}\""
-
-                    // first remove the old property
-                    setIgnoreNextEvent(true)
-                    remove(propertyName)
-                    setIgnoreNextEvent(false)
-
-                    // then add the new property
-                    propertyName = result.newPropertyName
-                    put(propertyName, result.newValue)
-                }
-                if (result.newValue === null) {
-                    log.debug "Plugin \"${plugin.name}\" removed property \"${propertyName}\""
-                    setIgnoreNextEvent(true)
-                    remove(propertyName)
-                    setIgnoreNextEvent(false)
-                    return
-                } else if (result.newValue != event.newValue) {
-                    log.debug "Plugin \"${plugin.name}\" changed property \"${propertyName}\" value from \"${mapValue}\" to \"${result.newValue}\""
-                    put(propertyName, result.newValue)
-                }
-                return
-            case PluginResult.Unhandled:
-                //log.debug "Plugin \"${plugin.name}\" didn't handle property \"$propertyName\""
-                break
-            default:
+            } else if (result instanceof PluginResult.Unhandled) {
+                rest.call(event)
+            } else {
                 throw new IllegalStateException("Unknown PluginResult type: ${result.class.name}")
+            }
         }
-        onSinglePropertyEvent(event)
-    }
-
-    // todo
-    private static void onMultiPropertyEvent(final ObservableMap.MultiPropertyEvent event) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("MultiPropertyEvent not yet implemented")
-    }
-
-    private void onStackChangedEvent(final StackAwareObservableMap.StackChangedEvent event) {
-        if (activePlugins.isEmpty()) {
-            activePlugins.clear()
-            activePlugins.addAll(plugins)
-            return
-        }
-
-        final int oldStackSize = event.oldStack.size()
-        final int newStackSize = event.newStack.size()
-        final PluginAction action = newStackSize > oldStackSize
-                ? PluginAction.ON_NEST_ENTER
-                : PluginAction.ON_NEST_LEAVE
-
-        final Deque<String> stack = newStackSize > oldStackSize
-                ? event.newStack
-                : event.oldStack
-
-        def mapValue = event.newValue ?: event.oldValue
-
-        String propertyName = stack.last
-
-        ModsDotGroovyPlugin plugin = activePlugins.pollFirst()
-        log.debug "plugin: ${plugin.name}"
-        log.debug "action: ${action}"
-        log.debug "newStack: ${event.newStack}"
-        log.debug "oldStack: ${event.oldStack}"
-        log.debug "nestName: ${stack.last}"
-        log.debug "value: ${mapValue}"
-        PluginResult result = getPluginResult(stack, plugin, action, stack.last, mapValue)
-        log.debug "Plugin \"${plugin.name}\" returned result: ${result}"
-        switch (result) {
-            case PluginResult.Validate:
-                log.debug "Plugin \"${plugin.name}\" validated nest \"${propertyName}\""
-                break
-            case PluginResult.Change:
-                var change = (PluginResult.Change) result
-                if (change.newLocation !== null && (change.newValue !== null || action == PluginAction.ON_NEST_ENTER)) {
-                    log.debug "Plugin \"${plugin.name}\" moved nest \"${propertyName}\" from \"${event.oldStack.join '->'}\" to \"${change.newLocation.join '->'}\""
-                    switch (action) {
-                        case PluginAction.ON_NEST_ENTER -> relocate(change.newLocation)
-                        case PluginAction.ON_NEST_LEAVE -> move(propertyName, change.newLocation, change.newPropertyName, change.newValue)
-                        default -> throw new IllegalStateException("Unknown PluginAction type: ${action.class.name}")
-                    }
-                }
-                if (change.newLocation === null && change.newPropertyName !== null && change.newValue !== null) {
-                    log.debug "Plugin \"${plugin.name}\" renamed nest \"${propertyName}\" to \"${change.newPropertyName}\""
-
-                    // first remove the old property
-                    setIgnoreNextEvent(true)
-                    remove(propertyName)
-                    setIgnoreNextEvent(false)
-
-                    // then add the new property
-                    propertyName = change.newPropertyName
-                    put(propertyName, change.newValue)
-                }
-                if (change.newValue === null && action == PluginAction.ON_NEST_LEAVE) {
-                    log.debug "Plugin \"${plugin.name}\" removed nest \"${propertyName}\""
-                    setIgnoreNextEvent(true)
-                    remove(propertyName)
-                    setIgnoreNextEvent(false)
-                    return
-                } else if (change.newLocation === null && change.newValue != event.newValue && action == PluginAction.ON_NEST_LEAVE) {
-                    log.debug "Plugin \"${plugin.name}\" changed nest \"${propertyName}\" value from \"${mapValue}\" to \"${change.newValue}\""
-                    put(propertyName, change.newValue)
-                }
-                return
-            case PluginResult.Unhandled:
-                break
-            default:
-                throw new IllegalStateException("Unknown PluginResult type: ${result.class.name}")
-        }
-        onStackChangedEvent(event)
     }
 
     private static final enum PluginAction {
-        SET, ON_NEST_ENTER, ON_NEST_LEAVE
+        SET, ON_NEST_LEAVE
 
         PluginAction() {}
 
@@ -232,45 +137,31 @@ final class ModsDotGroovyCore {
         }
     }
 
-    private static PluginResult getPluginResult(final Deque<String> eventStack, final ModsDotGroovyPlugin plugin, final PluginAction action = PluginAction.SET, final String propertyName, final def propertyValue) {
+    private static PluginResult getPluginResult(final List<String> eventStack, final ModsDotGroovyPlugin plugin, final PluginAction action = PluginAction.SET, final String propertyName, final def propertyValue) {
+        final List<String> fullEventStack = new ArrayList<>(eventStack)
         final String capitalizedPropertyName = propertyName.capitalize()
-        boolean useGenericMethod = false
+        if (action == PluginAction.ON_NEST_LEAVE) fullEventStack.add(propertyName)
 
-        // Todo: request support for tuple destructuring in CompileStatic
-        // final def (Class<?> delegateObject, boolean foundSubclass) = traverseClassTree(getStack(), plugin.getClass())
-        final Tuple2<Object, Boolean> result = traverseClassTree(eventStack, plugin)
+        final Tuple2<Object, Boolean> result = traverseClassTree(fullEventStack, plugin)
         final Object delegateObject = result.v1
 
-        if (useGenericMethod) {
-            return switch (action) {
-                case PluginAction.SET -> PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
-                case PluginAction.ON_NEST_ENTER -> PluginResult.of(plugin.onNestEnter(eventStack, propertyName, (Map) propertyValue))
-                case PluginAction.ON_NEST_LEAVE -> PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
-            }
-        } else {
-            final String methodName = action === PluginAction.SET
-                    ? action.toString() + capitalizedPropertyName
-                    : action.toString()
+        final String methodName = action === PluginAction.SET
+                ? action.toString() + capitalizedPropertyName
+                : action.toString()
 
-            switch (action) {
-                case PluginAction.SET:
-                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, propertyValue)) // explicit setter
-                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, propertyValue))
-                    else if (delegateObject.metaClass.respondsTo(delegateObject, 'set', eventStack, propertyName, propertyValue)) // inner generic setter
-                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, 'set', eventStack, propertyName, propertyValue))
-                    else // outer generic setter
-                        return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
-                case PluginAction.ON_NEST_ENTER:
-                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, eventStack, (Map) propertyValue))
-                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, eventStack, (Map) propertyValue))
-                    else
-                        return PluginResult.of(plugin.onNestEnter(eventStack, propertyName, (Map) propertyValue))
-                case PluginAction.ON_NEST_LEAVE:
-                    if (delegateObject.metaClass.respondsTo(delegateObject, methodName, eventStack, (Map) propertyValue))
-                        return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, eventStack, (Map) propertyValue))
-                    else
-                        return PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
-            }
+        switch (action) {
+            case PluginAction.SET:
+                if (delegateObject.metaClass.respondsTo(delegateObject, methodName, propertyValue)) // explicit setter
+                    return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, propertyValue))
+                else if (delegateObject.metaClass.respondsTo(delegateObject, 'set', propertyName, propertyValue)) // inner generic setter
+                    return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, 'set', propertyName, propertyValue))
+                else // outer generic setter
+                    return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
+            case PluginAction.ON_NEST_LEAVE:
+                if (delegateObject.metaClass.respondsTo(delegateObject, methodName, (Map) propertyValue))
+                    return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, (Map) propertyValue))
+                else
+                    return PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
         }
     }
 
@@ -283,7 +174,7 @@ final class ModsDotGroovyCore {
      * @param delegateObject The plugin object to start from
      * @return A tuple containing either the traversed class or original class, and whether or not a subclass was found
      */
-    private static Tuple2<Object, Boolean> traverseClassTree(final Deque<String> stack, ModsDotGroovyPlugin pluginObject) {
+    private static Tuple2<Object, Boolean> traverseClassTree(final List<String> stack, ModsDotGroovyPlugin pluginObject) {
         boolean foundSubclass = false
         Object delegateObject = (Object) pluginObject
 

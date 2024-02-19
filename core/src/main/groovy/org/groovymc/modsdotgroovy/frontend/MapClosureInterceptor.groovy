@@ -15,7 +15,7 @@ trait MapClosureInterceptor {
     @CompileDynamic
     void methodMissing(final String name, def args) {
         args = args as List
-        log.debug "methodMissing(name: $name, args: $args) stack: ${core.getStack()}"
+        log.debug "methodMissing(name: $name, args: $args) stack: ${core.layeredMap.stack}"
         if (args.size() > 0 && args[0] instanceof Closure) {
             final closure = args[0] as Closure
             core.push(name)

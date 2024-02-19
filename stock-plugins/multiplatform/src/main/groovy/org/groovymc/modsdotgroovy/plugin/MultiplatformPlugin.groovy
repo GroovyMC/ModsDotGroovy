@@ -54,29 +54,36 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             // ForgePlugin supports the "licence" alias, FabricPlugin does not
             return PluginResult.rename('license', licence)
         else if (currentPlatform == Platform.QUILT)
-            return PluginResult.move(['metadata'], 'license', licence)
+            return PluginResult.move(['quiltLoader', 'metadata'], 'license', licence)
     }
 
     def setIssueTrackerUrl(final String issueTrackerUrl) {
         if (currentPlatform == Platform.FABRIC)
             return PluginResult.move(['contact'], 'issues', issueTrackerUrl)
         else if (currentPlatform == Platform.QUILT)
-            return PluginResult.move(['metadata', 'contact'], 'issues', issueTrackerUrl)
+            return PluginResult.move(['quiltLoader', 'metadata', 'contact'], 'issues', issueTrackerUrl)
     }
 
     def setEnvironment(final def environment) {
         if (isForgeLike(currentPlatform))
             return PluginResult.remove()
+        return new PluginResult.Validate()
     }
 
     def setAccessWidener(final String accessWidener) {
         if (isForgeLike(currentPlatform))
             return PluginResult.remove()
+        if (currentPlatform == Platform.QUILT)
+            return PluginResult.move(['quiltLoader'], 'accessWidener', accessWidener)
+        return new PluginResult.Validate()
     }
 
     def setIcon(final String icon) {
         if (isForgeLike(currentPlatform))
             return PluginResult.remove()
+        if (currentPlatform == Platform.QUILT)
+            return PluginResult.move(['quiltLoader'], 'icon', icon)
+        return new PluginResult.Validate()
     }
 
     def setShowAsDataPack(final value) {
@@ -93,6 +100,9 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
         def onNestLeave(final Deque<String> stack, final Map value) {
             if (isForgeLike(currentPlatform))
                 return PluginResult.remove()
+            if (currentPlatform == Platform.QUILT)
+                return PluginResult.move(['quiltLoader'], 'icon', value)
+            return new PluginResult.Validate()
         }
     }
 
@@ -102,13 +112,25 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
         }
 
         class ModInfo {
+            def onNestLeave(final Deque<String> stack, final Map value) {
+                if (currentPlatform == Platform.QUILT) {
+                    return PluginResult.move([], 'quiltLoader2', value)
+                }
+            }
+
             def setAuthors(final authors) {
-                if (isFabricLike(currentPlatform)) {
+                if (currentPlatform == Platform.FABRIC) {
                     if (authors instanceof List) {
                         return PluginResult.move([], authors.collect { ['name': it] })
                     } else {
                         return PluginResult.move([], authors)
                     }
+                } else if (currentPlatform == Platform.QUILT) {
+                    def roles = [(authors): 'Author']
+                    if (authors instanceof List) {
+                        roles = authors.collect { [(it): 'Author'] }
+                    }
+                    return PluginResult.move(['quiltLoader', 'metadata'], 'contributors', roles)
                 }
             }
 
@@ -129,6 +151,8 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                         return new PluginResult.Validate()
                     } else if (currentPlatform == Platform.FABRIC) {
                         return PluginResult.move(['authors'], value)
+                    } else if (currentPlatform == Platform.QUILT) {
+                        return PluginResult.move(['quiltLoader', 'metadata', 'contributors'], value)
                     }
                 }
 
@@ -150,15 +174,20 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             }
 
             def setAuthor(final value) {
-                if (isFabricLike(currentPlatform)) {
+                if (currentPlatform == Platform.FABRIC) {
                     return PluginResult.move([], 'authors', ['name':value])
+                } else if (currentPlatform == Platform.QUILT) {
+                    return PluginResult.move(['quiltLoader', 'metadata', 'contributors'], ['name':value])
                 }
+                return new PluginResult.Validate()
             }
 
             class Entrypoints {
                 def onNestEnter(final Deque<String> stack, final Map value) {
-                    if (isFabricLike(currentPlatform))
+                    if (currentPlatform == Platform.FABRIC)
                         return PluginResult.move(['entrypoints'], value)
+                    else if (currentPlatform == Platform.QUILT)
+                        return PluginResult.move(['quiltLoader', 'entrypoints'], value)
                 }
 
                 def onNestLeave(final Deque<String> stack, final Map value) {
@@ -168,36 +197,38 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             }
 
             def setModId(final String modId) {
-                if (isFabricLike(currentPlatform))
+                if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move([], 'id', modId)
+                if (currentPlatform == Platform.QUILT)
+                    return PluginResult.move(['quiltLoader'], 'id', modId)
             }
 
             def setDisplayName(final String value) {
                 if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move([], 'name', value)
                 else if (currentPlatform == Platform.QUILT)
-                    return PluginResult.move(['metadata'], 'name', value)
+                    return PluginResult.move(['quiltLoader', 'metadata'], 'name', value)
             }
 
             def setDescription(final String value) {
                 if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move([], 'description', value)
                 else if (currentPlatform == Platform.QUILT)
-                    return PluginResult.move(['metadata'], 'description', value)
+                    return PluginResult.move(['quiltLoader', 'metadata'], 'description', value)
             }
 
             def setDisplayUrl(final String value) {
                 if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move(['contact'], 'homepage', value)
                 else if (currentPlatform == Platform.QUILT)
-                    return PluginResult.move(['metadata', 'contact'], 'homepage', value)
+                    return PluginResult.move(['quiltLoader', 'metadata', 'contact'], 'homepage', value)
             }
 
             def setIcon(final value) {
                 if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move([], 'icon', value)
                 else if (currentPlatform == Platform.QUILT)
-                    return PluginResult.move(['metadata'], 'icon', value)
+                    return PluginResult.move(['quiltLoader', 'metadata'], 'icon', value)
                 else
                     return PluginResult.remove()
             }
@@ -207,7 +238,7 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                     if (currentPlatform == Platform.FABRIC)
                         return PluginResult.move(['icon'], value)
                     if (currentPlatform == Platform.QUILT)
-                        return PluginResult.move(['metadata', 'icon'], value)
+                        return PluginResult.move(['quiltLoader', 'metadata', 'icon'], value)
                 }
 
                 def onNestLeave(final Deque<String> stack, final Map value) {
@@ -237,8 +268,10 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
             }
 
             def set(final Deque<String> stack, final String property, final value) {
-                if (isFabricLike(currentPlatform))
+                if (currentPlatform == Platform.FABRIC)
                     return PluginResult.move([], property, value)
+                if (currentPlatform == Platform.QUILT)
+                    return PluginResult.move(['quiltLoader'], property, value)
                 MultiplatformPlugin.this.set(stack, property, value)
             }
 

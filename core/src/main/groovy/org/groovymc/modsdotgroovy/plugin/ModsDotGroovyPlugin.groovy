@@ -3,8 +3,7 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.OnPutTransform
-import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.core.MapTransform
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
@@ -41,7 +40,7 @@ abstract class ModsDotGroovyPlugin {
      */
     void init(final Map<String, ?> environment) {}
 
-    List<OnPutTransform> onPutTransforms() {
+    List<MapTransform> mapTransforms() {
         return []
     }
 
@@ -57,23 +56,7 @@ abstract class ModsDotGroovyPlugin {
      *     If you return null or don't return anything (void), it'll be treated as {@code new PluginResult.Validate()}.
      */
     @CompileDynamic
-    def set(final Deque<String> stack, final String name, def value) {
-        return new PluginResult.Unhandled()
-    }
-
-    /**
-     * A generic method that's called when entering a nest.
-     * Used as a fallback for when a plugin doesn't implement an explicit onNestEnter.
-     * @param stack
-     * @param name
-     * @param value
-     * @return <<T extends PluginResult> | Object | null | void>
-     *     If you return a PluginResult, it'll be treated as-is.
-     *     If you return an Object, it'll be treated as {@code new PluginResult.Change(newValue: (yourObject))}.
-     *     If you return null or don't return anything (void), it'll be treated as {@code new PluginResult.Validate()}.
-     */
-    @CompileDynamic
-    def onNestEnter(final Deque<String> stack, final String name, Map value) {
+    def set(final List<String> stack, final String name, def value) {
         return new PluginResult.Unhandled()
     }
 
@@ -89,7 +72,7 @@ abstract class ModsDotGroovyPlugin {
      *     If you return null or don't return anything (void), it'll be treated as {@code new PluginResult.Validate()}.
      */
     @CompileDynamic
-    def onNestLeave(final Deque<String> stack, final String name, Map value) {
+    def onNestLeave(final List<String> stack, final String name, Map value) {
         return new PluginResult.Unhandled()
     }
 

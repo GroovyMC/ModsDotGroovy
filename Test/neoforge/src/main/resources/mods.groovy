@@ -21,7 +21,7 @@ final mdg = NeoForgeModsDotGroovy.make {
         credits = buildProperties['credits']
         displayTest = DisplayTest.MATCH_VERSION
         dependencies {
-            forge = "[47.1.3,)"
+            neoforge = "[47.1.3,)"
             minecraft = '[1.20.1]'
 
             mod {

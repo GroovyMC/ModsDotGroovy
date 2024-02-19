@@ -6,7 +6,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.OnPutTransform
+import org.groovymc.modsdotgroovy.core.MapTransform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
@@ -191,7 +191,7 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
     @Override
     @Nullable
     @CompileDynamic
-    def set(final Deque<String> stack, final String name, def value) {
+    def set(final List<String> stack, final String name, def value) {
         log.debug "set(name: $name, value: $value)"
 
         if (!stack.isEmpty() && name == 'modLoader') {
@@ -212,7 +212,7 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
 
     @Override
     @CompileDynamic
-    def onNestLeave(final Deque<String> stack, final String name, Map value) {
+    def onNestLeave(final List<String> stack, final String name, Map value) {
         log.debug "onNestLeave(name: $name, value: $value)"
         return new PluginResult.Unhandled()
     }
@@ -329,7 +329,7 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
     }
 
     @Override
-    List<OnPutTransform> onPutTransforms() {
-        return [OnPutTransform.of(VersionRange, { it.toMaven() })]
+    List<MapTransform> mapTransforms() {
+        return [MapTransform.of(VersionRange, { it.toMaven() })]
     }
 }

@@ -4,7 +4,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.OnPutTransform
+import org.groovymc.modsdotgroovy.core.MapTransform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
@@ -61,7 +61,7 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     class Icon {
         private final Map icons = [:]
 
-        def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Map value) {
             log.debug "icon.onNestLeave: ${value}"
             value.each { key, val ->
                 if (!val.toString().contains('.'))
@@ -70,17 +70,12 @@ class FabricPlugin extends ModsDotGroovyPlugin {
             icons.putAll(value)
             return icons
         }
-
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            log.debug "icon.onNestEnter: ${value}"
-            return new PluginResult.Validate()
-        }
     }
 
     class Entrypoints {
         private final List<Map> entrypoints = []
 
-        def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Map value) {
             log.debug "entrypoints.onNestLeave: ${value}"
             Map<String, List> entrypointsByType = [:]
             entrypoints.each { Map val ->
@@ -97,18 +92,12 @@ class FabricPlugin extends ModsDotGroovyPlugin {
             return entrypointsByType
         }
 
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            log.debug "entrypoints.onNestEnter: ${value}"
-            entrypoints.clear()
-            return new PluginResult.Validate()
-        }
-
         class Entrypoint {
             String type
             String adapter
             String value
             
-            def onNestLeave(final Deque<String> stack, final Map value) {
+            def onNestLeave(final Map value) {
                 log.debug "entrypoints.entrypoint.onNestLeave: ${value}"
                 if (value["replace"] === true) {
                     entrypoints.removeIf { it["type"] == type }
@@ -122,7 +111,7 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     class Depends {
         Mod mod = new Mod()
 
-        def set(final Deque<String> stack, final String property, final value) {
+        def set(final String property, final value) {
             return PluginResult.rename(property, handleVersionRange(value))
         }
     }
@@ -130,32 +119,32 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     class Recommends {
         Mod mod = new Mod()
 
-        def set(final Deque<String> stack, final String property, final value) {
-            return PluginResult.rename(property, handleVersionRange(value))
+        def set(final String property, final value) {
+            return PluginResult.change(handleVersionRange(value))
         }
     }
 
     class Suggests {
         Mod mod = new Mod()
 
-        def set(final Deque<String> stack, final String property, final value) {
-            return PluginResult.rename(property, handleVersionRange(value))
+        def set(final String property, final value) {
+            return PluginResult.change(handleVersionRange(value))
         }
     }
 
     class Breaks {
         Mod mod = new Mod()
 
-        def set(final Deque<String> stack, final String property, final value) {
-            return PluginResult.rename(property, handleVersionRange(value))
+        def set(final String property, final value) {
+            return PluginResult.change(handleVersionRange(value))
         }
     }
 
     class Conflicts {
         Mod mod = new Mod()
 
-        def set(final Deque<String> stack, final String property, final value) {
-            return PluginResult.rename(property, handleVersionRange(value))
+        def set(final String property, final value) {
+            return PluginResult.change(handleVersionRange(value))
         }
     }
 
@@ -166,7 +155,7 @@ class FabricPlugin extends ModsDotGroovyPlugin {
             return handleVersionRange(value)
         }
 
-        PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+        PluginResult onNestLeave(final Map value) {
             log.info "mod.onNestLeave: ${value}"
 
             return PluginResult.rename(modId, value.versionRange)
@@ -196,21 +185,15 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     class Jars {
         private final List jars = []
 
-        def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Map value) {
             log.debug "jars.onNestLeave: ${value}"
             return jars
-        }
-
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            log.debug "jars.onNestEnter: ${value}"
-            jars.clear()
-            return new PluginResult.Validate()
         }
 
         class Jar {
             String file
 
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "jars.jar.onNestLeave: ${value}"
                 if (!file.contains('.'))
                     throw new PluginResult.MDGPluginException("jar ${file} is missing a file extension. Did you forget to put \".jar\" at the end?")
@@ -223,12 +206,12 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     class Mixins {
         private final List mixins = []
 
-        def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Map value) {
             log.debug "mixins.onNestLeave: ${value}"
             return mixins
         }
 
-        def onNestEnter(final Deque<String> stack, final Map value) {
+        def onNestEnter(final Map value) {
             log.debug "mixins.onNestEnter: ${value}"
             mixins.clear()
             return new PluginResult.Validate()
@@ -238,7 +221,7 @@ class FabricPlugin extends ModsDotGroovyPlugin {
             String config
             def environment
 
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "mixins.mixin.onNestLeave: ${value}"
                 if (value["config"] != null && value.size() == 1) {
                     mixins.add(value["config"])
@@ -259,22 +242,16 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     class Authors {
         private final List authors = []
 
-        def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Map value) {
             log.debug "authors.onNestLeave: ${value}"
             return authors
-        }
-
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            log.debug "authors.onNestEnter: ${value}"
-            authors.clear()
-            return new PluginResult.Validate()
         }
 
         class Author {
             String name
             Contact contact = new Contact()
 
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "authors.author.onNestLeave: ${value}"
 
                 if (!value.containsKey("name")) {
@@ -292,22 +269,16 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     class Contributors {
         private final List contributors = []
 
-        def onNestLeave(final Deque<String> stack, final Map value) {
+        def onNestLeave(final Map value) {
             log.debug "contributors.onNestLeave: ${value}"
             return contributors
-        }
-
-        def onNestEnter(final Deque<String> stack, final Map value) {
-            log.debug "contributors.onNestEnter: ${value}"
-            contributors.clear()
-            return new PluginResult.Validate()
         }
 
         class Contributor {
             String name
             Contact contact = new Contact()
 
-            PluginResult onNestLeave(final Deque<String> stack, final Map value) {
+            PluginResult onNestLeave(final Map value) {
                 log.debug "contributors.contributor.onNestLeave: ${value}"
                 if (!value.containsKey("name")) {
                     throw new PluginResult.MDGPluginException("Contributor name is required")
@@ -337,8 +308,8 @@ class FabricPlugin extends ModsDotGroovyPlugin {
     }
 
     @Override
-    List<OnPutTransform> onPutTransforms() {
-        return [OnPutTransform.of(VersionRange, {
+    List<MapTransform> mapTransforms() {
+        return [MapTransform.of(VersionRange, {
             var vs = it.toSemver()
             if (vs.size() == 1) return vs.get(0)
             return vs

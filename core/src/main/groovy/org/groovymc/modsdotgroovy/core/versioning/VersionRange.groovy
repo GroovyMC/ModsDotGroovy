@@ -7,8 +7,8 @@ import groovy.transform.ToString
 @CompileStatic
 sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, SingleVersionRange {
     static VersionRange of(final String string) {
-        final List<String> or = splitMavenParts(string)
-        final List<List<String>> and = or.collect { splitSemverParts(it) }
+        final List<String> or = splitMavenParts(string).collect { it.trim() }.findAll { !it.blank }
+        final List<List<String>> and = or.collect { splitSemverParts(it).collect { it.trim() }.findAll { !it.blank } }.findAll { !it.empty }
         final List<VersionRange> andRanges = and.collect { andRange ->
             if (andRange.size() == 1) {
                 return new SingleVersionRange(VersionRangeEntry.of(andRange.get(0)))
@@ -46,7 +46,7 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
             if (c == ',' as char && !inRange) {
                 parts.add(current.toString())
                 current = new StringBuilder()
-            } else if (inRange || !c.whitespace) {
+            } else {
                 current.append(c)
             }
         }

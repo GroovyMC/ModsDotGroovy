@@ -15,7 +15,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @CompileStatic
 @Log4j2(category = 'MDG - NeoForge Frontend')
 class DependenciesBuilder extends DslBuilder implements MapClosureInterceptor {
-    @Nullable def forge = null
+    @Nullable def neoforge = null
 
     @Nullable def minecraft = null
 

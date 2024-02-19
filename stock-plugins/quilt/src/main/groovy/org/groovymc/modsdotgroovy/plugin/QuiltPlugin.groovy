@@ -4,7 +4,7 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.OnPutTransform
+import org.groovymc.modsdotgroovy.core.MapTransform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.jetbrains.annotations.Nullable
 
@@ -27,7 +27,7 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
 
     class QuiltLoader {
         PluginResult onNestLeave(final Deque<String> stack, final Map value) {
-            log.debug "languageAdapters.onNestLeave: ${value}"
+            log.debug "quiltLoader.onNestLeave: ${value}"
             return PluginResult.rename('quilt_loader', value)
         }
 
@@ -373,8 +373,8 @@ class QuiltPlugin extends ModsDotGroovyPlugin {
     }
 
     @Override
-    List<OnPutTransform> onPutTransforms() {
-        return [OnPutTransform.of(VersionRange, {
+    List<MapTransform> mapTransforms() {
+        return [MapTransform.of(VersionRange, {
             makeVersionMap(it)
         })]
     }

@@ -76,7 +76,7 @@ class EntrypointsBuilder extends DslBuilder implements PropertyInterceptor, MapC
     @CompileDynamic
     void methodMissing(final String name, def args) {
         args = args as List
-        log.debug "methodMissing(name: $name, args: $args) stack: ${core.getStack()}"
+        log.debug "methodMissing(name: $name, args: $args) stack: ${core.layeredMap.stack}"
         if (args.size() > 0 && args[0] instanceof String) {
             entrypoint(name, args[0] as String)
         }

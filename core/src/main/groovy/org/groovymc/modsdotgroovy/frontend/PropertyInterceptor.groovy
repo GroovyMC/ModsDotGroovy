@@ -16,7 +16,7 @@ trait PropertyInterceptor {
     private final Logger log = LogManager.getLogger('MDG - Frontend')
 
     void setProperty(final String name, def value) {
-        log.debug "setProperty(name: $name, value: $value) stack: ${core.getStack()}"
+        log.debug "setProperty(name: $name, value: $value) stack: ${core.layeredMap.stack}"
 
         //if (this.hasProperty(name)) this.@"$name" = value
         core.put(name, value)

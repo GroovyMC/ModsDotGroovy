@@ -18,10 +18,12 @@ final mdg = ForgeModsDotGroovy.make {
         displayUrl = 'https://curseforge.com/minecraft/mc-mods/spammycombat'
         // updateJsonUrl = 'https://forge.curseupdate.com/623297/spammycombat'
 
-        credits = buildProperties['credits']
+        // TODO: make sure to pass this in for testing
+        credits = buildProperties.credits
         displayTest = DisplayTest.MATCH_VERSION
         dependencies {
-            forge = "[44,)"
+            // TODO: can we get IDE support for this?
+            forge = ">=${platformVersion}"
             minecraft = '[1.19.3]'
 
             mod {

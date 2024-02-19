@@ -19,7 +19,7 @@ class IconBuilder extends DslBuilder implements PropertyInterceptor, OnPlatform 
 
     @CompileDynamic
     void setProperty(final String name, def value) {
-        log.debug "setProperty(name: $name, value: $value) stack: ${core.getStack()}"
+        log.debug "setProperty(name: $name, value: $value) stack: ${core.layeredMap.stack}"
         if (name.startsWith('x')) core.put(name[1..-1], value)
         else core.put(name, value)
     }
