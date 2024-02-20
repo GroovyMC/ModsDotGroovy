@@ -7,23 +7,59 @@ plugins {
     id 'signing'
     id 'net.neoforged.gradleutils' version '3.0.0-alpha.11' apply false
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0-rc-1'
+    id 'dev.lukebemish.managedversioning' version '1.2.6'
 }
+
+managedVersioning {
+    versionFile.set rootProject.file('version.properties')
+    suffixParts.add 'beta'
+
+    gitHubActions {
+        release {
+            prettyName.set 'Release'
+            workflowDispatch.set(true)
+            gradleJob {
+                name.set 'build'
+                step {
+                    setupGitUser()
+                }
+                readOnly.set false
+                gradlew 'Tag Release', 'tagRelease'
+                gradlew 'Build', 'build'
+                step {
+                    run.set 'git push && git push --tags'
+                }
+                gradlew 'Publish', 'publish'
+                secret('CENTRAL_MAVEN_USER')
+                secret('CENTRAL_MAVEN_PASSWORD')
+                secret('GPG_SIGNING_KEY')
+                secret('GPG_KEY_PASSWORD')
+            }
+        }
+    }
+}
+
+managedVersioning.apply()
+
+println "Building: $version"
 
 nexusPublishing {
     repositories {
         sonatype {
             nexusUrl = uri('https://s01.oss.sonatype.org/service/local/')
-            username = System.getenv('SONATYPE_USER') ?: findProperty('groovyMCSonatypeUser') as String ?: ''
-            password = System.getenv('SONATYPE_PASSWORD') ?: findProperty('groovyMCSonatypePassword') as String ?: ''
+            username = System.getenv('CENTRAL_MAVEN_USER') ?: ''
+            password = System.getenv('CENTRAL_MAVEN_PASSWORD') ?: ''
         }
     }
 }
 
-final String signingKey = System.getenv('SIGNING_KEY') ?: findProperty('groovyMCSigningKey') ?: ''
-final String signingPassword = System.getenv('SIGNING_PASSWORD') ?: findProperty('groovyMCSigningPassword') ?: ''
+final String signingKey = System.getenv('GPG_SIGNING_KEY') ?: ''
+final String signingPassword = System.getenv('GPG_KEY_PASSWORD') ?: ''
 final boolean hasSigningDetails = !signingKey.isEmpty() && !signingPassword.isEmpty()
 
 subprojects {
+    project.version = rootProject.version
+
     apply {
         plugin 'groovy'
         plugin 'java-library'

@@ -1,0 +1,85 @@
+{
+    "jobs": {
+        "build": {
+            "runs-on": "ubuntu-22.04",
+            "permissions": {
+                "contents": "write"
+            },
+            "steps": [
+                {
+                    "name": "Setup Java",
+                    "run": "echo \"JAVA_HOME=$JAVA_HOME_17_X64\" >> \"$GITHUB_ENV\""
+                },
+                {
+                    "with": {
+                        "fetch-depth": "0"
+                    },
+                    "name": "Checkout",
+                    "uses": "actions/checkout@v4"
+                },
+                {
+                    "with": {
+                        "path": "**/.gradle/loom-cache",
+                        "key": "${{ runner.os }}-gradle-${{ hashFiles('**/libs.versions.*', '**/*.gradle*', '**/gradle-wrapper.properties') }}",
+                        "restore-keys": "${{ runner.os }}-gradle-"
+                    },
+                    "name": "Cache",
+                    "uses": "actions/cache@v3"
+                },
+                {
+                    "with": {
+                        "gradle-home-cache-cleanup": true
+                    },
+                    "name": "Setup Gradle",
+                    "uses": "gradle/gradle-build-action@v2"
+                },
+                {
+                    "uses": "fregante/setup-git-user@v2"
+                },
+                {
+                    "name": "Tag Release",
+                    "run": "./gradlew tagRelease",
+                    "id": "tag_release",
+                    "env": {
+                        "CENTRAL_MAVEN_USER": "${{ secrets.CENTRAL_MAVEN_USER }}",
+                        "CENTRAL_MAVEN_PASSWORD": "${{ secrets.CENTRAL_MAVEN_PASSWORD }}",
+                        "GPG_SIGNING_KEY": "${{ secrets.GPG_SIGNING_KEY }}",
+                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}"
+                    }
+                },
+                {
+                    "name": "Build",
+                    "run": "./gradlew build",
+                    "id": "build",
+                    "env": {
+                        "CENTRAL_MAVEN_USER": "${{ secrets.CENTRAL_MAVEN_USER }}",
+                        "CENTRAL_MAVEN_PASSWORD": "${{ secrets.CENTRAL_MAVEN_PASSWORD }}",
+                        "GPG_SIGNING_KEY": "${{ secrets.GPG_SIGNING_KEY }}",
+                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}"
+                    }
+                },
+                {
+                    "run": "git push && git push --tags"
+                },
+                {
+                    "name": "Publish",
+                    "run": "./gradlew publish",
+                    "id": "publish",
+                    "env": {
+                        "CENTRAL_MAVEN_USER": "${{ secrets.CENTRAL_MAVEN_USER }}",
+                        "CENTRAL_MAVEN_PASSWORD": "${{ secrets.CENTRAL_MAVEN_PASSWORD }}",
+                        "GPG_SIGNING_KEY": "${{ secrets.GPG_SIGNING_KEY }}",
+                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}"
+                    }
+                }
+            ]
+        }
+    },
+    "name": "Release",
+    "concurrency": "ci-${{ github.ref }}",
+    "on": {
+        "workflow_dispatch": {
+            
+        }
+    }
+}

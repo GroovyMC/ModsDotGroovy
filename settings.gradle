@@ -3,7 +3,11 @@ pluginManagement {
         gradlePluginPortal()
         maven {
             name = 'NeoForged'
-            url = 'https://maven.neoforged.net'
+            url = 'https://maven.neoforged.net/'
+        }
+        maven {
+            name = "Luke's Maven"
+            url = 'https://maven.lukebemish.dev/releases/'
         }
     }
 }

@@ -20,6 +20,7 @@ dependencies {
 
 gradlePlugin {
     website = vcsUrl = 'https://github.com/GroovyMC/ModsDotGroovy'
+    description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
     plugins {
         modsdotgroovy {
             id = 'org.groovymc.modsdotgroovy'
@@ -31,17 +32,8 @@ gradlePlugin {
     }
 }
 
-publishing {
-    publications.register('gradlePlugin', MavenPublication) {
-        from components.java
-
-        pom {
-            name = 'mods.groovy Gradle plugin'
-            url = 'https://github.com/GroovyMC/ModsDotGroovy'
-        }
+afterEvaluate {
+    signing {
+        sign publishing.publications.pluginMaven
     }
-}
-
-signing {
-    sign publishing.publications.gradlePlugin
 }
