@@ -12,7 +12,6 @@ plugins {
 
 managedVersioning {
     versionFile.set rootProject.file('version.properties')
-    suffixParts.add 'beta'
 
     gitHubActions {
         release {
