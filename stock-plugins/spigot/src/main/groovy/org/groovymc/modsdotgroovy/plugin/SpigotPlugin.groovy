@@ -7,7 +7,7 @@ import org.apache.logging.log4j.core.Logger
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 @Log4j2(category = 'MDG - SpigotPlugin')
-class SpigotPlugin extends ModsDotGroovyPlugin {
+final class SpigotPlugin extends ModsDotGroovyPlugin {
 
     @Override
     void init(final Map<String, ?> environment) {}

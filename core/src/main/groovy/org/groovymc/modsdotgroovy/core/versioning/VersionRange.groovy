@@ -99,7 +99,7 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
 
     @ToString(useGetters = false)
     @EqualsAndHashCode(useGetters = false)
-    static class SingleVersionRange extends VersionRange {
+    final static class SingleVersionRange extends VersionRange {
         final VersionRangeEntry version
 
         SingleVersionRange(final VersionRangeEntry version) {
@@ -172,7 +172,7 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
 
     @ToString(useGetters = false)
     @EqualsAndHashCode(useGetters = false)
-    static class OrVersionRange extends VersionRange {
+    final static class OrVersionRange extends VersionRange {
         final List<VersionRange> versions = []
 
         OrVersionRange(final List<VersionRange> versions) {
@@ -230,7 +230,7 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
 
     @ToString(useGetters = false)
     @EqualsAndHashCode(useGetters = false)
-    static class AndVersionRange extends VersionRange {
+    final static class AndVersionRange extends VersionRange {
         final List<VersionRange> versions = []
 
         AndVersionRange(final List<VersionRange> versions) {

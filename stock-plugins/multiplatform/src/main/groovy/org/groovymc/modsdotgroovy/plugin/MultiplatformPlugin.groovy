@@ -9,7 +9,7 @@ import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 @Log4j2(category = 'MDG - MultiplatformPlugin')
-class MultiplatformPlugin extends ModsDotGroovyPlugin {
+final class MultiplatformPlugin extends ModsDotGroovyPlugin {
     private Platform currentPlatform = Platform.UNKNOWN
 
     @Override

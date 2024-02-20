@@ -18,7 +18,7 @@ import java.util.regex.Matcher
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 @Log4j2(category = 'MDG - ForgeLikePlugin')
-class ForgeLikePlugin extends ModsDotGroovyPlugin {
+final class ForgeLikePlugin extends ModsDotGroovyPlugin {
 
     @Override
     void init(final Map<String, ?> environment) {

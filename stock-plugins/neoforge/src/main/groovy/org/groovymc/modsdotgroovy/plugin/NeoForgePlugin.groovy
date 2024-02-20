@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable
 @CompileStatic
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 @Log4j2(category = 'MDG - NeoForgePlugin')
-class NeoForgePlugin extends ModsDotGroovyPlugin {
+final class NeoForgePlugin extends ModsDotGroovyPlugin {
 
     @Override
     byte getPriority() {
