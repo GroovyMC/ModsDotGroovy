@@ -73,6 +73,17 @@ subprojects {
             pomUtils.githubRepo(pom, 'GroovyMC', 'ModsDotGroovy')
 
             pomUtils.license(pom, PomUtilsExtension.License.MIT)
+
+            pom {
+                developers {
+                    developer {
+                        id = 'groovymc'
+                        name = 'GroovyMC'
+                        email = 'holdings@groovymc.org'
+                        url = 'https://github.com/GroovyMC/'
+                    }
+                }
+            }
         }
     }
 

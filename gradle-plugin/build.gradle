@@ -20,12 +20,11 @@ dependencies {
 
 gradlePlugin {
     website = vcsUrl = 'https://github.com/GroovyMC/ModsDotGroovy'
-    description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
     plugins {
         modsdotgroovy {
             id = 'org.groovymc.modsdotgroovy'
             displayName = 'ModsDotGroovy'
-            description = 'A Gradle plugin for creation of mods.toml file from a groovy file'
+            description = 'A Gradle plugin for creation of mods metadata file from a groovy file'
             implementationClass = 'org.groovymc.modsdotgroovy.gradle.ModsDotGroovyGradlePlugin'
             tags.set(['groovy', 'minecraft', 'forge', 'neoforge', 'fabric', 'quilt', 'spigot'])
         }
@@ -33,6 +32,15 @@ gradlePlugin {
 }
 
 afterEvaluate {
+    publishing {
+        publications.named('pluginMaven', MavenPublication) {
+            pom {
+                name = 'mods.groovy gradle plugin'
+                description = 'A Gradle plugin for creation of mods metadata file from a groovy file'
+                url = 'https://github.com/GroovyMC/ModsDotGroovy'
+            }
+        }
+    }
     signing {
         sign publishing.publications.pluginMaven
     }
