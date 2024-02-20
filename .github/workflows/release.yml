@@ -63,7 +63,7 @@
                 },
                 {
                     "name": "Publish",
-                    "run": "./gradlew publish",
+                    "run": "./gradlew publish closeAndReleaseSonatypeStagingRepository",
                     "id": "publish",
                     "env": {
                         "CENTRAL_MAVEN_USER": "${{ secrets.CENTRAL_MAVEN_USER }}",

@@ -28,7 +28,7 @@ managedVersioning {
                 step {
                     run.set 'git push && git push --tags'
                 }
-                gradlew 'Publish', 'publish'
+                gradlew 'Publish', 'publish', 'closeAndReleaseSonatypeStagingRepository'
                 secret('CENTRAL_MAVEN_USER')
                 secret('CENTRAL_MAVEN_PASSWORD')
                 secret('GPG_SIGNING_KEY')
