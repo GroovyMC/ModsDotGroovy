@@ -186,8 +186,8 @@ class ForgeLikePlugin extends ModsDotGroovyPlugin {
 
     @Override
     @CompileDynamic
-    def onNestLeave(final List<String> stack, final String name, Map value) {
-        log.debug "onNestLeave(name: $name, value: $value)"
+    def onNestLeave(final List<String> stack, Map value) {
+        log.debug "onNestLeave(name: ${stack.last()}, value: $value)"
         return new PluginResult.Unhandled()
     }
 

@@ -68,7 +68,6 @@ abstract class ModsDotGroovyPlugin {
      * A generic method that's called when leaving a nest.
      * Used as a fallback for when a plugin doesn't implement an explicit onNestLeave.
      * @param stack
-     * @param name
      * @param value
      * @return <<T extends PluginResult> | Object | null | void>
      *     If you return a PluginResult, it'll be treated as-is.
@@ -76,7 +75,7 @@ abstract class ModsDotGroovyPlugin {
      *     If you return null or don't return anything (void), it'll be treated as {@code new PluginResult.Validate()}.
      */
     @CompileDynamic
-    def onNestLeave(final List<String> stack, final String name, Map value) {
+    def onNestLeave(final List<String> stack, Map value) {
         return new PluginResult.Unhandled()
     }
 

@@ -147,8 +147,7 @@ final class ModsDotGroovyCore {
         final String capitalizedPropertyName = propertyName.capitalize()
         if (action == PluginAction.ON_NEST_LEAVE) fullEventStack.add(propertyName)
 
-        final Tuple2<Object, Boolean> result = traverseClassTree(fullEventStack, plugin)
-        final Object delegateObject = result.v1
+        final delegateObject = traverseClassTree(fullEventStack, plugin)
 
         final String methodName = action === PluginAction.SET
                 ? action.toString() + capitalizedPropertyName
@@ -156,17 +155,41 @@ final class ModsDotGroovyCore {
 
         switch (action) {
             case PluginAction.SET:
-                if (delegateObject.metaClass.respondsTo(delegateObject, methodName, propertyValue)) // explicit setter
+                if (delegateObject.metaClass.respondsTo(delegateObject, methodName, propertyValue)) {
+                    // explicit setter
                     return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, propertyValue))
-                else if (delegateObject.metaClass.respondsTo(delegateObject, 'set', propertyName, propertyValue)) // inner generic setter
+                } else if (delegateObject.metaClass.respondsTo(delegateObject, 'set', propertyName, propertyValue)) {
+                    // inner generic setter
                     return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, 'set', propertyName, propertyValue))
-                else // outer generic setter
+                } else {
+                    List<String> stack = new ArrayList<>(fullEventStack)
+                    while (stack.size() > 0) {
+                        final nestedObject = plugin.getNest(new NestKey(stack))
+                        if (nestedObject !== null) {
+                            if (nestedObject.metaClass.respondsTo(nestedObject, 'set', eventStack, propertyName, propertyValue)) {
+                                return PluginResult.of(nestedObject.metaClass.invokeMethod(nestedObject, 'set', eventStack, propertyName, propertyValue))
+                            }
+                        }
+                        stack.remove(stack.size() - 1)
+                    }
                     return PluginResult.of(plugin.set(eventStack, propertyName, propertyValue))
+                }
             case PluginAction.ON_NEST_LEAVE:
-                if (delegateObject.metaClass.respondsTo(delegateObject, methodName, (Map) propertyValue))
+                if (delegateObject.metaClass.respondsTo(delegateObject, methodName, (Map) propertyValue)) {
                     return PluginResult.of(delegateObject.metaClass.invokeMethod(delegateObject, methodName, (Map) propertyValue))
-                else
-                    return PluginResult.of(plugin.onNestLeave(eventStack, propertyName, (Map) propertyValue))
+                } else {
+                    List<String> stack = new ArrayList<>(fullEventStack)
+                    while (stack.size() > 0) {
+                        final nestedObject = plugin.getNest(new NestKey(stack))
+                        if (nestedObject !== null) {
+                            if (nestedObject.metaClass.respondsTo(nestedObject, methodName, fullEventStack, (Map) propertyValue)) {
+                                return PluginResult.of(nestedObject.metaClass.invokeMethod(nestedObject, methodName, fullEventStack, (Map) propertyValue))
+                            }
+                        }
+                        stack.remove(stack.size() - 1)
+                    }
+                    return PluginResult.of(plugin.onNestLeave(fullEventStack, (Map) propertyValue))
+                }
         }
     }
 
@@ -177,14 +200,13 @@ final class ModsDotGroovyCore {
      * then it will return the original class object and false.
      * @param stack The subclasses to traverse
      * @param delegateObject The plugin object to start from
-     * @return A tuple containing either the traversed class or original class, and whether or not a subclass was found
+     * @return A tuple containing either the traversed class or original class, and a list of classes from the bottom of the hierarchy up
      */
-    private static Tuple2<Object, Boolean> traverseClassTree(final List<String> stack, ModsDotGroovyPlugin pluginObject) {
-        boolean foundSubclass = false
+    private static Object traverseClassTree(final List<String> stack, ModsDotGroovyPlugin pluginObject) {
         Object delegateObject = (Object) pluginObject
 
         if (stack.isEmpty())
-            return new Tuple2<>(delegateObject, foundSubclass)
+            return delegateObject
 
         final Deque<String> stackCopy = new ArrayDeque<>(stack)
         List<String> stackList = []
@@ -194,7 +216,6 @@ final class ModsDotGroovyCore {
             NestKey key = new NestKey(stackList)
             if (pluginObject.getNest(key) !== null) {
                 delegateObject = pluginObject.getNest(key)
-                foundSubclass = true
             } else {
                 boolean found = true
                 Object oldObject = (Object) delegateObject
@@ -238,15 +259,13 @@ final class ModsDotGroovyCore {
                     }
                 }
                 if (!found) {
-                    foundSubclass = false
                     delegateObject = pluginObject
                     break
                 }
-                foundSubclass = true
             }
         }
 
-        return new Tuple2<>(delegateObject, foundSubclass)
+        return delegateObject
     }
 
     @Memoized

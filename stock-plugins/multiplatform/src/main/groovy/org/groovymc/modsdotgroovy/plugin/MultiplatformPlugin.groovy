@@ -124,9 +124,43 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
         }
 
         class ModInfo {
-            def onNestLeave(final Map value) {
-                if (currentPlatform == Platform.QUILT) {
-                    return PluginResult.move(['quiltLoader'], value)
+            def onNestLeave(final List<String> stack, final Map value) {
+                if (currentPlatform == Platform.FABRIC) {
+                    // remove the "modInfo" and "mods" keys
+                    List<String> newStack = new ArrayList()
+                    for (int i = 2; i < stack.size(); i++) {
+                        newStack.add(stack[i])
+                    }
+                    return PluginResult.move(newStack, value)
+                } else if (currentPlatform == Platform.QUILT) {
+                    // remove the "modInfo" and "mods" keys, add a "quiltLoader" key
+                    List<String> newStack = new ArrayList()
+                    for (int i = 2; i < stack.size(); i++) {
+                        newStack.add(stack[i])
+                    }
+                    newStack.add('quiltLoader')
+                    return PluginResult.move(newStack, value)
+                }
+            }
+
+            def set(final List<String> stack, final String propertyName, final Map value) {
+                if (currentPlatform == Platform.FABRIC) {
+                    // remove the "modInfo" and "mods" keys
+                    List<String> newStack = new ArrayList()
+                    for (int i = 2; i < stack.size(); i++) {
+                        newStack.add(stack[i])
+                    }
+                    newStack.add(propertyName)
+                    return PluginResult.move(newStack, value)
+                } else if (currentPlatform == Platform.QUILT) {
+                    // remove the "modInfo" and "mods" keys, add a "quiltLoader" key
+                    List<String> newStack = new ArrayList()
+                    for (int i = 2; i < stack.size(); i++) {
+                        newStack.add(stack[i])
+                    }
+                    newStack.add('quiltLoader')
+                    newStack.add(propertyName)
+                    return PluginResult.move(newStack, value)
                 }
             }
 
@@ -205,6 +239,10 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                     return PluginResult.remove()
                 }
 
+                // We are aware of values being set in here
+                def set(final List<String> stack, final String property, final value) {}
+                def onNestLeave(final List<String> stack, final Map value) {}
+
                 class Author {
                     String name
 
@@ -233,6 +271,10 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                 def onNestLeave(final Map value) {
                     return PluginResult.remove()
                 }
+
+                // We are aware of values being set in here
+                def set(final List<String> stack, final String property, final value) {}
+                def onNestLeave(final List<String> stack, final Map value) {}
 
                 class Contributor {
                     String name
@@ -431,6 +473,15 @@ class MultiplatformPlugin extends ModsDotGroovyPlugin {
                                     case 'optional':
                                         value.mandatory = false
                                         break
+                                    case 'incompatible':
+                                        def version = value.versionRange
+                                        version = version == null ? null : handleVersionRange(version)
+                                        if (version instanceof VersionRange) {
+                                            value.versionRange = ~version
+                                            value.mandatory = false
+                                            break
+                                        }
+                                        return PluginResult.remove()
                                     default:
                                         return PluginResult.remove()
                                 }

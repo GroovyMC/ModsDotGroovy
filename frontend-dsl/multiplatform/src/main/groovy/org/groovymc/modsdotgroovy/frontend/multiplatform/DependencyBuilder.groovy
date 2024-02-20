@@ -19,7 +19,7 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapCl
     /**@
      * Does this dependency have to exist? If not, ordering must also be specified.
      */
-    boolean type = 'required'
+    def type = 'required'
 
     /**@
      * A version range of the versions of the mod you're compatible with.
