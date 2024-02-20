@@ -200,7 +200,7 @@ final class ModsDotGroovyCore {
      * then it will return the original class object and false.
      * @param stack The subclasses to traverse
      * @param delegateObject The plugin object to start from
-     * @return A tuple containing either the traversed class or original class, and a list of classes from the bottom of the hierarchy up
+     * @return the traversed class or original class
      */
     private static Object traverseClassTree(final List<String> stack, ModsDotGroovyPlugin pluginObject) {
         Object delegateObject = (Object) pluginObject
