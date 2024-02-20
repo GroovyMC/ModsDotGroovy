@@ -1,5 +1,3 @@
-import net.minecraftforge.gradleutils.PomUtils
-
 tasks.named('groovydoc', Groovydoc).configure {
     source = sourceSets.main.allSource
     docTitle = "ModsDotGroovy v${project.version} - Frontend Quilt DSL"
@@ -7,21 +5,12 @@ tasks.named('groovydoc', Groovydoc).configure {
 
 publishing {
     publications.register('frontendDslQuilt', MavenPublication) {
-        artifactId = 'quilt'
-        version = project.version
-
-        artifacts = [jar, sourcesJar, groovydocJar]
+        from components.java
 
         pom {
             name = 'mods.groovy frontend DSL for Quilt'
             description = 'The frontend DSL for mods.groovy on Quilt'
             url = 'https://github.com/GroovyMC/ModsDotGroovy'
-
-            PomUtils.setGitHubDetails(pom, 'GroovyMC', 'ModsDotGroovy')
-
-            licenses {
-                license PomUtils.Licenses.MIT
-            }
         }
     }
 }

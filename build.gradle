@@ -1,9 +1,11 @@
+import net.neoforged.gradleutils.PomUtilsExtension
+
 plugins {
     id 'groovy'
     id 'java-library'
     id 'maven-publish'
     id 'signing'
-    id 'net.minecraftforge.gradleutils' version '2.+' apply false
+    id 'net.neoforged.gradleutils' version '3.0.0-alpha.11' apply false
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0-rc-1'
 }
 
@@ -27,6 +29,16 @@ subprojects {
         plugin 'java-library'
         plugin 'maven-publish'
         plugin 'signing'
+    }
+
+    extensions.create('pomUtils', PomUtilsExtension)
+
+    publishing {
+        publications.configureEach {
+            pomUtils.githubRepo(pom, 'GroovyMC', 'ModsDotGroovy')
+
+            pomUtils.license(pom, PomUtilsExtension.License.MIT)
+        }
     }
 
     java {
@@ -59,6 +71,29 @@ subprojects {
         dependsOn 'groovydoc'
     }
 
+    // Publish groovydoc as javadoc
+    configurations {
+        javadocElements {
+            canBeConsumed = true
+            canBeResolved = false
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.JAVA_RUNTIME))
+                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.class, Category.DOCUMENTATION))
+                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.class, Bundling.EXTERNAL))
+                attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, DocsType.JAVADOC))
+            }
+        }
+    }
+
+    project.components.named("java").configure {
+        AdhocComponentWithVariants javaComponent = (AdhocComponentWithVariants) it
+        javaComponent.addVariantsFromConfiguration(configurations.javadocElements) {}
+    }
+
+    artifacts {
+        javadocElements groovydocJar
+    }
+
     signing {
         if (hasSigningDetails) useInMemoryPgpKeys(signingKey, signingPassword)
     }
@@ -68,15 +103,6 @@ subprojects {
     }
 
     publishing {
-        repositories {
-            maven {
-                name = 'ModdingInquisitionMavenRepo'
-                url = 'https://maven.moddinginquisition.org/snapshots'
-                credentials {
-                    username = System.getenv('MAVEN_USER') ?: findProperty('inquisitionMavenUser') ?: ''
-                    password = System.getenv('MAVEN_PASSWORD') ?: findProperty('inquisitionMavenPassword') ?: ''
-                }
-            }
-        }
+
     }
 }

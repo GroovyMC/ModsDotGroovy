@@ -1,5 +1,3 @@
-import net.minecraftforge.gradleutils.PomUtils
-
 dependencies {
     implementation libs.groovy4.core.get()
     compileOnly 'org.jetbrains:annotations:24.0.1'
@@ -8,21 +6,12 @@ dependencies {
 
 publishing {
     publications.register('core', MavenPublication) {
-        artifactId = 'core'
-        version = project.version
-
-        artifacts = [jar, sourcesJar]
+        from components.java
 
         pom {
             name = 'mods.groovy core'
             description = 'The core library for mods.groovy'
             url = 'https://github.com/GroovyMC/ModsDotGroovy'
-
-            PomUtils.setGitHubDetails(pom, 'GroovyMC', 'ModsDotGroovy')
-
-            licenses {
-                license PomUtils.Licenses.MIT
-            }
         }
     }
 }

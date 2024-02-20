@@ -7,7 +7,3 @@ subprojects {
         compileOnly 'org.jetbrains:annotations:24.0.1'
     }
 }
-
-tasks.named('jar', Jar).configure {
-    enabled = false
-}

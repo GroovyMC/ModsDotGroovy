@@ -1,13 +1,8 @@
-import net.minecraftforge.gradleutils.PomUtils
-
 plugins {
     id 'idea'
     id 'groovy-gradle-plugin'
     id 'com.gradle.plugin-publish' version '1.2.1'
 }
-
-group = 'org.groovymc.modsdotgroovy'
-base.archivesName = 'modsdotgroovy'
 
 repositories {
     gradlePluginPortal()
@@ -38,20 +33,11 @@ gradlePlugin {
 
 publishing {
     publications.register('gradlePlugin', MavenPublication) {
-        artifactId = 'modsdotgroovy'
-        version = project.version
-
-        artifacts = [jar, sourcesJar]
+        from components.java
 
         pom {
             name = 'mods.groovy Gradle plugin'
             url = 'https://github.com/GroovyMC/ModsDotGroovy'
-
-            PomUtils.setGitHubDetails(pom, 'GroovyMC', 'ModsDotGroovy')
-
-            licenses {
-                license PomUtils.Licenses.MIT
-            }
         }
     }
 }

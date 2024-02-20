@@ -5,12 +5,13 @@ tasks.named('groovydoc', Groovydoc).configure {
 
 publishing {
     publications.register('frontendDslMultiplatform', MavenPublication) {
-        artifactId = 'multiplatform'
-        version = project.version
+        from components.java
 
-        artifacts = [jar, sourcesJar, groovydocJar]
-
-        // todo: pom
+        pom {
+            name = 'mods.groovy frontend multiplatform DSL'
+            description = 'The frontend DSL for multiplatform mods.groovy'
+            url = 'https://github.com/GroovyMC/ModsDotGroovy'
+        }
     }
 }
 

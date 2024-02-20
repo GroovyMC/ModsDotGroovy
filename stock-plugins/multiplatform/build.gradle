@@ -5,12 +5,13 @@ tasks.named('groovydoc', Groovydoc).configure {
 
 publishing {
     publications.register('stockPluginMultiplatform', MavenPublication) {
-        artifactId = 'multiplatform'
-        version = project.version
+        from components.java
 
-        artifacts = [jar, sourcesJar, groovydocJar]
-
-        // todo: pom
+        pom {
+            name = 'mods.groovy stock plugin for multiplatform'
+            description = 'The stock plugin for mods.groovy on multiplatform'
+            url = 'https://github.com/GroovyMC/ModsDotGroovy'
+        }
     }
 }
 
