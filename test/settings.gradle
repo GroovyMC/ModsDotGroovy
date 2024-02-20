@@ -21,7 +21,7 @@ pluginManagement {
     includeBuild '../'
 }
 
-rootProject.name = 'ModsDotGroovy-Test'
+rootProject.name = 'modsdotgroovy-test'
 
 buildCache {
     remote(HttpBuildCache) { HttpBuildCache cache -> cache.tap {

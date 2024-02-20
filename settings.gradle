@@ -8,7 +8,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'ModsDotGroovy'
+rootProject.name = 'modsdotgroovy'
 
 buildCache {
     remote(HttpBuildCache) { HttpBuildCache cache -> cache.tap {
