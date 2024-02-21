@@ -6,7 +6,7 @@ plugins {
     id 'signing'
     id 'net.neoforged.gradleutils' version '3.0.0-alpha.11' apply false
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0-rc-1'
-    id 'dev.lukebemish.managedversioning' version '1.2.7'
+    id 'dev.lukebemish.managedversioning' version '1.2.8'
 }
 
 managedVersioning {
@@ -27,13 +27,21 @@ managedVersioning {
                 step {
                     run = 'git push && git push --tags'
                 }
-                gradlew 'Publish', 'publish', 'publishPlugins', 'closeAndReleaseSonatypeStagingRepository'
-                secret 'CENTRAL_MAVEN_USER'
-                secret 'CENTRAL_MAVEN_PASSWORD'
-                secret 'GPG_SIGNING_KEY'
-                secret 'GPG_KEY_PASSWORD'
-                secret 'GPP_KEY'
-                secret 'GPP_SECRET'
+                recordVersion  'Record Version', 'version'
+            }
+            gradleJob {
+                name.set 'publish'
+                needs.add('build')
+                gradlew 'Publish', 'publish', 'closeAndReleaseSonatypeStagingRepository'
+                tag.set('${{needs.build.outputs.version}}')
+                secrets 'GPG_SIGNING_KEY', 'GPG_KEY_PASSWORD', 'CENTRAL_MAVEN_USER', 'CENTRAL_MAVEN_PASSWORD'
+            }
+            gradleJob {
+                name.set 'publishPlugins'
+                needs.add('build')
+                gradlew 'Publish Plugins', 'publishPlugins'
+                tag.set('${{needs.build.outputs.version}}')
+                secrets 'GPG_SIGNING_KEY', 'GPG_KEY_PASSWORD', 'GPP_KEY', 'GPP_SECRET'
             }
         }
     }
