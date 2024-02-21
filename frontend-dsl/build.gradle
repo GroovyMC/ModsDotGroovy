@@ -4,6 +4,6 @@ subprojects {
     dependencies {
         implementation libs.groovy4.core.get()
         implementation projects.core
-        compileOnly 'org.jetbrains:annotations:24.0.1'
+        compileOnly libs.jetbrains.annotations.get()
     }
 }

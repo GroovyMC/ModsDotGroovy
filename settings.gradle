@@ -42,6 +42,9 @@ dependencyResolutionManagement {
             version('groovy4', '4.0.16')
             library('groovy4-core', 'org.apache.groovy', 'groovy').versionRef('groovy4')
             library('groovy4-json', 'org.apache.groovy', 'groovy-json').versionRef('groovy4')
+
+            version('jetbrains-annotations', '24.1.0')
+            library('jetbrains-annotations', 'org.jetbrains', 'annotations').versionRef('jetbrains-annotations')
         }
     }
 }
