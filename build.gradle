@@ -102,6 +102,20 @@ publishing {
     }
 }
 
+allprojects {
+    apply {
+        plugin 'signing'
+    }
+
+    signing {
+        if (hasSigningDetails) useInMemoryPgpKeys(signingKey, signingPassword)
+    }
+
+    tasks.withType(Sign).configureEach {
+        onlyIf { hasSigningDetails }
+    }
+}
+
 signing {
     sign publishing.publications.bom
 }
@@ -113,7 +127,6 @@ subprojects {
         plugin 'groovy'
         plugin 'java-library'
         plugin 'maven-publish'
-        plugin 'signing'
     }
 
     java {
@@ -188,14 +201,6 @@ subprojects {
 
     artifacts {
         javadocElements groovydocJar
-    }
-
-    signing {
-        if (hasSigningDetails) useInMemoryPgpKeys(signingKey, signingPassword)
-    }
-
-    tasks.withType(Sign).configureEach {
-        onlyIf { hasSigningDetails }
     }
 
     publishing {
