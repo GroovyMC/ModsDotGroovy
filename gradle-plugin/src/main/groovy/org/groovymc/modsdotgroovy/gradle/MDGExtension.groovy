@@ -148,6 +148,10 @@ abstract class MDGExtension {
                     attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements, LibraryElements.JAR))
                 }
             }}
+            rootConfiguration.configure { conf ->
+                conf.dependencies.add(project.dependencies.platform("${MDG_MAVEN_GROUP}:modsdotgroovy:${ModsDotGroovyGradlePlugin.VERSION}"))
+            }
+
             final frontendConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_FRONTEND+platform.name().capitalize())) { Configuration conf ->
                 conf.extendsFrom rootConfiguration.get()
             }

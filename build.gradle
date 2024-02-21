@@ -1,8 +1,7 @@
 import net.neoforged.gradleutils.PomUtilsExtension
 
 plugins {
-    id 'groovy'
-    id 'java-library'
+    id 'java-platform'
     id 'maven-publish'
     id 'signing'
     id 'net.neoforged.gradleutils' version '3.0.0-alpha.11' apply false
@@ -54,9 +53,54 @@ nexusPublishing {
     }
 }
 
+dependencies {
+    constraints {
+        subprojects.forEach {
+            if (it.path.startsWith(':frontend-dsl:') || it.path.startsWith(':stock-plugins:')) {
+                api(it)
+            }
+        }
+        api(project(':core'))
+    }
+}
+
 final String signingKey = System.getenv('GPG_SIGNING_KEY') ?: ''
 final String signingPassword = System.getenv('GPG_KEY_PASSWORD') ?: ''
 final boolean hasSigningDetails = !signingKey.isEmpty() && !signingPassword.isEmpty()
+
+publishing {
+    publications.register('bom', MavenPublication) {
+        from components.javaPlatform
+
+        pom {
+            name = 'mods.groovy BOM'
+            description = 'The BOM dependency for mods.groovy'
+        }
+
+        extensions.create('pomUtils', PomUtilsExtension).tap {
+            githubRepo(pom, 'GroovyMC', 'ModsDotGroovy')
+            license(pom, PomUtilsExtension.License.MIT)
+        }
+
+        pom {
+            developers {
+                developer {
+                    id = 'groovymc'
+                    name = 'GroovyMC'
+                    email = 'holdings@groovymc.org'
+                    url = 'https://github.com/GroovyMC/'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name 'repo'
+            url rootProject.file('repo')
+        }
+    }
+}
 
 subprojects {
     project.version = rootProject.version
@@ -68,10 +112,21 @@ subprojects {
         plugin 'signing'
     }
 
-    extensions.create('pomUtils', PomUtilsExtension)
+    java {
+        withSourcesJar()
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    final pomUtils = extensions.create('pomUtils', PomUtilsExtension)
 
     publishing {
-        publications.configureEach {
+        publications.withType(MavenPublication).configureEach {
             pomUtils.githubRepo(pom, 'GroovyMC', 'ModsDotGroovy')
 
             pomUtils.license(pom, PomUtilsExtension.License.MIT)
@@ -87,17 +142,6 @@ subprojects {
                 }
             }
         }
-    }
-
-    java {
-        withSourcesJar()
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(17)
-        }
-    }
-
-    repositories {
-        mavenCentral()
     }
 
     tasks.withType(GroovyCompile).configureEach {
@@ -151,6 +195,11 @@ subprojects {
     }
 
     publishing {
-
+        repositories {
+            maven {
+                name 'repo'
+                url rootProject.file('repo')
+            }
+        }
     }
 }

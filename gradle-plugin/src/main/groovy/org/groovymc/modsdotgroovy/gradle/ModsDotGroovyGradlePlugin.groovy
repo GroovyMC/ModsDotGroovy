@@ -10,6 +10,7 @@ import org.gradle.api.tasks.SourceSetContainer
 @CompileStatic
 final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     private static final String EXTENSION_NAME = 'modsDotGroovy'
+    public static final String VERSION = ModsDotGroovyGradlePlugin.class.getPackage().getImplementationVersion()
 
     @Override
     void apply(Project project) {
