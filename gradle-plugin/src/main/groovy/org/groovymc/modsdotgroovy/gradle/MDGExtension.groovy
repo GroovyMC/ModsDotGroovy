@@ -29,7 +29,8 @@ import java.util.stream.Collectors
 @CompileStatic
 abstract class MDGExtension {
     private static final String EXPOSE_SOURCE_SET = 'shareModsDotGroovy'
-    private static final String DEFAULT_MDG = "mods.groovy"
+    private static final String DEFAULT_MDG = 'mods.groovy'
+    private static final String TASK_GROUP = 'modsdotgroovy'
 
     private static final String CONFIGURATION_NAME_ROOT = 'mdgRuntime'
     private static final String CONFIGURATION_NAME_PLUGIN = 'mdgPlugin'
@@ -259,7 +260,11 @@ abstract class MDGExtension {
     }
 
     private <T extends AbstractGatherPlatformDetailsTask> TaskProvider<T> makeGatherTask(Platform platform, Class<T> gatherType, Object... args) {
-        return project.tasks.register(forSourceSetName(sourceSet.name, "gather${platform.name().capitalize()}PlatformDetails"), gatherType, args)
+        return project.tasks.register(forSourceSetName(sourceSet.name, "gather${platform.name().capitalize()}PlatformDetails"), gatherType, args).tap {
+            configure {
+                it.group = MDGExtension.TASK_GROUP
+            }
+        }
     }
 
     private void setupTasks(SourceSet sourceSet, Platform platform, Provider<Configuration> root, Provider<Configuration> plugin, Provider<Configuration> frontend) {
@@ -381,6 +386,8 @@ abstract class MDGExtension {
                         frontend
                 )
                 task.conversionOptions.set(conversionOptions)
+
+                task.group = MDGExtension.TASK_GROUP
             }
         }
     }
