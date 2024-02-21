@@ -15,7 +15,7 @@ pluginManagement {
 rootProject.name = 'modsdotgroovy'
 
 buildCache {
-    remote(HttpBuildCache) { HttpBuildCache cache -> cache.tap {
+    remote(HttpBuildCache) {
         url = 'https://gradlecache.groovymc.org/cache/'
 
         final Map<String, String> projectProperties = startParameter.projectProperties
@@ -29,7 +29,7 @@ buildCache {
                 password = cachePassword
             }
         }
-    }}
+    }
 }
 
 enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'

@@ -6,6 +6,7 @@ import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ConfigurablePublishArtifact
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.attributes.Bundling
 import org.gradle.api.attributes.Category
@@ -139,7 +140,7 @@ abstract class MDGExtension {
 
         this.platforms.get().each { platform ->
             // setup MDG dependency configurations
-            final rootConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_ROOT+platform.name().capitalize())) { Configuration conf -> conf.tap {
+            final rootConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_ROOT + platform.name().capitalize())) { Configuration conf -> conf.tap {
                 canBeConsumed = false
                 attributes.tap {
                     attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category, Category.LIBRARY))
@@ -153,10 +154,10 @@ abstract class MDGExtension {
                 conf.dependencies.add(project.dependencies.platform("${MDG_MAVEN_GROUP}:modsdotgroovy:${ModsDotGroovyGradlePlugin.VERSION}"))
             }
 
-            final frontendConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_FRONTEND+platform.name().capitalize())) { Configuration conf ->
+            final frontendConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_FRONTEND + platform.name().capitalize())) { Configuration conf ->
                 conf.extendsFrom rootConfiguration.get()
             }
-            final pluginConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_PLUGIN+platform.name().capitalize())) { Configuration conf ->
+            final pluginConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_PLUGIN + platform.name().capitalize())) { Configuration conf ->
                 conf.extendsFrom rootConfiguration.get()
             }
 
@@ -197,7 +198,7 @@ abstract class MDGExtension {
             )
             consumingConfiguration.canBeResolved = true
             consumingConfiguration.canBeConsumed = false
-            getModsDotGroovyFile().set(consumingConfiguration)
+            modsDotGroovyFile.set(consumingConfiguration)
             multiplatformFlag.set(true)
         }
 
@@ -281,9 +282,9 @@ abstract class MDGExtension {
                 case Platform.FORGE:
                     gatherTask = makeGatherTask(platform, GatherForgePlatformDetails)
                     gatherTask.configure { task ->
-                        Configuration modImplementation = project.configurations.getByName("minecraft")
+                        Configuration modImplementation = project.configurations.getByName('minecraft')
                         Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
-                        task.artifactIds.set(artifacts.map { it.stream().map { it.id }.collect(Collectors.toList()) })
+                        task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                     }
                     break
                 case Platform.NEOFORGE:
@@ -292,21 +293,21 @@ abstract class MDGExtension {
                 case Platform.FABRIC:
                     gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
                     gatherTask.configure { task ->
-                        Configuration modImplementation = project.configurations.getByName("modCompileClasspath")
+                        Configuration modImplementation = project.configurations.getByName('modCompileClasspath')
                         Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
-                        task.artifactIds.set(artifacts.map { it.stream().map { it.id }.collect(Collectors.toList()) })
-                        task.targetModule.set("fabric-loader")
-                        task.targetGroup.set("net.fabricmc")
+                        task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
+                        task.targetModule.set('fabric-loader')
+                        task.targetGroup.set('net.fabricmc')
                     }
                     break
                 case Platform.QUILT:
                     gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
                     gatherTask.configure { task ->
-                        Configuration modImplementation = project.configurations.getByName("modCompileClasspath")
+                        Configuration modImplementation = project.configurations.getByName('modCompileClasspath')
                         Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
-                        task.artifactIds.set(artifacts.map { it.stream().map { it.id }.collect(Collectors.toList()) })
-                        task.targetModule.set("quilt-loader")
-                        task.targetGroup.set("org.quiltmc")
+                        task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
+                        task.targetModule.set('quilt-loader')
+                        task.targetGroup.set('org.quiltmc')
                     }
                     break
                 default:
@@ -379,7 +380,7 @@ abstract class MDGExtension {
                 task.dependsOn gatherTask
                 task.platformDetailsFile.set(gatherTask.get().outputFile)
                 task.platform.set(platform)
-                task.input.fileProvider(modsDotGroovyFile.map { it.singleFile })
+                task.input.fileProvider(modsDotGroovyFile.map(FileCollection::getSingleFile))
                 task.mdgRuntimeFiles.from(
                         root,
                         plugin,

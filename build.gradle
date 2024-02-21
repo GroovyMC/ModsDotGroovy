@@ -10,36 +10,36 @@ plugins {
 }
 
 managedVersioning {
-    versionFile.set rootProject.file('version.properties')
+    versionFile = rootProject.file('version.properties')
 
     gitHubActions {
-        release {
-            prettyName.set 'Release'
-            workflowDispatch.set(true)
+        register('release') {
+            prettyName = 'Release'
+            workflowDispatch = true
             gradleJob {
-                name.set 'build'
+                name = 'build'
                 step {
                     setupGitUser()
                 }
-                readOnly.set false
+                readOnly = false
                 gradlew 'Tag Release', 'tagRelease'
                 gradlew 'Build', 'build'
                 step {
-                    run.set 'git push && git push --tags'
+                    run = 'git push && git push --tags'
                 }
                 gradlew 'Publish', 'publish', 'publishPlugins', 'closeAndReleaseSonatypeStagingRepository'
-                secret('CENTRAL_MAVEN_USER')
-                secret('CENTRAL_MAVEN_PASSWORD')
-                secret('GPG_SIGNING_KEY')
-                secret('GPG_KEY_PASSWORD')
-                secret('GPP_KEY')
-                secret('GPP_SECRET')
+                secret 'CENTRAL_MAVEN_USER'
+                secret 'CENTRAL_MAVEN_PASSWORD'
+                secret 'GPG_SIGNING_KEY'
+                secret 'GPG_KEY_PASSWORD'
+                secret 'GPP_KEY'
+                secret 'GPP_SECRET'
             }
         }
     }
-}
 
-managedVersioning.apply()
+    apply()
+}
 
 println "Building: $version"
 
@@ -55,12 +55,12 @@ nexusPublishing {
 
 dependencies {
     constraints {
-        subprojects.forEach {
+        subprojects.each {
             if (it.path.startsWith(':frontend-dsl:') || it.path.startsWith(':stock-plugins:')) {
                 api(it)
             }
         }
-        api(project(':core'))
+        api projects.core
     }
 }
 
@@ -77,7 +77,7 @@ publishing {
             description = 'The BOM dependency for mods.groovy'
         }
 
-        extensions.create('pomUtils', PomUtilsExtension).tap {
+        extensions.create('pomUtils', PomUtilsExtension).with {
             githubRepo(pom, 'GroovyMC', 'ModsDotGroovy')
             license(pom, PomUtilsExtension.License.MIT)
         }
@@ -170,11 +170,11 @@ subprojects {
         }
     }
 
-    tasks.named('groovydoc', Groovydoc).configure {
+    tasks.named('groovydoc', Groovydoc) {
         use = true
     }
 
-    tasks.register('groovydocJar', Jar).configure {
+    tasks.register('groovydocJar', Jar) {
         archiveClassifier = 'javadoc'
         from groovydoc.destinationDir
         dependsOn 'groovydoc'
