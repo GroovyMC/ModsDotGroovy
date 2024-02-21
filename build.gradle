@@ -27,7 +27,7 @@ managedVersioning {
                 step {
                     run = 'git push && git push --tags'
                 }
-                recordVersion  'Record Version', 'version'
+                recordVersion 'Record Version', 'version'
             }
             gradleJob {
                 name.set 'publish'

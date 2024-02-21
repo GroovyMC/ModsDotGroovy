@@ -39,7 +39,7 @@ enableFeaturePreview 'STABLE_CONFIGURATION_CACHE'
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            version('groovy4', '4.0.16')
+            version('groovy4', '4.0.18')
             library('groovy4-core', 'org.apache.groovy', 'groovy').versionRef('groovy4')
             library('groovy4-json', 'org.apache.groovy', 'groovy-json').versionRef('groovy4')
 
