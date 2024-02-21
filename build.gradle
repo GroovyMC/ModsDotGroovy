@@ -28,11 +28,13 @@ managedVersioning {
                 step {
                     run.set 'git push && git push --tags'
                 }
-                gradlew 'Publish', 'publish', 'closeAndReleaseSonatypeStagingRepository'
+                gradlew 'Publish', 'publish', 'publishPlugins', 'closeAndReleaseSonatypeStagingRepository'
                 secret('CENTRAL_MAVEN_USER')
                 secret('CENTRAL_MAVEN_PASSWORD')
                 secret('GPG_SIGNING_KEY')
                 secret('GPG_KEY_PASSWORD')
+                secret('GPP_KEY')
+                secret('GPP_SECRET')
             }
         }
     }

@@ -4,6 +4,11 @@ plugins {
     id 'com.gradle.plugin-publish' version '1.2.1'
 }
 
+if (System.getenv('GPP_KEY')) {
+    ext['gradle.publish.key'] = System.getenv('GPP_KEY')
+    ext['gradle.publish.secret'] = System.getenv('GPP_SECRET')
+}
+
 repositories {
     gradlePluginPortal()
 }

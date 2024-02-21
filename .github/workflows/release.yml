@@ -44,7 +44,9 @@
                         "CENTRAL_MAVEN_USER": "${{ secrets.CENTRAL_MAVEN_USER }}",
                         "CENTRAL_MAVEN_PASSWORD": "${{ secrets.CENTRAL_MAVEN_PASSWORD }}",
                         "GPG_SIGNING_KEY": "${{ secrets.GPG_SIGNING_KEY }}",
-                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}"
+                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}",
+                        "GPP_KEY": "${{ secrets.GPP_KEY }}",
+                        "GPP_SECRET": "${{ secrets.GPP_SECRET }}"
                     }
                 },
                 {
@@ -55,7 +57,9 @@
                         "CENTRAL_MAVEN_USER": "${{ secrets.CENTRAL_MAVEN_USER }}",
                         "CENTRAL_MAVEN_PASSWORD": "${{ secrets.CENTRAL_MAVEN_PASSWORD }}",
                         "GPG_SIGNING_KEY": "${{ secrets.GPG_SIGNING_KEY }}",
-                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}"
+                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}",
+                        "GPP_KEY": "${{ secrets.GPP_KEY }}",
+                        "GPP_SECRET": "${{ secrets.GPP_SECRET }}"
                     }
                 },
                 {
@@ -63,13 +67,15 @@
                 },
                 {
                     "name": "Publish",
-                    "run": "./gradlew publish closeAndReleaseSonatypeStagingRepository",
+                    "run": "./gradlew publish publishPlugins closeAndReleaseSonatypeStagingRepository",
                     "id": "publish",
                     "env": {
                         "CENTRAL_MAVEN_USER": "${{ secrets.CENTRAL_MAVEN_USER }}",
                         "CENTRAL_MAVEN_PASSWORD": "${{ secrets.CENTRAL_MAVEN_PASSWORD }}",
                         "GPG_SIGNING_KEY": "${{ secrets.GPG_SIGNING_KEY }}",
-                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}"
+                        "GPG_KEY_PASSWORD": "${{ secrets.GPG_KEY_PASSWORD }}",
+                        "GPP_KEY": "${{ secrets.GPP_KEY }}",
+                        "GPP_SECRET": "${{ secrets.GPP_SECRET }}"
                     }
                 }
             ]
