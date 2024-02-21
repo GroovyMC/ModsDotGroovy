@@ -5,6 +5,8 @@ final mdg = ForgeModsDotGroovy.make {
     license = 'All Rights Reserved'
     issueTrackerUrl = 'https://example.com/issues'
 
+    clientSideOnly = true
+
     mod {
         modId = 'examplemod'
         version = '1.0.0'
@@ -20,7 +22,7 @@ final mdg = ForgeModsDotGroovy.make {
 
         // TODO: make sure to pass this in for testing
         credits = buildProperties.credits
-        displayTest = DisplayTest.MATCH_VERSION
+        //displayTest = DisplayTest.MATCH_VERSION
         dependencies {
             // TODO: can we get IDE support for this?
             forge = ">=${platformVersion}"
