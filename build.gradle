@@ -102,6 +102,10 @@ publishing {
     }
 }
 
+signing {
+    sign publishing.publications.bom
+}
+
 subprojects {
     project.version = rootProject.version
 
