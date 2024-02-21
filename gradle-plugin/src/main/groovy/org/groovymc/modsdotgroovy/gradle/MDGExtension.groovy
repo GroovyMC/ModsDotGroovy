@@ -115,6 +115,12 @@ abstract class MDGExtension {
         setupTasks.set(true)
     }
 
+    void disable() {
+        setupDsl.set(false)
+        setupPlugins.set(false)
+        setupTasks.set(false)
+    }
+
     void platform(Platform platform) {
         platforms.add(platform)
     }
