@@ -8,13 +8,13 @@ import java.util.concurrent.ConcurrentHashMap
 
 @CompileStatic
 @POJO
+@KnownImmutable
 @EqualsAndHashCode(pojo = true, cache = true, includeFields = true)
-class Platform implements Serializable {
+final class Platform implements Serializable {
     private final String name
 
-    private Platform(String name) {
-        if (name == null)
-            throw new IllegalArgumentException("Platform must have a name")
+    @NullCheck
+    private Platform(final String name) {
         this.name = name
     }
 
