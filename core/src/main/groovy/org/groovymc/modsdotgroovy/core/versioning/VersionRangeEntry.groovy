@@ -122,10 +122,10 @@ sealed class VersionRangeEntry permits BypassVersionEntry {
         if (versionRange.endsWith('.*') || versionRange.endsWith('.x') || versionRange.endsWith('.X')) {
             String[] parts = versionRange.split('\\.')
             final entry = new VersionRangeEntry()
-            if (parts.size() >= 2) {
+            if (parts.length >= 2) {
                 String secondToLast = parts[parts.length - 2]
                 int toInc = secondToLast as int
-                if (parts.size() == 2) {
+                if (parts.length === 2) {
                     entry.lower = "${toInc}.0"
                     entry.upper = "${toInc + 1}.0"
                 } else {
@@ -142,10 +142,10 @@ sealed class VersionRangeEntry permits BypassVersionEntry {
             def version = versionRange.substring(1)
             String[] parts = version.split('\\.')
             final entry = new VersionRangeEntry(lower: version)
-            if (parts.size() >= 2) {
+            if (parts.length >= 2) {
                 String secondToLast = parts[parts.length - 2]
                 int toInc = secondToLast as int
-                if (parts.size() == 2) {
+                if (parts.length === 2) {
                     entry.upper = "${toInc + 1}.0"
                 } else {
                     String rest = parts[0..-3].join('.')

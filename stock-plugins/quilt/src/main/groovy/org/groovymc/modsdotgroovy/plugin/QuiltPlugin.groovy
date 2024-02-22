@@ -367,8 +367,8 @@ final class QuiltPlugin extends ModsDotGroovyPlugin {
 
     private Object makeVersionMap(VersionRange range) {
         if (range instanceof VersionRange.SingleVersionRange) {
-            def parts = range.version.toSemver().split(' ')
-            if (parts.size() == 1) {
+            var parts = range.version.toSemver().split(' ')
+            if (parts.length === 1) {
                 return parts[0]
             } else {
                 return [

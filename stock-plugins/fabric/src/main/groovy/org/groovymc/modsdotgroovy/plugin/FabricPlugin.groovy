@@ -223,7 +223,7 @@ final class FabricPlugin extends ModsDotGroovyPlugin {
 
             PluginResult onNestLeave(final Map value) {
                 log.debug "mixins.mixin.onNestLeave: ${value}"
-                if (value["config"] != null && value.size() == 1) {
+                if (value["config"] != null && value.size() === 1) {
                     mixins.add(value["config"])
                 } else {
                     mixins.add(value)
@@ -311,7 +311,7 @@ final class FabricPlugin extends ModsDotGroovyPlugin {
     List<MapTransform> mapTransforms() {
         return [MapTransform.of(VersionRange, {
             var vs = it.toSemver()
-            if (vs.size() == 1) return vs.get(0)
+            if (vs.size() === 1) return vs.get(0)
             return vs
         })]
     }

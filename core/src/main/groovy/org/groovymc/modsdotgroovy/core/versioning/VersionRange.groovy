@@ -10,13 +10,13 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
         final List<String> or = splitMavenParts(string).collect { it.trim() }.findAll { !it.blank }
         final List<List<String>> and = or.collect { splitSemverParts(it).collect { it.trim() }.findAll { !it.blank } }.findAll { !it.empty }
         final List<VersionRange> andRanges = and.collect { andRange ->
-            if (andRange.size() == 1) {
+            if (andRange.size() === 1) {
                 return new SingleVersionRange(VersionRangeEntry.of(andRange.get(0)))
             }
             return new AndVersionRange(andRange.collect { (VersionRange) new SingleVersionRange(VersionRangeEntry.of(it)) })
         }
 
-        if (andRanges.size() == 1) {
+        if (andRanges.size() === 1) {
             return andRanges.get(0)
         }
 
