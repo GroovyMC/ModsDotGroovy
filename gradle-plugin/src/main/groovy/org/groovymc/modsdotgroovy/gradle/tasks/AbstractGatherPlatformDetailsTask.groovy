@@ -78,16 +78,24 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
 
     protected void writePlatformDetails(String minecraftVersion, @Nullable String platformVersion) {
         outputFile.get().asFile.withWriter { writer ->
-            writer.write(new JsonBuilder(Map.of(
-                    'minecraftVersion', minecraftVersion,
-                    'platformVersion', platformVersion,
-                    'minecraftVersionRange', "[${minecraftVersion},1.${(DOT_PATTERN.split(minecraftVersion, 3)[1] as int) + 1})".toString(),
-            )).toPrettyString())
+            Map map = [:]
+            if (minecraftVersion !== null) {
+                map['minecraftVersion'] = minecraftVersion
+                try {
+                    map['minecraftVersionRange'] = "[${minecraftVersion},1.${(DOT_PATTERN.split(minecraftVersion, 3)[1] as int) + 1})".toString()
+                } catch (RuntimeException ignored) {
+                    // It wasn't the sort of version we were expecting, so we can't do any sort of range stuff to it
+                }
+            }
+            if (platformVersion !== null) {
+                map['platformVersion'] = platformVersion
+            }
+            writer.write(new JsonBuilder(map).toPrettyString())
         }
     }
 
     @TaskAction
     void run() throws IllegalStateException {
-        this.writePlatformDetails(minecraftVersion.get(), platformVersion.get())
+        this.writePlatformDetails(minecraftVersion.getOrNull(), platformVersion.getOrNull())
     }
 }
