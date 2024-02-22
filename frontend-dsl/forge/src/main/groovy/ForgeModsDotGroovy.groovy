@@ -41,6 +41,12 @@ class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
     boolean showAsDataPack = false
 
     /**@
+     * If your mod is purely client-side and has no multiplayer functionality (be it dedicated servers or Open to LAN),
+     * set this to true, and Forge will set the correct {@link ModInfoBuilder#displayTest} for you and skip loading your mod on dedicated servers.
+     */
+    boolean clientSideOnly = false
+
+    /**@
      * Alias for <code>mods { modInfo {} }</code>
      * @param closure
      */
