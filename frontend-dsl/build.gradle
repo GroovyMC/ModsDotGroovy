@@ -2,8 +2,8 @@ subprojects {
     group = 'org.groovymc.modsdotgroovy.frontend-dsl'
 
     dependencies {
-        implementation libs.groovy4.core.get()
-        implementation projects.core
+        api libs.groovy4.core.get()
+        api projects.core
         compileOnly 'org.jetbrains:annotations:24.0.1'
     }
 }
