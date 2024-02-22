@@ -202,6 +202,10 @@ abstract class MDGExtension {
             multiplatformFlag.set(true)
         }
 
+        void enable() {
+            multiplatformFlag.set(true)
+        }
+
         void expose(Object file, Action<? super ConfigurablePublishArtifact> configureAction) {
             setupPlugins.set(false)
             setupTasks.set(false)
