@@ -47,7 +47,8 @@ final mdg = ForgeModsDotGroovy.make {
 
         features {
             openGLVersion = '[3.2,)'
-            javaVersion = '[17,)' // for testing features that mods.groovy doesn't recognise yet
+            javaVersion = '[17,)'
+            someSpecialFeatureVersion = '[1.2.3,)' // for testing features that mods.groovy doesn't recognise yet
         }
     }
 
