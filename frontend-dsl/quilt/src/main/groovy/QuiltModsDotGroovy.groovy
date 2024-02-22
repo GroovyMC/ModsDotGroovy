@@ -82,19 +82,8 @@ class QuiltModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
     }
 
     static QuiltModsDotGroovy make(@DelegatesTo(value = QuiltModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                   @ClosureParams(value = SimpleType, options = 'QuiltModsDotGroovy') final Closure closure) {
-        return make(closure, [:])
-    }
-
-    static QuiltModsDotGroovy make(@DelegatesTo(value = QuiltModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
                                    @ClosureParams(value = SimpleType, options = 'QuiltModsDotGroovy') final Closure closure,
-                                   final Binding scriptBinding) {
-        return make(closure, scriptBinding.variables)
-    }
-
-    static QuiltModsDotGroovy make(@DelegatesTo(value = QuiltModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                   @ClosureParams(value = SimpleType, options = 'QuiltModsDotGroovy') final Closure closure,
-                                   final Map<String, ?> environment) {
+                                   final Map<String, ?> environment = [:]) {
         final QuiltModsDotGroovy val = new QuiltModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val

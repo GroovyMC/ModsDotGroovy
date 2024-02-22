@@ -73,19 +73,8 @@ class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
     }
 
     static ForgeModsDotGroovy make(@DelegatesTo(value = ForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'ForgeModsDotGroovy') final Closure closure) {
-        return make(closure, [:])
-    }
-
-    static ForgeModsDotGroovy make(@DelegatesTo(value = ForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'ForgeModsDotGroovy') final Closure closure,
-                                   final Binding scriptBinding) {
-        return make(closure, scriptBinding.variables)
-    }
-
-    static ForgeModsDotGroovy make(@DelegatesTo(value = ForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'ForgeModsDotGroovy') final Closure closure,
-                                   final Map<String, ?> environment) {
+                                   @ClosureParams(value = SimpleType, options = 'ForgeModsDotGroovy') final Closure closure,
+                                   final Map<String, ?> environment = [:]) {
         final ForgeModsDotGroovy val = new ForgeModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val

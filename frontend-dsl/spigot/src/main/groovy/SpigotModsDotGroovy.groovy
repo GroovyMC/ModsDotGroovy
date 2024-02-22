@@ -167,19 +167,8 @@ class SpigotModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
     }
 
     static SpigotModsDotGroovy make(@DelegatesTo(value = SpigotModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                    @ClosureParams(value = SimpleType, options = 'SpigotModsDotGroovy') final Closure closure) {
-        return make(closure, [:])
-    }
-
-    static SpigotModsDotGroovy make(@DelegatesTo(value = SpigotModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
                                     @ClosureParams(value = SimpleType, options = 'SpigotModsDotGroovy') final Closure closure,
-                                    final Binding scriptBinding) {
-        return make(closure, scriptBinding.variables)
-    }
-
-    static SpigotModsDotGroovy make(@DelegatesTo(value = SpigotModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                    @ClosureParams(value = SimpleType, options = 'SpigotModsDotGroovy') final Closure closure,
-                                    final Map<String, ?> environment) {
+                                    final Map<String, ?> environment = [:]) {
         final SpigotModsDotGroovy val = new SpigotModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = val

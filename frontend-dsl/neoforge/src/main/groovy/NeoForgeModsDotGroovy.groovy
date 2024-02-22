@@ -101,19 +101,8 @@ class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInt
     }
 
     static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = DELEGATE_FIRST)
-                                   @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure) {
-        return make(closure, [:])
-    }
-
-    static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = DELEGATE_FIRST)
-                                   @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
-                                   final Binding scriptBinding) {
-        return make(closure, scriptBinding.variables)
-    }
-
-    static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = DELEGATE_FIRST)
-                                   @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
-                                   final Map<String, ?> environment) {
+                                      @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
+                                      final Map<String, ?> environment = [:]) {
         final NeoForgeModsDotGroovy val = new NeoForgeModsDotGroovy(environment)
         closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = val

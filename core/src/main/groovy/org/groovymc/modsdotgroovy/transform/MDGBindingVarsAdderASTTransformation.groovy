@@ -20,17 +20,17 @@ import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
 /**
- * This AST transformation adds a Binding parameter to the ModsDotGroovy.make(Closure) method call.
+ * This AST transformation adds a Binding variables parameter to the ModsDotGroovy.make(Closure) method call.
  *
  * Example in:
  * ModsDotGroovy.make {}
  *
  * Example out:
- * ModsDotGroovy.make({}, this.getBinding())
+ * ModsDotGroovy.make({}, this.getBinding().getVariables())
  */
 @CompileStatic
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
-class MDGBindingAdderASTTransformation extends AbstractASTTransformation {
+final class MDGBindingVarsAdderASTTransformation extends AbstractASTTransformation {
 
     @Override
     void visit(ASTNode[] nodes, SourceUnit source) {
@@ -45,22 +45,26 @@ class MDGBindingAdderASTTransformation extends AbstractASTTransformation {
             targetClass = targetNode as ClassNode
         } else {
             targetClass = null // to make the compiler happy
-            addError('The @MDGBindingAdder annotation can only be used on classes.', targetNode)
+            addError('The @MDGBindingVarsAdder annotation can only be used on classes.', targetNode)
             return
         }
 
         // and only applied to scripts
         final MethodNode scriptBody = targetClass.getMethod('run', Parameter.EMPTY_ARRAY)
         if (scriptBody === null) {
-            addError('The @MDGBindingAdder annotation can only be used on classes with a run() method.', targetNode)
+            addError('The @MDGBindingVarsAdder annotation can only be used on classes with a run() method.', targetNode)
             return
         } else if (!scriptBody.isScriptBody()) {
-            addError('The @MDGBindingAdder annotation can only be used on script classes.', targetNode)
+            addError('The @MDGBindingVarsAdder annotation can only be used on script classes.', targetNode)
             return
         }
 
-        final String className = getMemberStringValue(annotation, 'className', 'ModsDotGroovy')
+        final String className = getMemberStringValue(annotation, 'className')
         final String methodName = getMemberStringValue(annotation, 'methodName', 'make')
+        if (className === null) {
+            addError('The @MDGBindingVarsAdder annotation must have a className attribute set.', targetNode)
+            return
+        }
 
         scriptBody.code.visit(new ScriptTransformer(source, className, methodName))
     }
@@ -90,8 +94,8 @@ class MDGBindingAdderASTTransformation extends AbstractASTTransformation {
                     final ArgumentListExpression arguments = methodCallExpr.arguments as ArgumentListExpression
                     if (arguments.expressions.size() === 1) {
                         final ClosureExpression closureExpr = arguments.expressions[0] as ClosureExpression
-                        final MethodCallExpression getBindingExpr = GeneralUtils.callX(VariableExpression.THIS_EXPRESSION, 'getBinding', ArgumentListExpression.EMPTY_ARGUMENTS)
-                        methodCallExpr.arguments = GeneralUtils.args(closureExpr, getBindingExpr)
+                        final MethodCallExpression getBindingVarsExpr = GeneralUtils.callX(GeneralUtils.callThisX('getBinding'), 'getVariables')
+                        methodCallExpr.arguments = GeneralUtils.args(closureExpr, getBindingVarsExpr)
                         return methodCallExpr
                     }
                 }

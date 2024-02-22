@@ -18,7 +18,7 @@ import org.gradle.work.NormalizeLineEndings
 import org.groovymc.modsdotgroovy.core.MapUtils
 import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.gradle.MDGConversionOptions
-import org.groovymc.modsdotgroovy.transform.MDGBindingAdder
+import org.groovymc.modsdotgroovy.transform.MDGBindingVarsAdder
 
 import javax.inject.Inject
 import java.nio.file.Files
@@ -132,7 +132,7 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         compilerConfig.classpathList = mdgClassLoader.URLs*.toString()
         //println "mdgClassLoader classpath: ${compilerConfig.classpath}"
 
-        final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingAdder)
+        final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingVarsAdder)
         final Platform platform = platform.get()
         final GString frontendClassName = "${platform.toString()}ModsDotGroovy"
         if (isMultiplatform.get())
