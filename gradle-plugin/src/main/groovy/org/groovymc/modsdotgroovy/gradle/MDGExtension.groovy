@@ -287,7 +287,7 @@ abstract class MDGExtension {
                     gatherTask = makeGatherTask(platform, GatherForgePlatformDetails)
                     gatherTask.configure { task ->
                         Configuration modImplementation = project.configurations.getByName('minecraft')
-                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
+                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.incoming.artifacts.resolvedArtifacts
                         task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                     }
                     break
@@ -298,7 +298,7 @@ abstract class MDGExtension {
                     gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
                     gatherTask.configure { task ->
                         Configuration modImplementation = project.configurations.getByName('modCompileClasspath')
-                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
+                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.incoming.artifacts.resolvedArtifacts
                         task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                         task.targetModule.set('fabric-loader')
                         task.targetGroup.set('net.fabricmc')
@@ -308,7 +308,7 @@ abstract class MDGExtension {
                     gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
                     gatherTask.configure { task ->
                         Configuration modImplementation = project.configurations.getByName('modCompileClasspath')
-                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.getIncoming().getArtifacts().getResolvedArtifacts()
+                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.incoming.artifacts.resolvedArtifacts
                         task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                         task.targetModule.set('quilt-loader')
                         task.targetGroup.set('org.quiltmc')
@@ -323,60 +323,42 @@ abstract class MDGExtension {
 
 
         TaskProvider<? extends AbstractMDGConvertTask> convertTask
+        String processResourcesDestPath
         switch (platform) {
             case Platform.FORGE:
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlForge'), ModsDotGroovyToToml)
-                processResourcesTask.configure { task ->
-                    task.dependsOn convertTask
-                    task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
-                        spec.into 'META-INF'
-                    }
-                }
+                processResourcesDestPath = 'META-INF'
                 break
             case Platform.NEOFORGE:
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlNeoForge'), ModsDotGroovyToToml)
-                processResourcesTask.configure { task ->
-                    task.dependsOn convertTask
-                    task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
-                        spec.into 'META-INF'
-                    }
-                }
+                processResourcesDestPath = 'META-INF'
                 break
             case Platform.FABRIC:
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToJsonFabric'), ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
                     task.outputName.set('fabric.mod.json')
                 }
-                processResourcesTask.configure { task ->
-                    task.dependsOn convertTask
-                    task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
-                        spec.into '.'
-                    }
-                }
+                processResourcesDestPath = '.'
                 break
             case Platform.QUILT:
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToJsonQuilt'), ModsDotGroovyToJson) { ModsDotGroovyToJson task ->
                     task.outputName.set('quilt.mod.json')
                 }
-                processResourcesTask.configure { task ->
-                    task.dependsOn convertTask
-                    task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
-                        spec.into '.'
-                    }
-                }
+                processResourcesDestPath = '.'
                 break
             case Platform.SPIGOT:
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToYmlSpigot'), ModsDotGroovyToYml) { ModsDotGroovyToYml task ->
                     task.outputName.set('spigot.yml')
                 }
-                processResourcesTask.configure { task ->
-                    task.dependsOn convertTask
-                    task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
-                        spec.into '.'
-                    }
-                }
+                processResourcesDestPath = '.'
                 break
             default:
                 convertTask = null
+        }
+        processResourcesTask.configure { task ->
+            task.dependsOn gatherTask
+            task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
+                spec.into processResourcesDestPath
+            }
         }
 
         if (convertTask != null) {
