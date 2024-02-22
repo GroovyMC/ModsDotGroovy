@@ -59,6 +59,10 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     abstract Property<Platform> getPlatform()
 
     @Input
+    @Optional
+    abstract Property<Boolean> getIsMultiplatform()
+
+    @Input
     abstract Property<String> getProjectVersion()
 
     @Input
@@ -87,6 +91,7 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         buildProperties.convention(project.provider(() -> filterBuildProperties(project.extensions.extraProperties.properties, environmentBlacklist.get())))
         projectVersion.convention(project.provider(() -> project.version.toString()))
         projectGroup.convention(project.provider(() -> project.group.toString()))
+        isMultiplatform.convention(project.provider(() -> false))
     }
 
     protected abstract String writeData(Map data)
@@ -129,11 +134,11 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
 
         final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingAdder)
         final Platform platform = platform.get()
-        // todo: support both single and multiplatform
-//        if (platform !== Platform.FORGE)
-//            bindingAdderTransform.annotationParameters = [className: "${platform.toString()}ModsDotGroovy"] as Map<String, Object>
+        final GString frontendClassName = "${platform.toString()}ModsDotGroovy"
+        if (isMultiplatform.get())
+            frontendClassName.values[0] = 'Multiplatform'
 
-        bindingAdderTransform.annotationParameters = [className: "MultiplatformModsDotGroovy"] as Map<String, Object>
+        bindingAdderTransform.annotationParameters = [className: frontendClassName.toString()] as Map<String, Object>
 
         compilerConfig.addCompilationCustomizers(bindingAdderTransform)
 

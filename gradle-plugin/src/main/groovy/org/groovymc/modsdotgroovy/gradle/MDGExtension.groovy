@@ -6,7 +6,6 @@ import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ConfigurablePublishArtifact
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.attributes.Bundling
 import org.gradle.api.attributes.Category
@@ -25,7 +24,6 @@ import org.groovymc.modsdotgroovy.core.Platform
 import org.groovymc.modsdotgroovy.gradle.tasks.*
 
 import javax.inject.Inject
-import java.util.stream.Collectors
 
 @CompileStatic
 abstract class MDGExtension {
@@ -366,6 +364,7 @@ abstract class MDGExtension {
                 task.dependsOn gatherTask
                 task.platformDetailsFile.set(gatherTask.get().outputFile)
                 task.platform.set(platform)
+                task.isMultiplatform.set(multiplatformFlag)
                 task.input.fileProvider(modsDotGroovyFile.map(FileCollection::getSingleFile))
                 task.mdgRuntimeFiles.from(
                         root,
