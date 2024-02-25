@@ -26,9 +26,14 @@ final mdg = NeoForgeModsDotGroovy.make {
 
             mod {
                 modId = 'patchouli'
-                versionRange = '>=1.1'
+                versionRange = v('>=1.1') & v('<2.0')
                 ordering = DependencyOrdering.AFTER
                 side = DependencySide.BOTH
+            }
+
+            optional {
+                modId = 'optionaldep'
+                versionRange = v('<1.1') | v('>=2.0')
             }
 
             mod('exampledep') {

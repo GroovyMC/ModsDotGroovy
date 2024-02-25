@@ -256,8 +256,9 @@ sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, Sing
 
                     if (
                             single.version instanceof BypassVersionEntry ||
-                            (!lower2.empty && !upper1.empty && FlexVerComparator.compare(lower2, upper1) < 0) ||
-                            (!lower1.empty && !upper2.empty && FlexVerComparator.compare(lower1, upper2) < 0)
+                            range.empty || single.version.empty ||
+                            (!lower2.empty && !upper1.empty && FlexVerComparator.compare(lower2, upper1) > 0) ||
+                            (!lower1.empty && !upper2.empty && FlexVerComparator.compare(lower1, upper2) > 0)
                     ) {
                         // ranges are non-overlapping, or contain incomparable bypassversionentry
                         range = new VersionRangeEntry()

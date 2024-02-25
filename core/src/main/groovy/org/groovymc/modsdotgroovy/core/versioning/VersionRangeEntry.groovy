@@ -46,16 +46,16 @@ sealed class VersionRangeEntry permits BypassVersionEntry {
         if (isMaven) {
             if (empty) return '[]'
             final sb = new StringBuilder()
-            sb << (includeLower ? '[' : '(')
+            sb << (includeLower && !lower.empty ? '[' : '(')
             final boolean lowerIsEmpty = lower.isEmpty()
             if (!lowerIsEmpty && upper == lower) {
                 sb << lower
             } else {
                 sb << (lowerIsEmpty ? '' : lower)
                 sb << ','
-                sb << (upper.isEmpty() ? '' : upper)
+                sb << (upper.empty ? '' : upper)
             }
-            sb << (includeUpper ? ']' : ')')
+            sb << (includeUpper && !upper.empty ? ']' : ')')
             return sb.toString()
         } else {
             final List<String> versionList = []
@@ -64,10 +64,10 @@ sealed class VersionRangeEntry permits BypassVersionEntry {
                 return "=${lower}"
             }
 
-            if (!lower.isEmpty())
+            if (!lower.empty)
                 versionList << (includeLower ? '>=' : '>') + lower
 
-            if (!upper.isEmpty())
+            if (!upper.empty)
                 versionList << (includeUpper ? '<=' : '<') + upper
 
             if (versionList.isEmpty())
@@ -94,6 +94,9 @@ sealed class VersionRangeEntry permits BypassVersionEntry {
         final int indexOfComma = versionRange.indexOf(',')
         if (indexOfComma === -1) {
             entry.lower = entry.upper = versionRange.substring(1, versionRange.length() - 1)
+            if (entry.lower.empty) {
+                entry.empty = true
+            }
         } else {
             entry.lower = versionRange.substring(1, indexOfComma)
             entry.upper = versionRange.substring(indexOfComma + 1, versionRange.length() - 1)
