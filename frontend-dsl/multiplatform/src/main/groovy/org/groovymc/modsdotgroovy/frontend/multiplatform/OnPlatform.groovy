@@ -1,40 +1,45 @@
 package org.groovymc.modsdotgroovy.frontend.multiplatform
 
-import groovy.util.logging.Log4j2
+import groovy.transform.CompileStatic
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.core.Platform
 
-@Log4j2(category = 'MDG - Multiplatform Frontend')
+@CompileStatic
 trait OnPlatform {
     abstract ModsDotGroovyCore getCore()
 
-    void onForge(final Closure closure) {
+    @Lazy
+    private final Logger log = LogManager.getLogger('MDG - Multiplatform Frontend')
+
+    void onForge(final Runnable runnable) {
         log.debug "onForge(closure)"
-        if (core.platform() === Platform.FORGE)
-            closure.call()
+        if (core.platform === Platform.FORGE)
+            runnable.run()
     }
 
-    void onFabric(final Closure closure) {
+    void onFabric(final Runnable runnable) {
         log.debug "onFabric(closure)"
-        if (core.platform() === Platform.FABRIC)
-            closure.call()
+        if (core.platform === Platform.FABRIC)
+            runnable.run()
     }
 
-    void onQuilt(final Closure closure) {
+    void onQuilt(final Runnable runnable) {
         log.debug "onQuilt(closure)"
-        if (core.platform() === Platform.QUILT)
-            closure.call()
+        if (core.platform === Platform.QUILT)
+            runnable.run()
     }
 
-    void onNeoForge(final Closure closure) {
+    void onNeoForge(final Runnable runnable) {
         log.debug "onNeoForge(closure)"
-        if (getPlatform() === Platform.NEOFORGE)
-            closure.call()
+        if (core.platform === Platform.NEOFORGE)
+            runnable.run()
     }
 
-    void onSpigot(final Closure closure) {
+    void onSpigot(final Runnable runnable) {
         log.debug "onSpigot(closure)"
-        if (getPlatform() === Platform.SPIGOT)
-            closure.call()
+        if (core.platform === Platform.SPIGOT)
+            runnable.run()
     }
 }

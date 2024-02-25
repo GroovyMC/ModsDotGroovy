@@ -1,8 +1,9 @@
 package org.groovymc.modsdotgroovy.frontend
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.util.logging.Log4j2
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 /**
  * Intercepts map-style closure calls on the frontend and automatically delegates it to the backend.<br>
@@ -10,13 +11,16 @@ import groovy.util.logging.Log4j2
  * Classes that use this trait to need to implement a non-null {@code private final ModsDotGroovyCore core}.
  */
 @CompileStatic
-@Log4j2(category = 'MDG - Frontend')
 trait MapClosureInterceptor {
-    @CompileDynamic
+    abstract ModsDotGroovyCore getCore()
+
+    @Lazy
+    private final Logger log = LogManager.getLogger('MDG - Frontend')
+
     void methodMissing(final String name, def args) {
-        args = args as List
+        args = args as Object[]
         log.debug "methodMissing(name: $name, args: $args) stack: ${core.layeredMap.stack}"
-        if (args.size() > 0 && args[0] instanceof Closure) {
+        if (args.length === 1 && args[0] instanceof Closure) {
             final closure = args[0] as Closure
             core.push(name)
             final map = new MapClosureDslBuilder(core)

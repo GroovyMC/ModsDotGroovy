@@ -19,7 +19,7 @@ import java.lang.reflect.Modifier
 final class ModsDotGroovyCore {
     private final PluginRegistry plugins = new PluginRegistry()
 
-    private final Platform platform
+    final Platform platform
 
     final LayeredMap layeredMap = new LayeredMap()
 
@@ -60,10 +60,6 @@ final class ModsDotGroovyCore {
 
     void pop() {
         layeredMap.popWatched(listener)
-    }
-
-    Platform platform() {
-        return platform
     }
 
     Map build() {
@@ -144,13 +140,12 @@ final class ModsDotGroovyCore {
 
     private static PluginResult getPluginResult(final List<String> eventStack, final ModsDotGroovyPlugin plugin, final PluginAction action = PluginAction.SET, final String propertyName, final def propertyValue) {
         final List<String> fullEventStack = new ArrayList<>(eventStack)
-        final String capitalizedPropertyName = propertyName.capitalize()
         if (action == PluginAction.ON_NEST_LEAVE) fullEventStack.add(propertyName)
 
         final delegateObject = traverseClassTree(fullEventStack, plugin)
 
         final String methodName = action === PluginAction.SET
-                ? action.toString() + capitalizedPropertyName
+                ? action.toString() + propertyName.capitalize()
                 : action.toString()
 
         switch (action) {

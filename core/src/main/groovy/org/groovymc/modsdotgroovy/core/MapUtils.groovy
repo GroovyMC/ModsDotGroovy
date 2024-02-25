@@ -100,4 +100,6 @@ class MapUtils {
             }
         }
     }
+
+    private MapUtils() {}
 }

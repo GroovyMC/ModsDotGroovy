@@ -48,4 +48,6 @@ final class PluginUtils {
     static boolean startsWithNumber(final String string) {
         return string ==~ STARTS_WITH_NUMBER_PATTERN
     }
+
+    private PluginUtils() {}
 }

@@ -138,7 +138,7 @@ abstract class MDGExtension {
 
         this.platforms.get().each { platform ->
             // setup MDG dependency configurations
-            final rootConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_ROOT + platform.name().capitalize())) { Configuration conf -> conf.tap {
+            final rootConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_ROOT + platform.name.capitalize())) { Configuration conf -> conf.tap {
                 canBeConsumed = false
                 attributes.tap {
                     attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category, Category.LIBRARY))
@@ -152,10 +152,10 @@ abstract class MDGExtension {
                 conf.dependencies.add(project.dependencies.platform("${MDG_MAVEN_GROUP}:modsdotgroovy:${ModsDotGroovyGradlePlugin.VERSION}"))
             }
 
-            final frontendConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_FRONTEND + platform.name().capitalize())) { Configuration conf ->
+            final frontendConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_FRONTEND + platform.name.capitalize())) { Configuration conf ->
                 conf.extendsFrom rootConfiguration.get()
             }
-            final pluginConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_PLUGIN + platform.name().capitalize())) { Configuration conf ->
+            final pluginConfiguration = project.configurations.register(forSourceSetName(sourceSet.name, CONFIGURATION_NAME_PLUGIN + platform.name.capitalize())) { Configuration conf ->
                 conf.extendsFrom rootConfiguration.get()
             }
 
@@ -246,7 +246,7 @@ abstract class MDGExtension {
         }
 
         // mdgFrontend "org.groovymc.modsdotgroovy.frontend-dsl:<platform>"
-        final String platformName = multiplatformFlag.get() ? 'multiplatform' : platform.name().toLowerCase(Locale.ROOT)
+        final String platformName = multiplatformFlag.get() ? 'multiplatform' : platform.name.toLowerCase(Locale.ROOT)
         frontendConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platformName)))
     }
 
@@ -258,12 +258,12 @@ abstract class MDGExtension {
         pluginConfiguration.configure(conf -> {
             if (multiplatformFlag.get()) conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':multiplatform'))
 
-            conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':' + platform.name().toLowerCase(Locale.ROOT)))
+            conf.dependencies.add(project.dependencies.create(MDG_PLUGIN_GROUP + ':' + platform.name.toLowerCase(Locale.ROOT)))
         })
     }
 
     private <T extends AbstractGatherPlatformDetailsTask> TaskProvider<T> makeGatherTask(Platform platform, Class<T> gatherType, Object... args) {
-        return project.tasks.register(forSourceSetName(sourceSet.name, "gather${platform.name().capitalize()}PlatformDetails"), gatherType, args).tap {
+        return project.tasks.register(forSourceSetName(sourceSet.name, "gather${platform.name.capitalize()}PlatformDetails"), gatherType, args).tap {
             configure {
                 it.group = MDGExtension.TASK_GROUP
             }

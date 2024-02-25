@@ -147,19 +147,8 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
     }
 
     static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'MultiplatformModsDotGroovy') final Closure closure) {
-        return make(closure, [:])
-    }
-
-    static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = DELEGATE_FIRST)
                               @ClosureParams(value = SimpleType, options = 'MultiplatformModsDotGroovy') final Closure closure,
-                              final Binding scriptBinding) {
-        return make(closure, scriptBinding.variables)
-    }
-
-    static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'MultiplatformModsDotGroovy') final Closure closure,
-                              final Map<String, ?> environment) {
+                              final Map<String, ?> environment = [:]) {
         final MultiplatformModsDotGroovy val = new MultiplatformModsDotGroovy(environment)
         closure.resolveStrategy = DELEGATE_FIRST
         closure.delegate = val

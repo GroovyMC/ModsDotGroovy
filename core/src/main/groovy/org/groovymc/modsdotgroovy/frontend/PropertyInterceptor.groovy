@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
+
 /**
  * Intercepts property access on the frontend and automatically delegates it to the backend.<br>
  * Classes that use this trait to need to implement a non-null {@code private final ModsDotGroovyCore core}.

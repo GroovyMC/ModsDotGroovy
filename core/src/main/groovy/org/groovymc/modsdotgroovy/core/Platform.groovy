@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 @KnownImmutable
 @EqualsAndHashCode(pojo = true, cache = true, includeFields = true)
 final class Platform implements Serializable {
-    private final String name
+    final String name
 
     @NullCheck
     private Platform(final String name) {
@@ -31,7 +31,7 @@ final class Platform implements Serializable {
 
     static {
         for (def platform : STOCK_PLATFORMS) {
-            REGISTRY[platform.name().toLowerCase(Locale.ROOT)] = platform
+            REGISTRY[platform.name.toLowerCase(Locale.ROOT)] = platform
         }
         REGISTRY['unknown'] = UNKNOWN
     }

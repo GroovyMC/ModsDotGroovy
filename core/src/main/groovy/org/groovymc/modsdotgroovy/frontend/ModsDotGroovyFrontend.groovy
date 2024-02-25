@@ -5,7 +5,7 @@ import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 
 @CompileStatic
 abstract class ModsDotGroovyFrontend implements VersionProducer {
-    final ModsDotGroovyCore core
+    private final ModsDotGroovyCore core
 
     /**@
      * If running in a Gradle environment, this will be populated with the {@code build.properties}.
@@ -18,7 +18,7 @@ abstract class ModsDotGroovyFrontend implements VersionProducer {
      */
     public final VersionCatalogue libs
 
-    ModsDotGroovyCore getCore() {
+    final ModsDotGroovyCore getCore() {
         return core
     }
 
@@ -31,8 +31,8 @@ abstract class ModsDotGroovyFrontend implements VersionProducer {
         this.core = new ModsDotGroovyCore(environment)
 
         if (environment.containsKey('buildProperties'))
-            this.@buildProperties.putAll(environment.buildProperties as Map<String, ?>)
+            this.buildProperties.putAll(environment.buildProperties as Map<String, ?>)
 
-        this.@libs = new VersionCatalogue((environment.libs as Map<String, Map<String, ?>>) ?: [:])
+        this.libs = new VersionCatalogue((environment.libs as Map<String, Map<String, ?>>) ?: [:])
     }
 }

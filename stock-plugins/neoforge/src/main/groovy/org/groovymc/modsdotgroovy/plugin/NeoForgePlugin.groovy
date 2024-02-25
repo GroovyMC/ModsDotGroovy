@@ -63,7 +63,7 @@ final class NeoForgePlugin extends ModsDotGroovyPlugin {
                 class Dependency {
                     def setType(final type) {
                         if (type instanceof Enum)
-                            PluginResult.of(type.name().toLowerCase(Locale.ROOT))
+                            return PluginResult.of(type.name().toLowerCase(Locale.ROOT))
                     }
 
                     void onNestLeave(final Map value) {
