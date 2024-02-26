@@ -11,6 +11,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.CacheableTask
@@ -18,6 +19,7 @@ import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -28,12 +30,15 @@ import java.util.regex.Pattern
 
 @CacheableTask
 @CompileStatic
-class AbstractGatherPlatformDetailsTask extends DefaultTask {
+abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
     private static final Pattern DOT_PATTERN = Pattern.compile('\\.')
 
     private final Property<@Nullable String> minecraftVersion = objectFactory.property(String)
     private final Property<@Nullable String> platformVersion = objectFactory.property(String)
     private final RegularFileProperty outputFile = objectFactory.fileProperty()
+
+    @Input
+    abstract MapProperty<String, Object> getExtraProperties()
 
     @Optional @Input
     Property<@Nullable String> getMinecraftVersion() {
@@ -62,6 +67,7 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
 
     AbstractGatherPlatformDetailsTask() {
         outputFile.convention(projectLayout.buildDirectory.dir("generated/modsDotGroovy/${name.uncapitalize()}").map((Directory dir) -> dir.file('mdgPlatform.json')))
+        extraProperties.convention([:])
     }
 
     void setMinecraftVersion(String version) {
@@ -90,6 +96,7 @@ class AbstractGatherPlatformDetailsTask extends DefaultTask {
             if (platformVersion !== null) {
                 map['platformVersion'] = platformVersion
             }
+            map.putAll(getExtraProperties().get())
             writer.write(new JsonBuilder(map).toPrettyString())
         }
     }

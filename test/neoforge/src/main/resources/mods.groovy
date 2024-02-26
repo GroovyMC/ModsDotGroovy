@@ -37,13 +37,13 @@ final mdg = NeoForgeModsDotGroovy.make {
             }
 
             mod('exampledep') {
-                versionRange = '1.*'
+                versionRange = ">=${libs.libraries.example_exampledep.version}"
                 side = DependencySide.CLIENT
                 type = DependencyType.OPTIONAL
             }
 
             exampledep2 = '[1,)'
-            //exampledep3 = "[${libs.versions['exampledep3']},)" // to test reading from version catalogues
+            exampledep3 = "[${libs.versions['exampledep3']},)" // to test reading from version catalogues
         }
 
         features {

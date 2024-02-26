@@ -1,2 +1,15 @@
 [versions]
 exampledep3 = "1.0.0"
+exampledep = "0.1.0"
+
+[libraries]
+
+example_exampledep = { module = "org.example:exampledep", version.ref = "exampledep" }
+example-exampledirect = { module = "org.example:exampledirect", version = "0.1.0" }
+
+[bundles]
+
+example = ["example_exampledep", "example-exampledirect"]
+
+[plugins]
+example = { id = "org.example", version = "0.1.0"}

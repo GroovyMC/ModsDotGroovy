@@ -4,27 +4,47 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 class VersionCatalogue {
-    public final Map<String, String> versions
-    public final Map<String, List<String>> libraries = null
-    public final Map<String, ?> bundles = null
-    public final Map<String, ?> plugins = null
+    final Map<String, String> versions
+    final Map<String, Library> libraries
+    final Map<String, List<Library>> bundles
+    final Map<String, Plugin> plugins
 
-    Map<String, List<String>> getLibraries() {
-        throw new UnsupportedOperationException(
-                'This version of mod.groovy only supports the "versions" part of Gradle version catalogues')
+    static class Library {
+        final String group
+        final String name
+        final String version
+
+        Library(final Map map) {
+            group = map.group as String
+            name = map.name as String
+            version = map.version as String
+        }
+
+        String getModule() {
+            return "${group}:${name}"
+        }
     }
 
-    Map<String, ?> getBundles() {
-        throw new UnsupportedOperationException(
-                'This version of mod.groovy only supports the "versions" part of Gradle version catalogues')
+    static class Plugin {
+        final String id
+        final String version
+
+        Plugin(final Map map) {
+            id = map.id as String
+            version = map.version as String
+        }
     }
 
-    Map<String, ?> getPlugins() {
-        throw new UnsupportedOperationException(
-                'This version of mod.groovy only supports the "versions" part of Gradle version catalogues')
-    }
-
-    VersionCatalogue(final Map<String, Map<String, ?>> map) {
-        versions = map.versions as Map<String, String>
+    VersionCatalogue(final Map map) {
+        versions = map.versions as Map<String, String> ?: [:]
+        libraries = (map.libraries as Map ?: [:]).collectEntries {k, v ->
+            [(k): new Library(v as Map)]
+        } as Map<String, Library>
+        bundles = (map.bundles as Map ?: [:]).collectEntries {k, v ->
+            [(k): (v as List).collect {new Library(it as Map)}]
+        } as Map<String, List<Library>>
+        plugins = (map.plugins as Map ?: [:]).collectEntries {k, v ->
+            [(k): new Plugin(v as Map)]
+        } as Map<String, Plugin>
     }
 }

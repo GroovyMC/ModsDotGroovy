@@ -33,6 +33,6 @@ abstract class ModsDotGroovyFrontend implements VersionProducer {
         if (environment.containsKey('buildProperties'))
             this.buildProperties.putAll(environment.buildProperties as Map<String, ?>)
 
-        this.libs = new VersionCatalogue((environment.libs as Map<String, Map<String, ?>>) ?: [:])
+        this.libs = new VersionCatalogue((environment.libs as Map) ?: [:])
     }
 }

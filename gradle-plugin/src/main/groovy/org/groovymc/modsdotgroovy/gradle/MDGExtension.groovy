@@ -6,6 +6,9 @@ import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ConfigurablePublishArtifact
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.attributes.Bundling
 import org.gradle.api.attributes.Category
@@ -39,6 +42,8 @@ abstract class MDGExtension {
     private static final String MDG_FRONTEND_GROUP = MDG_MAVEN_GROUP + '.frontend-dsl'
     private static final String MDG_PLUGIN_GROUP = MDG_MAVEN_GROUP + '.stock-plugins'
 
+    private static final Map<CharSequence, CharSequence> CATALOG_ID_REPLACEMENTS = Map.<CharSequence, CharSequence>of('-', '_', '.', '_')
+
     final Property<Boolean> setupDsl
     final Property<Boolean> setupPlugins
     final Property<Boolean> setupTasks
@@ -47,6 +52,7 @@ abstract class MDGExtension {
     final MDGConversionOptions conversionOptions
     final Property<FileCollection> modsDotGroovyFile
     final Multiplatform multiplatform
+    final ListProperty<String> catalogs
 
     private final Property<Boolean> multiplatformFlag
     private final SourceSet sourceSet
@@ -67,6 +73,7 @@ abstract class MDGExtension {
         this.platforms = project.objects.listProperty(Platform)
         this.conversionOptions = project.objects.newInstance(MDGConversionOptions)
         this.modsDotGroovyFile = project.objects.property(FileCollection)
+        this.catalogs = project.objects.listProperty(String)
 
         this.platforms.convention(inferPlatforms(project))
 
@@ -83,6 +90,7 @@ abstract class MDGExtension {
         this.setupTasks.convention(false)
         this.setupDsl.convention(false)
         this.inferGather.convention(true)
+        this.catalogs.convention(['libs'])
 
         this.setupDsl.finalizeValueOnRead()
         this.setupPlugins.finalizeValueOnRead()
@@ -91,6 +99,7 @@ abstract class MDGExtension {
         this.platforms.finalizeValueOnRead()
         this.modsDotGroovyFile.finalizeValueOnRead()
         this.multiplatformFlag.finalizeValueOnRead()
+        this.catalogs.finalizeValueOnRead()
     }
 
     void conversionOptions(Action<MDGConversionOptions> action) {
@@ -270,6 +279,76 @@ abstract class MDGExtension {
         }
     }
 
+    private static VersionCatalog getLibsExtension(Project project, String name) {
+        Optional<? extends VersionCatalog> catalogView = project.extensions.findByType(VersionCatalogsExtension)?.find(name)
+        return catalogView?.orElse(null)
+    }
+
+    private static Map versionCatalogToMap(Map out, VersionCatalog catalog) {
+        Map versions = out.computeIfAbsent('versions', { [:] }) as Map
+        Map libraries = out.computeIfAbsent('libraries', { [:] }) as Map
+        Map plugins = out.computeIfAbsent('plugins', { [:] }) as Map
+        Map bundles = out.computeIfAbsent('bundles', { [:] }) as Map
+        if (catalog === null)
+            return [:]
+        catalog.versionAliases.each {
+            var val = catalog.findVersion(it)
+            if (val.isPresent())
+                versions[it.replace(CATALOG_ID_REPLACEMENTS)] = val.get() as String
+        }
+        catalog.pluginAliases.each {
+            var val = catalog.findPlugin(it)
+            if (val.isPresent()) {
+                def plugin = val.get().get()
+                plugins[it.replace(CATALOG_ID_REPLACEMENTS)] = [
+                        id: plugin.pluginId as String,
+                        version: plugin.version as String
+                ]
+            }
+        }
+        catalog.bundleAliases.each {
+            var val = catalog.findBundle(it)
+            if (val.isPresent()) {
+                var modules = val.get().get()
+                bundles[it.replace(CATALOG_ID_REPLACEMENTS)] = modules.collect {
+                    moduleToMap(it)
+                }
+            }
+        }
+        catalog.libraryAliases.each {
+            var val = catalog.findLibrary(it)
+            if (val.isPresent()) {
+                var module = val.get().get()
+                libraries[it.replace(CATALOG_ID_REPLACEMENTS)] = moduleToMap(module)
+            }
+        }
+        return out
+    }
+
+    private static Map moduleToMap(MinimalExternalModuleDependency module) {
+        return [
+                group  : module.group as String,
+                name   : module.name as String,
+                version: module.version as String
+        ]
+    }
+
+    void setupCatalogs(TaskProvider<? extends AbstractGatherPlatformDetailsTask> gatherTask, List<String> versionCatalogs) {
+        Map catalogData = [:]
+        versionCatalogs.each { catalog ->
+            def libs = getLibsExtension(project, catalog)
+            if (libs !== null) {
+                versionCatalogToMap(catalogData, libs)
+            }
+        }
+
+        if (!catalogData.isEmpty()) {
+            gatherTask.configure {
+                it.extraProperties.put('libs', catalogData)
+            }
+        }
+    }
+
     private void setupTasks(SourceSet sourceSet, Platform platform, Provider<Configuration> root, Provider<Configuration> plugin, Provider<Configuration> frontend) {
         // three steps:
         // 1. register a task to gather platform's details
@@ -319,6 +398,8 @@ abstract class MDGExtension {
             gatherTask = makeGatherTask(platform, AbstractGatherPlatformDetailsTask)
         }
 
+        // If we have any version catalogs specified, we should set them up
+        setupCatalogs(gatherTask, getCatalogs().get())
 
         TaskProvider<? extends AbstractMDGConvertTask> convertTask
         String processResourcesDestPath
