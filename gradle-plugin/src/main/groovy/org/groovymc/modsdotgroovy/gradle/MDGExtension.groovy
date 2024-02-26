@@ -352,14 +352,14 @@ abstract class MDGExtension {
             default:
                 convertTask = null
         }
-        processResourcesTask.configure { task ->
-            task.dependsOn gatherTask
-            task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
-                spec.into processResourcesDestPath
-            }
-        }
 
         if (convertTask != null) {
+            processResourcesTask.configure { task ->
+                task.dependsOn convertTask
+                task.from(convertTask.get().output.get().asFile) { CopySpec spec ->
+                    spec.into processResourcesDestPath
+                }
+            }
             convertTask.configure { task ->
                 task.dependsOn gatherTask
                 task.platformDetailsFile.set(gatherTask.get().outputFile)
