@@ -8,9 +8,14 @@ abstract class ModsDotGroovyFrontend implements VersionProducer {
     private final ModsDotGroovyCore core
 
     /**@
-     * If running in a Gradle environment, this will be populated with the {@code build.properties}.
+     * If running in a Gradle environment, this will be populated with the {@code gradle.properties}.
      */
     public final Map<String, ?> buildProperties = [:]
+
+    /**@
+     * This will be populated with all information fed into the environment.
+     */
+    public final Map<String, ?> environmentInfo = [:]
 
     /**@
      * If running in a Gradle environment, this will be populated with
@@ -34,5 +39,7 @@ abstract class ModsDotGroovyFrontend implements VersionProducer {
             this.buildProperties.putAll(environment.buildProperties as Map<String, ?>)
 
         this.libs = new VersionCatalogue((environment.libs as Map) ?: [:])
+
+        this.environmentInfo.putAll(environment)
     }
 }

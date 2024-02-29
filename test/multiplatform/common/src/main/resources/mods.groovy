@@ -8,7 +8,7 @@ final mdg = MultiplatformModsDotGroovy.make {
     mod {
         modId = 'examplemod'
         displayName = 'Example Mod'
-        version = '1.0.0'
+        version = environmentInfo.version
         description = 'This is an example mod.'
         //authors = ['Example Mod Author']
         authors {
