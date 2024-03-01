@@ -12,7 +12,7 @@ final mdg = ForgeModsDotGroovy.make {
         version = '1.0.0'
         displayName = 'Example Mod'
         description = 'This is an example mod.'
-        //authors = ['Example Mod Author']
+        //authors = ['Alice', 'Bob']
         author = 'Example Mod Author'
         logoFile = 'logo.png'
 
