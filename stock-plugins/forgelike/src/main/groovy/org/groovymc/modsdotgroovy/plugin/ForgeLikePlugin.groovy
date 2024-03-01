@@ -49,10 +49,12 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
         return new PluginResult.Rename(newPropertyName: 'license', newValue: licence, reentrant: true)
     }
 
-    void setIssueTrackerUrl(final String issueTrackerUrl) {
+    PluginResult setIssueTrackerUrl(final String issueTrackerUrl) {
         log.debug "issueTrackerUrl: ${issueTrackerUrl}"
         if (!PluginUtils.isValidHttpUrl(issueTrackerUrl))
             throw new PluginResult.MDGPluginException('issueTrackerUrl must start with http:// or https://')
+
+        return PluginResult.rename('issueTrackerURL', issueTrackerUrl)
     }
 
     class Mods {
@@ -73,7 +75,7 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
                 log.debug "mods.modInfo.onNestLeave"
 
                 if (updateJsonUrl === null || updateJsonUrl.isBlank())
-                    value['updateJsonUrl'] = inferUpdateJsonUrl(modId, displayUrl, issueTrackerUrl)
+                    value['updateJSONURL'] = inferUpdateJsonUrl(modId, displayUrl, issueTrackerUrl)
 
                 modInfos.add(value)
                 return PluginResult.remove()
@@ -119,12 +121,19 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
                     throw new PluginResult.MDGPluginException('logoFile is missing a file extension. Did you forget to put ".png" at the end?')
             }
 
-            void setUpdateJsonUrl(final String updateJsonUrl) {
+            PluginResult setDisplayUrl(final String displayUrl) {
+                log.debug "mods.modInfo.displayUrl: ${displayUrl}"
+                this.displayUrl = displayUrl
+                return PluginResult.rename('displayURL', displayUrl)
+            }
+
+            PluginResult setUpdateJsonUrl(final String updateJsonUrl) {
                 log.debug "mods.modInfo.updateJsonUrl: ${updateJsonUrl}"
                 if (!PluginUtils.isValidHttpUrl(updateJsonUrl))
                     throw new PluginResult.MDGPluginException('updateJsonUrl must start with http:// or https://')
 
                 this.updateJsonUrl = updateJsonUrl
+                return PluginResult.rename('updateJSONURL', updateJsonUrl)
             }
 
             class Dependencies {
