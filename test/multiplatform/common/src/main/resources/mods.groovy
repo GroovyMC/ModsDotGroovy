@@ -15,6 +15,7 @@ final mdg = MultiplatformModsDotGroovy.make {
             person('Example Mod Author') {
                 email = 'example@example.com'
             }
+            person('Another Author')
         }
         logoFile = 'logo.png'
 
@@ -39,10 +40,10 @@ final mdg = MultiplatformModsDotGroovy.make {
         }
 
         dependencies {
-            forge = "[44,)"
             minecraft = '[1.19.3]'
 
             onForge {
+                forge = "[44,)"
                 mod {
                     modId = 'patchouli'
                     versionRange = '[1.1,)'

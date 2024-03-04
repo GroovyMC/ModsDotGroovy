@@ -10,8 +10,7 @@ final mdg = NeoForgeModsDotGroovy.make {
         version = '1.0.0'
         displayName = 'Example Mod'
         description = 'This is an example mod.'
-        //authors = ['Example Mod Author']
-        author = 'Example Mod Author'
+        authors = ['Example Mod Author', 'Another Author']
         logoFile = 'logo.png'
 
         // for testing the inferred updateJsonUrl feature - issueTrackerUrl and links to GitHub repos are also supported by this feature

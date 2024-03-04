@@ -115,9 +115,17 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
                 return PluginResult.rename('authors', author)
             }
 
-            PluginResult setAuthors(final List<String> authors) {
+            def setAuthors(final def authors) {
                 log.debug "mods.modInfo.authors: ${authors}"
-                return PluginResult.change(authors.join(', '))
+                if (authors instanceof List) {
+                    if (authors.size() === 1) {
+                        return authors[0]
+                    } else {
+                        def parts = authors.collect()
+                        parts[parts.size() - 1] = "and " + parts[parts.size() - 1]
+                        return authors.size() === 2 ? parts.join(' ') : parts.join(', ')
+                    }
+                }
             }
 
             void setLogoFile(final String logoFile) {

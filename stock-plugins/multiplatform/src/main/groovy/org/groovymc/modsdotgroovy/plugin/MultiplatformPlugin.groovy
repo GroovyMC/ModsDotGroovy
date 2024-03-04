@@ -180,17 +180,6 @@ final class MultiplatformPlugin extends ModsDotGroovyPlugin {
             }
 
             def setAuthors(final authors) {
-                if (isForgeLike(currentPlatform)) {
-                    if (authors instanceof List) {
-                        if (authors.size() === 1) {
-                            return authors[0]
-                        } else {
-                            def parts = authors.collect()
-                            parts[parts.size() - 1] = "and " + parts[parts.size() - 1]
-                            return authors.size() === 2 ? parts.join(' ') : parts.join(', ')
-                        }
-                    }
-                }
                 if (currentPlatform == Platform.FABRIC) {
                     if (authors instanceof List) {
                         return PluginResult.move([], authors.collect { it instanceof Map ? it : ['name': it] })
