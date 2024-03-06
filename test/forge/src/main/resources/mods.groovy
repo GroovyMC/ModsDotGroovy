@@ -3,7 +3,7 @@ final mdg = ForgeModsDotGroovy.make {
     loaderVersion = rawVersionRange('[1,)')
 
     license = 'All Rights Reserved'
-    issueTrackerUrl = 'https://example.com/issues'
+    issueTrackerUrl = 'https://github.com/zlepper/itlt'
 
     clientSideOnly = true
 

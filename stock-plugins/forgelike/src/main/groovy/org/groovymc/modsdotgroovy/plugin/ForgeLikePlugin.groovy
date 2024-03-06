@@ -19,6 +19,7 @@ import java.util.regex.Matcher
 @SuppressWarnings('GroovyUnusedDeclaration') // All these methods are dynamically called by ModsDotGroovyCore
 @Log4j2(category = 'MDG - ForgeLikePlugin')
 final class ForgeLikePlugin extends ModsDotGroovyPlugin {
+    @Nullable String issueTrackerUrl
 
     @Override
     void init(final Map<String, ?> environment) {
@@ -54,6 +55,8 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
         if (!PluginUtils.isValidHttpUrl(issueTrackerUrl))
             throw new PluginResult.MDGPluginException('issueTrackerUrl must start with http:// or https://')
 
+        this.issueTrackerUrl = issueTrackerUrl
+
         return PluginResult.rename('issueTrackerURL', issueTrackerUrl)
     }
 
@@ -68,7 +71,6 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
         class ModInfo {
             @Nullable String modId = null
             @Nullable String displayUrl = null
-            @Nullable String issueTrackerUrl = null
             @Nullable String updateJsonUrl = null
 
             PluginResult onNestLeave(final Map value) {
