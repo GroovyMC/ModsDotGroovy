@@ -86,9 +86,9 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
 
                 // validate the modId string
                 // https://github.com/MinecraftForge/MinecraftForge/blob/4b813e4319fbd4e7f1ea2a7edaedc82ba617f797/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModInfo.java#L32
-                if (!modId.matches(/^[a-z][a-z0-9_]{3,63}\u0024/)) {
+                if (!modId.matches(/^[a-z][a-z0-9_]{1,63}\u0024/)) {
                     // if the modId is invalid, do a bunch of checks to generate a more helpful error message
-                    final StringBuilder errorMsg = new StringBuilder('modId must match the regex /^[a-z][a-z0-9_]{3,63}$/.').with {
+                    final StringBuilder errorMsg = new StringBuilder('modId must match the regex /^[a-z][a-z0-9_]{1,63}$/.').with {
                         if (modId.contains('-') || modId.contains(' '))
                             append '\nDashes and spaces are not allowed in modId as per the JPMS spec. Use underscores instead.'
                         if (PluginUtils.startsWithNumber(modId))
@@ -96,15 +96,15 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
                         if (modId != modId.toLowerCase(Locale.ROOT))
                             append '\nmodId must be lowercase.'
 
-                        if (modId.length() < 4)
-                            append '\nmodId must be at least 4 characters long to avoid conflicts.'
-                        else if (modId.length() > 64)
+                        if (modId.length() > 64)
                             append '\nmodId cannot be longer than 64 characters.'
 
                         return it
                     }
 
                     throw new PluginResult.MDGPluginException(errorMsg.toString())
+                } else if (modId.length() < 4) {
+                    log.warn 'modId should be at least 4 characters long to avoid conflicts.'
                 }
                 this.modId = modId
                 return new PluginResult.Validate()
