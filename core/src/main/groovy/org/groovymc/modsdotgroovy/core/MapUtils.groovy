@@ -21,7 +21,7 @@ class MapUtils {
     }
 
     static void sanitizeList(final List list) {
-        list.removeIf(it -> it === null)
+        list.removeIf(Objects::isNull)
         for (def i = 0; i < list.size(); i++) {
             final value = list[i]
             switch (value) {
