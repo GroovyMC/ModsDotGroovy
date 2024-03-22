@@ -112,7 +112,7 @@ class LayeredMap {
     void putStackedWatched(List<String> location, Object value, Listener listener) {
         var oldStack = new ArrayList<>(stack)
         int shared = 0
-        final List<String> unique = new ArrayList(location)
+        final List<String> unique = new ArrayList()
 
         for (int i = 0; i < location.size(); i++) {
             if (i < oldStack.size() && oldStack.get(i) == location.get(i)) {
@@ -125,7 +125,7 @@ class LayeredMap {
             pop()
         }
         if (value instanceof Map) {
-            for (String s : location) {
+            for (String s : unique) {
                 push(s)
             }
             value.each { k, v ->

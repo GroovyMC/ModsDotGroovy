@@ -182,9 +182,12 @@ final class MultiplatformPlugin extends ModsDotGroovyPlugin {
             def setAuthors(final authors) {
                 if (currentPlatform == Platform.FABRIC) {
                     if (authors instanceof List) {
-                        return PluginResult.move([], authors.collect { it instanceof Map ? it : ['name': it] })
+                        authors.each {
+                            put(['authors', 'author'], it instanceof Map ? it : ['name': it], false)
+                        }
+                        return PluginResult.remove()
                     } else {
-                        return PluginResult.move([], authors)
+                        return PluginResult.move(['authors'], authors)
                     }
                 } else if (currentPlatform == Platform.QUILT) {
                     def roles = [[(authors): 'Author']]

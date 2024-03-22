@@ -10,7 +10,6 @@ final mdg = MultiplatformModsDotGroovy.make {
         displayName = 'Example Mod'
         version = environmentInfo.version
         description = 'This is an example mod.'
-        //authors = ['Example Mod Author']
         authors {
             person('Example Mod Author') {
                 email = 'example@example.com'
@@ -23,7 +22,7 @@ final mdg = MultiplatformModsDotGroovy.make {
         displayUrl = 'https://curseforge.com/minecraft/mc-mods/spammycombat'
         // updateJsonUrl = 'https://forge.curseupdate.com/623297/spammycombat'
 
-        credits = buildProperties['credits']
+        credits = buildProperties.credits
         displayTest = DisplayTest.MATCH_VERSION
 
         entrypoints {

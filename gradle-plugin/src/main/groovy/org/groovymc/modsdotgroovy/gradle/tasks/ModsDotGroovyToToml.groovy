@@ -12,9 +12,6 @@ import javax.inject.Inject
 abstract class ModsDotGroovyToToml extends AbstractMDGConvertTask {
     private static final TomlWriter TOML_WRITER = new TomlWriter()
 
-    @Inject
-    protected abstract ProjectLayout getProjectLayout()
-
     ModsDotGroovyToToml() {
         this.outputName.convention('mods.toml')
     }
