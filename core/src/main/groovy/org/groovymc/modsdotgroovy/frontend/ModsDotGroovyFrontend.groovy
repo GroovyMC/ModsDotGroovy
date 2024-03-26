@@ -8,7 +8,7 @@ abstract class ModsDotGroovyFrontend implements VersionProducer {
     private final ModsDotGroovyCore core
 
     /**@
-     * If running in a Gradle environment, this will be populated with the {@code gradle.properties}.
+     * If running in a Gradle environment, this will be populated properties exposed with modsDotGroovy.gather
      */
     public final Map<String, ?> buildProperties = [:]
 

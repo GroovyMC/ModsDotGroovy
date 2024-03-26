@@ -9,6 +9,9 @@ dependencies {
     modImplementation 'org.quiltmc:quilt-loader:0.21.0'
 }
 
-modsDotGroovy.multiplatform {
-    from ':multiplatform:common'
+modsDotGroovy {
+    multiplatform.from ':multiplatform:common'
+    gather {
+        projectProperty 'credits'
+    }
 }

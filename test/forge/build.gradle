@@ -5,6 +5,10 @@ plugins {
     id 'org.groovymc.modsdotgroovy'
 }
 
+modsDotGroovy.gather {
+    projectProperty 'credits'
+}
+
 version = '1.0.0'
 group = 'com.example.examplemod'
 base.archivesName = 'examplemod'

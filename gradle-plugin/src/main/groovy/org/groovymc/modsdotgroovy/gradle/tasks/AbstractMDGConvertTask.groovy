@@ -52,10 +52,6 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
 
     @Input
     @Optional
-    abstract SetProperty<String> getEnvironmentBlacklist()
-
-    @Input
-    @Optional
     abstract Property<Platform> getPlatform()
 
     @Input
@@ -87,8 +83,6 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         // default to e.g. build/modsDotGroovyToToml/mods.toml
         output.convention(projectLayout.buildDirectory.dir('generated/modsDotGroovy/' + name.replaceFirst('ConvertTo', 'modsDotGroovyTo')).map((Directory dir) -> dir.file(outputName.get())))
 
-        environmentBlacklist.convention(project.provider(() -> conversionOptions.get().environmentBlacklist.get()))
-        buildProperties.convention(project.provider(() -> filterBuildProperties(project.extensions.extraProperties.properties, environmentBlacklist.get())))
         projectVersion.convention(project.provider(() -> project.version.toString()))
         projectGroup.convention(project.provider(() -> project.group.toString()))
         isMultiplatform.convention(project.provider(() -> false))
@@ -151,7 +145,12 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
 
         final json = new JsonSlurper()
         (json.parse(platformDetailsFile.get().asFile) as Map<String, String>).each { key, value ->
-            bindingValues[key] = value
+            final original = value
+            if (original instanceof Map && value instanceof Map) {
+                bindingValues[key] = original + value
+            } else {
+                bindingValues[key] = value
+            }
         }
 
         final bindings = new Binding(bindingValues)
