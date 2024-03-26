@@ -3,6 +3,12 @@ plugins {
     id 'org.groovymc.modsdotgroovy'
 }
 
+modsDotGroovy {
+    gather {
+        projectProperty 'credits'
+    }
+}
+
 runs {
     server {
         modSource project.sourceSets.main

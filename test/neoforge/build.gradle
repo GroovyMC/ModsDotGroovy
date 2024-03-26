@@ -10,6 +10,9 @@ versionCatalogs.find('libs')
 modsDotGroovy {
     platform = Platform.NEOFORGE
     inferGather.set false
+    gather {
+        projectProperty 'credits'
+    }
     apply()
 }
 

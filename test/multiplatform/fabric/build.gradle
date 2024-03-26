@@ -9,6 +9,9 @@ dependencies {
     modImplementation 'net.fabricmc:fabric-loader:0.14.24'
 }
 
-modsDotGroovy.multiplatform {
-    from ':multiplatform:common'
+modsDotGroovy {
+    multiplatform.from ':multiplatform:common'
+    gather {
+        projectProperty 'credits'
+    }
 }

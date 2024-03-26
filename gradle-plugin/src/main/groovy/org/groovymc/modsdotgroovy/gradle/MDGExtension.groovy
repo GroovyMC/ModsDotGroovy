@@ -24,6 +24,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.core.versioning.FlexVerComparator
 import org.groovymc.modsdotgroovy.gradle.tasks.*
 
 import javax.inject.Inject
@@ -53,6 +54,7 @@ abstract class MDGExtension {
     final Property<FileCollection> modsDotGroovyFile
     final Multiplatform multiplatform
     final ListProperty<String> catalogs
+    final ListProperty<Action<AbstractGatherPlatformDetailsTask>> gatherActions
 
     private final Property<Boolean> multiplatformFlag
     private final SourceSet sourceSet
@@ -74,6 +76,7 @@ abstract class MDGExtension {
         this.conversionOptions = project.objects.newInstance(MDGConversionOptions)
         this.modsDotGroovyFile = project.objects.property(FileCollection)
         this.catalogs = project.objects.listProperty(String)
+        this.gatherActions = project.objects.listProperty(Action.class as Class<Action<AbstractGatherPlatformDetailsTask>>)
 
         this.platforms.convention(inferPlatforms(project))
 
@@ -100,6 +103,7 @@ abstract class MDGExtension {
         this.modsDotGroovyFile.finalizeValueOnRead()
         this.multiplatformFlag.finalizeValueOnRead()
         this.catalogs.finalizeValueOnRead()
+        this.gatherActions.finalizeValueOnRead()
     }
 
     void conversionOptions(Action<MDGConversionOptions> action) {
@@ -136,6 +140,10 @@ abstract class MDGExtension {
 
     void setPlatform(Platform platform) {
         this.platforms.set(List.of(platform))
+    }
+
+    void gather(Action<AbstractGatherPlatformDetailsTask> action) {
+        gatherActions.add(action)
     }
 
     void apply() {
@@ -401,6 +409,10 @@ abstract class MDGExtension {
         // If we have any version catalogs specified, we should set them up
         setupCatalogs(gatherTask, getCatalogs().get())
 
+        gatherActions.get().each { action ->
+            gatherTask.configure(action)
+        }
+
         TaskProvider<? extends AbstractMDGConvertTask> convertTask
         String processResourcesDestPath
         switch (platform) {
@@ -409,7 +421,14 @@ abstract class MDGExtension {
                 processResourcesDestPath = 'META-INF'
                 break
             case Platform.NEOFORGE:
+                // Handle change of metadata location in 20.5
+                Provider<String> conventionalLocation = gatherTask.flatMap { it.platformVersion.map {
+                    FlexVerComparator.compare(it, '20.5.0-alpha') <= 0 ? 'mods.toml' : 'neoforge.mods.toml'
+                }.orElse('mods.toml') }
                 convertTask = project.tasks.register(forSourceSetName(sourceSet.name, 'modsDotGroovyToTomlNeoForge'), ModsDotGroovyToToml)
+                convertTask.configure {
+                    it.outputName.convention(conventionalLocation)
+                }
                 processResourcesDestPath = 'META-INF'
                 break
             case Platform.FABRIC:

@@ -17,6 +17,9 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.2-48.0.35'
 }
 
-modsDotGroovy.multiplatform {
-    from ':multiplatform:common'
+modsDotGroovy {
+    multiplatform.from ':multiplatform:common'
+    gather {
+        projectProperty 'credits'
+    }
 }

@@ -20,11 +20,10 @@ final mdg = ForgeModsDotGroovy.make {
         displayUrl = 'https://curseforge.com/minecraft/mc-mods/spammycombat'
         // updateJsonUrl = 'https://forge.curseupdate.com/623297/spammycombat'
 
-        // TODO: make sure to pass this in for testing
         credits = buildProperties.credits
         //displayTest = DisplayTest.MATCH_VERSION
         dependencies {
-            // TODO: can we get IDE support for this?
+            // TODO: can/should we get IDE support for this? (or expose it only through the environment info?)
             forge = ">=${platformVersion}"
             minecraft = '[1.19.3]'
 

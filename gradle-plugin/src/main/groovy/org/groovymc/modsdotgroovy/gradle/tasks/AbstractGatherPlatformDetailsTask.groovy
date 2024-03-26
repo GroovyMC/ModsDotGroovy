@@ -13,6 +13,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
@@ -40,6 +41,9 @@ abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
     @Input
     abstract MapProperty<String, Object> getExtraProperties()
 
+    @Input
+    abstract MapProperty<String, Object> getBuildProperties()
+
     @Optional @Input
     Property<@Nullable String> getMinecraftVersion() {
         return minecraftVersion
@@ -63,6 +67,14 @@ abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
     @Inject
     protected ObjectFactory getObjectFactory() {
         throw new IllegalStateException('ObjectFactory not injected')
+    }
+
+    void projectProperty(String name) {
+        buildProperties.put(name, project.providers.gradleProperty(name))
+    }
+
+    void projectProperty(Provider<String> name) {
+        buildProperties.putAll(project.providers.gradleProperty(name).<Map<String, Object>>map { it -> [(name): it] })
     }
 
     AbstractGatherPlatformDetailsTask() {
@@ -96,6 +108,7 @@ abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
             if (platformVersion !== null) {
                 map['platformVersion'] = platformVersion
             }
+            map['buildProperties'] = getBuildProperties().get()
             map.putAll(getExtraProperties().get())
             writer.write(new JsonBuilder(map).toPrettyString())
         }

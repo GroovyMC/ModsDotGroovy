@@ -1,5 +1,5 @@
 # ModsDotGroovy
-(todo: badge)
+[![Version](https://img.shields.io/maven-central/v/org.groovymc.modsdotgroovy/modsdotgroovy?style=for-the-badge&color=blue&label=Latest%20Version&prefix=v)](https://central.sonatype.com/artifact/org.groovymc.modsdotgroovy/modsdotgroovy/)
 
 ModsDotGroovy v2 is a tool that allows writing Minecraft mod metadata files in Groovy which is then compiled down to
 a `mods.toml`, `fabric.mod.json`, `quilt.mod.json` and/or `plugin.yml` when the mod is built.
@@ -98,27 +98,14 @@ modsDotGroovy {
 This determines the output format (for example, mods.toml for `Platform.FORGE`) as well as which plugins and frontend
 to use (unless you explicitly tell the Gradle plugin not to set up the DSL and plugins for you).
 
-### Blacklisting environment variables
-In mods.groovy, you can access build properties with `buildProperties['propertyName']`.
-
-This contains the properties from your gradle.properties file and any global ones, so you may want to blacklist them to
-avoid leaking private keys.
-
-By default, the Gradle plugin excludes properties whose name contains (case-insensitive):
-- pass
-- password
-- token
-- key
-- secret
-
-You can change the blacklist with:
+### Providing build properties
+In mods.groovy, you can access build properties you expose with `buildProperties['propertyName']`. To do so, you must
+first explicitly tell mods.groovy to include them:
 ```groovy
-modsDotGroovy {
-    environmentBlacklist = ['private']
+modsDotGroovy.gather {
+    projectProperty 'propertyName'
 }
 ```
-Note! This overwrites the default blacklist, so you should copy over the words above if you want to add new entries
-rather than replace.
 
 ### Automatic configuration and setup
 Most of the time you don't need to turn this off, but for the edge-cases where you do, you can do so with:
@@ -132,6 +119,9 @@ modsDotGroovy {
     
     // adds the stock plugins to your project
     setupPlugins = false
+  
+    // attempts to automatically infer details such as platform or minecraft version for you project
+    inferGether = false
 }
 ```
 
