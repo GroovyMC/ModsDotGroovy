@@ -16,7 +16,6 @@ final class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     void apply(Project project) {
         // setup required plugins
         project.plugins.apply('java')
-        project.plugins.apply('groovy')
 
         JavaPluginExtension javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
         SourceSetContainer sourceSets = javaPluginExtension.sourceSets
