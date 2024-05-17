@@ -94,7 +94,6 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
                 try {
                     String socketPortString = socketPort.get(4000, TimeUnit.MILLISECONDS);
                     int port = Integer.parseInt(socketPortString);
-                    System.out.println("Listening to MDG runner on port " + port);
                     socket = new Socket(InetAddress.getLoopbackAddress(), port);
 
                     listener = new ResultListener(socket);

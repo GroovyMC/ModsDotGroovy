@@ -1,5 +1,6 @@
 dependencies {
     implementation libs.groovy4.core.get()
+    implementation libs.log4j.core
     compileOnly libs.jetbrains.annotations.get()
     implementation projects.types
 }

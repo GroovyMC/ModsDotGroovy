@@ -2,6 +2,9 @@ package org.groovymc.modsdotgroovy.bootstrap
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.util.logging.Log4j2
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.groovymc.modsdotgroovy.types.bootstrap.Failure
@@ -17,8 +20,10 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 @CompileStatic
+@Log4j2(category = 'MDG - Bootstrap Runner')
 class ModsDotGroovyRunner implements AutoCloseable {
-    ModsDotGroovyRunner() throws IOException {
+
+    private ModsDotGroovyRunner() throws IOException {
         this.socket = new ServerSocket(0)
     }
 
@@ -33,7 +38,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
 
     @Override
     void close() throws IOException {
-        println("Shutting down MDG runner...")
+        log.info "Shutting down MDG runner..."
         socket.close()
         executor.shutdownNow()
         try {
@@ -44,11 +49,12 @@ class ModsDotGroovyRunner implements AutoCloseable {
     }
 
     private void run() throws IOException {
+        // This tells the parent process what port we're listening on
         println(socket.getLocalPort())
-        println("Starting up MDG runner...")
+        log.info "Starting up MDG runner..."
 
         var socket = this.socket.accept()
-        println("Connected to MDG runner...")
+        log.info "Connected to MDG runner..."
         var input = FilteredStream.filtered(socket.getInputStream())
         var out = new ObjectOutputStream(socket.getOutputStream())
         while (true) {
@@ -95,8 +101,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
 
                     final bindings = new Binding(bindingValues)
                     final shell = new GroovyShell(mdgClassLoader, bindings, compilerConfig)
-                    // set context classloader to MDG classloader so that transitive dependencies work correctly
-                    shell.evaluate('Thread.currentThread().contextClassLoader = this.class.classLoader')
+
                     var result = fromScriptResult(shell.evaluate(run.input()))
                     os.writeObject(new Result(run.id(), result))
                 } catch (IOException e) {

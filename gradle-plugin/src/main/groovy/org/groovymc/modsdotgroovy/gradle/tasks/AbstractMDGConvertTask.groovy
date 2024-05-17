@@ -116,26 +116,6 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         final json = new JsonSlurper()
         bindingValues = MapUtils.recursivelyMergeOnlyMaps(bindingValues, json.parse(platformDetailsFile.get().asFile) as Map)
 
-        return convertService.get().run(mdgRuntimeFiles.files.collect { it.toURI().toURL() }.toArray(URL[]::new), script, platform.get(), isMultiplatform.get(), sanitizeMap(bindingValues) as Map<String, Object>)
-    }
-
-    private Map sanitizeMap(Map map) {
-        Map sanitized = [:]
-        map.each { key, value ->
-            sanitized[key] = sanitizeValue(value)
-        }
-        return sanitized
-    }
-
-    private Object sanitizeValue(Object value) {
-        if (value instanceof Map) {
-            return sanitizeMap(value)
-        } else if (value instanceof List) {
-            return value.collect { sanitizeValue(it) }
-        } else if (value instanceof GString) {
-            return value.toString()
-        } else {
-            return value
-        }
+        return convertService.get().run(mdgRuntimeFiles.files.collect { it.toURI().toURL() }.toArray(URL[]::new), script, platform.get(), isMultiplatform.get(), MapUtils.recursivelyConvertToPrimitives(bindingValues) as Map<String, Object>)
     }
 }
