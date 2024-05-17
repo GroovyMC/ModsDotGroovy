@@ -3,15 +3,9 @@ package org.groovymc.modsdotgroovy.bootstrap
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
-import org.groovymc.modsdotgroovy.types.bootstrap.Failure
-import org.groovymc.modsdotgroovy.types.bootstrap.FilteredStream
-import org.groovymc.modsdotgroovy.types.bootstrap.Result
-import org.groovymc.modsdotgroovy.types.bootstrap.Run
-import org.groovymc.modsdotgroovy.types.bootstrap.Stop
+import org.groovymc.modsdotgroovy.types.bootstrap.*
 import org.groovymc.modsdotgroovy.types.core.Platform
 
 import java.lang.annotation.Annotation
