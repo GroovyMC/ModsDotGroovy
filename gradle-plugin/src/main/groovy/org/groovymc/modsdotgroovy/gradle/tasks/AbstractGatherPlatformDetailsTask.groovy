@@ -4,9 +4,6 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.DependencySet
-import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.ProjectLayout
@@ -15,20 +12,15 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import org.groovymc.modsdotgroovy.core.MapUtils
+import org.groovymc.modsdotgroovy.gradle.internal.MapUtils
 import org.jetbrains.annotations.Nullable
 
 import javax.inject.Inject

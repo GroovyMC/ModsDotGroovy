@@ -68,6 +68,8 @@ dependencies {
                 api(it)
             }
         }
+        api projects.bootstrap
+        api projects.types
         api projects.core
     }
 }

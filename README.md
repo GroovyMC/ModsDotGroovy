@@ -79,7 +79,7 @@ Note! Stock frontends are automatically swapped out for you by the Gradle plugin
 ### Changing platforms
 On Gradle, you can explicitly define which platform(s) you want. This is auto-detected if omitted.
 ```groovy
-import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.types.core.Platform
 
 modsDotGroovy {
     platform = Platform.FORGE
@@ -88,7 +88,7 @@ modsDotGroovy {
 ```
 You can also specify a list for multiplatform:
 ```groovy
-import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.types.core.Platform
 
 modsDotGroovy {
     platform = [Platform.FORGE, Platform.FABRIC]

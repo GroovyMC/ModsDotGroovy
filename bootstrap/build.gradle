@@ -1,0 +1,21 @@
+dependencies {
+    implementation libs.groovy4.core.get()
+    compileOnly libs.jetbrains.annotations.get()
+    implementation projects.types
+}
+
+publishing {
+    publications.register('bootstrap', MavenPublication) {
+        from components.java
+
+        pom {
+            name = 'mods.groovy bootstrap'
+            description = 'Bootstrap layer for running mods.groovy from another process'
+            url = 'https://github.com/GroovyMC/ModsDotGroovy'
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.bootstrap
+}

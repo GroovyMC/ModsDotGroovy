@@ -4,7 +4,7 @@ import groovy.transform.CompileStatic
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
-import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.types.core.Platform
 
 @CompileStatic
 trait OnPlatform {

@@ -11,6 +11,7 @@ import org.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import org.groovymc.modsdotgroovy.plugin.NestKey
 import org.groovymc.modsdotgroovy.plugin.PluginRegistry
 import org.groovymc.modsdotgroovy.plugin.PluginResult
+import org.groovymc.modsdotgroovy.types.core.Platform
 
 import java.lang.reflect.Modifier
 

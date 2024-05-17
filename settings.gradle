@@ -45,10 +45,11 @@ dependencyResolutionManagement {
 
             version('jetbrains-annotations', '24.1.0')
             library('jetbrains-annotations', 'org.jetbrains', 'annotations').versionRef('jetbrains-annotations')
+            library('log4j-core', 'org.apache.logging.log4j', 'log4j-core').version('2.22.1')
         }
     }
 }
 
-include 'core', 'gradle-plugin',
+include 'core', 'gradle-plugin', 'bootstrap', 'types',
         'frontend-dsl:forge', 'frontend-dsl:neoforge', 'frontend-dsl:fabric', 'frontend-dsl:quilt', 'frontend-dsl:spigot', 'frontend-dsl:multiplatform',
         'stock-plugins:forgelike', 'stock-plugins:forge', 'stock-plugins:neoforge', 'stock-plugins:fabric', 'stock-plugins:quilt', 'stock-plugins:spigot', 'stock-plugins:multiplatform'

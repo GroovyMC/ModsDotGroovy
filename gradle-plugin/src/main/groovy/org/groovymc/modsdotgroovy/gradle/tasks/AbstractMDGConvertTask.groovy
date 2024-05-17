@@ -1,10 +1,7 @@
 package org.groovymc.modsdotgroovy.gradle.tasks
 
 import groovy.json.JsonSlurper
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import org.codehaus.groovy.control.CompilerConfiguration
-import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
@@ -12,11 +9,12 @@ import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.*
 import org.gradle.work.NormalizeLineEndings
-import org.groovymc.modsdotgroovy.core.MapUtils
-import org.groovymc.modsdotgroovy.core.Platform
-import org.groovymc.modsdotgroovy.transform.MDGBindingVarsAdder
+import org.groovymc.modsdotgroovy.types.core.Platform
+import org.groovymc.modsdotgroovy.gradle.internal.MapUtils
+import org.groovymc.modsdotgroovy.gradle.internal.ConvertService
 
 import javax.inject.Inject
 import java.nio.file.Files
@@ -24,10 +22,6 @@ import java.nio.file.Files
 @CacheableTask
 @CompileStatic
 abstract class AbstractMDGConvertTask extends DefaultTask {
-    private static final CompilerConfiguration MDG_COMPILER_CONFIG = new CompilerConfiguration().tap {
-        targetBytecode = JDK17
-        optimizationOptions['indy'] = true
-    }
 
     @InputFile
     @NormalizeLineEndings
@@ -73,6 +67,12 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     @Inject
     protected abstract ProjectLayout getProjectLayout()
 
+    @ServiceReference('org.groovymc.modsdotgroovy.gradle.internal.ConvertService')
+    protected abstract Property<ConvertService> getConvertService()
+    @InputFiles
+    @Classpath
+    protected abstract ConfigurableFileCollection getConvertServiceClasspath()
+
     AbstractMDGConvertTask() {
         // default to e.g. build/modsDotGroovyToToml/mods.toml
         output.convention(projectLayout.buildDirectory.dir('generated/modsDotGroovy/' + name.replaceFirst('ConvertTo', 'modsDotGroovyTo')).map((Directory dir) -> dir.file(outputName.get())))
@@ -81,19 +81,12 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         projectVersion.convention(project.provider(() -> project.version.toString()))
         projectGroup.convention(project.provider(() -> project.group.toString()))
         isMultiplatform.convention(project.provider(() -> false))
+
+        // This makes sure that the relevant thing is actually present and resolved in an includeBuild or similar environment
+        convertServiceClasspath.from(project.configurations.maybeCreate('modsDotGroovyBootstrapClasspath'))
     }
 
     protected abstract String writeData(Map data)
-
-    protected static Map<String, Object> filterBuildProperties(final Map<String, Object> buildProperties, final Set<String> blacklist) {
-        return buildProperties.findAll { entry ->
-            for (String blacklistEntry in blacklist) {
-                if (entry.key.containsIgnoreCase(blacklistEntry))
-                    return false
-            }
-            return true
-        }
-    }
 
     @TaskAction
     void run() {
@@ -114,26 +107,8 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     }
 
     protected Map from(File script) {
-        // The default Gradle classloader breaks the Java ServiceLoader, so we need to use our own classloader
-        final ClassLoader mdgClassLoader = new URLClassLoader(mdgRuntimeFiles.files.collect { it.toURI().toURL() }.toArray(URL[]::new))
-
-        final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
-        compilerConfig.classpathList = mdgClassLoader.URLs*.toString()
-        //println "mdgClassLoader classpath: ${compilerConfig.classpath}"
-
-        final bindingAdderTransform = new ASTTransformationCustomizer(MDGBindingVarsAdder)
-        final Platform platform = platform.get()
-        final GString frontendClassName = "${platform.toString()}ModsDotGroovy"
-        if (isMultiplatform.get())
-            frontendClassName.values[0] = 'Multiplatform'
-
-        bindingAdderTransform.annotationParameters = [className: frontendClassName.toString()] as Map<String, Object>
-
-        compilerConfig.addCompilationCustomizers(bindingAdderTransform)
-
         Map bindingValues = [
                 buildProperties: buildProperties.get(),
-                platform: platform,
                 version: projectVersion.get(),
                 group: projectGroup.get(),
         ]
@@ -141,15 +116,26 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         final json = new JsonSlurper()
         bindingValues = MapUtils.recursivelyMergeOnlyMaps(bindingValues, json.parse(platformDetailsFile.get().asFile) as Map)
 
-        final bindings = new Binding(bindingValues)
-        final shell = new GroovyShell(mdgClassLoader, bindings, compilerConfig)
-        // set context classloader to MDG classloader so that transitive dependencies work correctly
-        shell.evaluate('Thread.currentThread().contextClassLoader = this.class.classLoader')
-        return fromScriptResult(shell.evaluate(script))
+        return convertService.get().run(mdgRuntimeFiles.files.collect { it.toURI().toURL() }.toArray(URL[]::new), script, platform.get(), isMultiplatform.get(), sanitizeMap(bindingValues) as Map<String, Object>)
     }
 
-    @CompileDynamic
-    private static Map fromScriptResult(def scriptResult) {
-        return scriptResult.core.build()
+    private Map sanitizeMap(Map map) {
+        Map sanitized = [:]
+        map.each { key, value ->
+            sanitized[key] = sanitizeValue(value)
+        }
+        return sanitized
+    }
+
+    private Object sanitizeValue(Object value) {
+        if (value instanceof Map) {
+            return sanitizeMap(value)
+        } else if (value instanceof List) {
+            return value.collect { sanitizeValue(it) }
+        } else if (value instanceof GString) {
+            return value.toString()
+        } else {
+            return value
+        }
     }
 }

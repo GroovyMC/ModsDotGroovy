@@ -3,6 +3,7 @@ package org.groovymc.modsdotgroovy.core.versioning
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
+import org.groovymc.modsdotgroovy.types.core.versioning.FlexVerComparator
 
 @CompileStatic
 sealed abstract class VersionRange permits AndVersionRange, OrVersionRange, SingleVersionRange {

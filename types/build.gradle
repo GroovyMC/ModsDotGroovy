@@ -1,0 +1,19 @@
+dependencies {
+    compileOnly libs.jetbrains.annotations.get()
+}
+
+publishing {
+    publications.register('types', MavenPublication) {
+        from components.java
+
+        pom {
+            name = 'mods.groovy types'
+            description = 'Common types for mods.groovy'
+            url = 'https://github.com/GroovyMC/ModsDotGroovy'
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.types
+}

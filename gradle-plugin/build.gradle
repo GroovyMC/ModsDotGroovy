@@ -17,7 +17,7 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy() // due to Gradle limitations, we must use localGroovy() for Gradle plugins
 
-    implementation projects.core
+    implementation projects.types
 
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
     implementation 'org.yaml:snakeyaml:2.1'

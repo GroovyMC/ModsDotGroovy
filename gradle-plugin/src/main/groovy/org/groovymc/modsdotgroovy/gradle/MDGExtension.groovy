@@ -23,8 +23,8 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.language.jvm.tasks.ProcessResources
-import org.groovymc.modsdotgroovy.core.Platform
-import org.groovymc.modsdotgroovy.core.versioning.FlexVerComparator
+import org.groovymc.modsdotgroovy.types.core.Platform
+import org.groovymc.modsdotgroovy.types.core.versioning.FlexVerComparator
 import org.groovymc.modsdotgroovy.gradle.tasks.*
 
 import javax.inject.Inject
@@ -146,6 +146,10 @@ abstract class MDGExtension {
 
     void setPlatform(Platform platform) {
         this.platforms.set(List.of(platform))
+    }
+
+    void setPlatform(String platform) {
+        this.platforms.set(List.of(Platform.of(platform)))
     }
 
     void gather(Action<AbstractGatherPlatformDetailsTask> action) {

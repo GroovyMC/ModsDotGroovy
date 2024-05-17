@@ -3,7 +3,7 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
-import org.groovymc.modsdotgroovy.core.Platform
+import org.groovymc.modsdotgroovy.types.core.Platform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 
 @CompileStatic

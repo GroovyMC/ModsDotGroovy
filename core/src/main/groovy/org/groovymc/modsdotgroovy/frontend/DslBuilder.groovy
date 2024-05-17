@@ -2,7 +2,6 @@ package org.groovymc.modsdotgroovy.frontend
 
 import groovy.transform.CompileStatic
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
-import org.groovymc.modsdotgroovy.core.Platform
 
 @CompileStatic
 abstract class DslBuilder implements VersionProducer {

@@ -5,7 +5,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class MapUtils {
     /**
-     * Recursively removes null values and evaluates GStrings in-place.
+     * Recursively removes null values and evaluates GStrings in-place, returning a serializable type.
      * @param data
      */
     static void sanitizeMap(final Map data) {
@@ -21,31 +21,16 @@ class MapUtils {
     }
 
     static void sanitizeList(final List list) {
-        list.removeIf(Objects::isNull)
-        for (def i = 0; i < list.size(); i++) {
-            final value = list[i]
+        final copy = new ArrayList(list)
+        copy.removeIf(Objects::isNull)
+        for (def i = 0; i < copy.size(); i++) {
+            final value = copy[i]
             switch (value) {
                 case List -> sanitizeList(value as List)
                 case Map -> sanitizeMap(value as Map)
-                case GString -> list[i] = value.toString()
+                case GString -> copy[i] = value.toString()
             }
         }
-    }
-
-    static Map recursivelyMergeOnlyMaps(final Map left, final Map right) {
-        if (left === null && right === null) return [:]
-        if (left === null) return right
-        if (right === null) return left
-        Map out = new LinkedHashMap(left)
-        right.each { key, value ->
-            var existing = out[key]
-            if (existing instanceof Map && value instanceof Map) {
-                out[key] = recursivelyMergeOnlyMaps(existing, value)
-            } else {
-                out[key] = value
-            }
-        }
-        return out
     }
 
     /**
@@ -92,29 +77,6 @@ class MapUtils {
             result = recursivelyMerge(result, map)
         }
         return result
-    }
-
-    static Map recursivelyConvertToPrimitives(final Map map) {
-        return map.inject([:]) { result, key, value ->
-            switch (value) {
-                case Map -> result[key] = recursivelyConvertToPrimitives(value as Map)
-                case List -> result[key] = recursivelyConvertToPrimitives(value as List)
-                case Number, Boolean, Character, String -> result[key] = value
-                default -> result[key] = value.toString()
-            }
-            return result
-        }
-    }
-
-    static List recursivelyConvertToPrimitives(final List list) {
-        return list.collect { listItem ->
-            switch (listItem) {
-                case Map -> recursivelyConvertToPrimitives(listItem as Map)
-                case List -> recursivelyConvertToPrimitives(listItem as List)
-                case Number, Boolean, Character, String -> listItem
-                default -> listItem.toString()
-            }
-        }
     }
 
     private MapUtils() {}
