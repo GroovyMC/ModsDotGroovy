@@ -1,12 +1,12 @@
-package org.groovymc.modsdotgroovy.bootstrap
+package org.groovymc.modsdotgroovy.runner
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
-import org.groovymc.modsdotgroovy.types.bootstrap.*
 import org.groovymc.modsdotgroovy.types.core.Platform
+import org.groovymc.modsdotgroovy.types.runner.*
 
 import java.lang.annotation.Annotation
 import java.util.concurrent.ExecutorService

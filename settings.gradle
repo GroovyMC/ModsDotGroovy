@@ -50,6 +50,6 @@ dependencyResolutionManagement {
     }
 }
 
-include 'core', 'gradle-plugin', 'bootstrap', 'types',
+include 'core', 'gradle-plugin', 'runner', 'types',
         'frontend-dsl:forge', 'frontend-dsl:neoforge', 'frontend-dsl:fabric', 'frontend-dsl:quilt', 'frontend-dsl:spigot', 'frontend-dsl:multiplatform',
         'stock-plugins:forgelike', 'stock-plugins:forge', 'stock-plugins:neoforge', 'stock-plugins:fabric', 'stock-plugins:quilt', 'stock-plugins:spigot', 'stock-plugins:multiplatform'

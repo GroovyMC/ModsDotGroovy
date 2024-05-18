@@ -68,7 +68,7 @@ dependencies {
                 api(it)
             }
         }
-        api projects.bootstrap
+        api projects.runner
         api projects.types
         api projects.core
     }

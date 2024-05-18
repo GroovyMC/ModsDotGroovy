@@ -1,17 +1,14 @@
 package org.groovymc.modsdotgroovy.gradle.internal;
 
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
-import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
-import org.groovymc.modsdotgroovy.types.bootstrap.Failure;
-import org.groovymc.modsdotgroovy.types.bootstrap.FilteredStream;
-import org.groovymc.modsdotgroovy.types.bootstrap.Result;
-import org.groovymc.modsdotgroovy.types.bootstrap.Run;
-import org.groovymc.modsdotgroovy.types.bootstrap.Stop;
+import org.groovymc.modsdotgroovy.types.runner.Failure;
+import org.groovymc.modsdotgroovy.types.runner.FilteredStream;
+import org.groovymc.modsdotgroovy.types.runner.Result;
+import org.groovymc.modsdotgroovy.types.runner.Run;
+import org.groovymc.modsdotgroovy.types.runner.Stop;
 import org.groovymc.modsdotgroovy.types.core.Platform;
 
 import javax.inject.Inject;
@@ -39,14 +36,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class ConvertService implements BuildService<ConvertService.Parameters>, AutoCloseable {
     public static final String THREAD_COUNT_PROPERTY = "org.groovymc.modsdotgroovy.conversion.threads";
+    private static final String LOG_LEVEL_PROPERTY = "org.groovymc.modsdotgroovy.conversion.logging";
 
     public abstract static class Parameters implements BuildServiceParameters {
-        @InputFiles
-        @Classpath
-        public abstract ConfigurableFileCollection getClasspath();
-
         @Input
         public abstract Property<String> getThreads();
+        @Input
+        public abstract Property<String> getLogLevel();
     }
 
     private Process process;
@@ -56,7 +52,7 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
     @Inject
     public ConvertService() {}
 
-    private ResultListener start() {
+    private ResultListener start(String runnerClasspath) {
         synchronized (this) {
             if (process == null) {
                 var builder = new ProcessBuilder();
@@ -64,12 +60,14 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
                 // We'd like to redirect this normally... but we can't, cause INHERIT doesn't seem to work here. Gradle weirdness?
                 builder.redirectError(ProcessBuilder.Redirect.PIPE);
                 var java = ProcessHandle.current().info().command().orElseThrow();
+
                 builder.command(List.of(
                         java,
                         "-cp",
-                        getParameters().getClasspath().getAsPath(),
+                        runnerClasspath,
                         "-D"+THREAD_COUNT_PROPERTY+"="+getParameters().getThreads().get(),
-                        "org.groovymc.modsdotgroovy.bootstrap.ModsDotGroovyRunner"
+                        "-D"+LOG_LEVEL_PROPERTY+"="+getParameters().getLogLevel().get(),
+                        "org.groovymc.modsdotgroovy.runner.ModsDotGroovyRunner"
                 ));
                 try {
                     process = builder.start();
@@ -269,8 +267,8 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
 
     private final AtomicInteger id = new AtomicInteger();
 
-    public Map<String, Object> run(URL[] classpath, File input, Platform platform, boolean multiplatform, Map<String, Object> bindings) {
-        var listener = start();
+    public Map<String, Object> run(String runnerClasspath, URL[] classpath, File input, Platform platform, boolean multiplatform, Map<String, Object> bindings) {
+        var listener = start(runnerClasspath);
         var nextId = id.getAndIncrement();
         var run = new Run(nextId, classpath, input, platform.name(), multiplatform, bindings);
         try {

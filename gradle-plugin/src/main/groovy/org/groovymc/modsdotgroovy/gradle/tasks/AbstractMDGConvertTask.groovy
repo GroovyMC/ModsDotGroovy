@@ -71,7 +71,7 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     protected abstract Property<ConvertService> getConvertService()
     @InputFiles
     @Classpath
-    protected abstract ConfigurableFileCollection getConvertServiceClasspath()
+    protected abstract ConfigurableFileCollection getRunnerClasspath()
 
     AbstractMDGConvertTask() {
         // default to e.g. build/modsDotGroovyToToml/mods.toml
@@ -82,8 +82,7 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         projectGroup.convention(project.provider(() -> project.group.toString()))
         isMultiplatform.convention(project.provider(() -> false))
 
-        // This makes sure that the relevant thing is actually present and resolved in an includeBuild or similar environment
-        convertServiceClasspath.from(project.configurations.maybeCreate('modsDotGroovyBootstrapClasspath'))
+        runnerClasspath.from(project.configurations.maybeCreate('modsDotGroovyRunnerClasspath'))
     }
 
     protected abstract String writeData(Map data)
@@ -116,6 +115,6 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         final json = new JsonSlurper()
         bindingValues = MapUtils.recursivelyMergeOnlyMaps(bindingValues, json.parse(platformDetailsFile.get().asFile) as Map)
 
-        return convertService.get().run(mdgRuntimeFiles.files.collect { it.toURI().toURL() }.toArray(URL[]::new), script, platform.get(), isMultiplatform.get(), MapUtils.recursivelyConvertToPrimitives(bindingValues) as Map<String, Object>)
+        return convertService.get().run(getRunnerClasspath().getAsPath(), mdgRuntimeFiles.files.collect { it.toURI().toURL() }.toArray(URL[]::new), script, platform.get(), isMultiplatform.get(), MapUtils.recursivelyConvertToPrimitives(bindingValues) as Map<String, Object>)
     }
 }

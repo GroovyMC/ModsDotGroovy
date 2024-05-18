@@ -6,7 +6,7 @@ dependencies {
 }
 
 publishing {
-    publications.register('bootstrap', MavenPublication) {
+    publications.register('runner', MavenPublication) {
         from components.java
 
         pom {
@@ -18,5 +18,5 @@ publishing {
 }
 
 signing {
-    sign publishing.publications.bootstrap
+    sign publishing.publications.runner
 }

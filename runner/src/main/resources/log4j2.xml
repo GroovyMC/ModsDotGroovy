@@ -8,7 +8,7 @@
     </Appenders>
     <Loggers>
         <!-- Root logger referring to console appender -->
-        <Root level="info" additivity="false">
+        <Root level="${sys:org.groovymc.modsdotgroovy.conversion.logging:-info}" additivity="false">
             <AppenderRef ref="console" />
         </Root>
     </Loggers>

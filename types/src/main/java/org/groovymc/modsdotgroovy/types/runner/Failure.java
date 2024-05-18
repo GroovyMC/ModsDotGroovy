@@ -1,4 +1,4 @@
-package org.groovymc.modsdotgroovy.types.bootstrap;
+package org.groovymc.modsdotgroovy.types.runner;
 
 import java.io.Serializable;
 

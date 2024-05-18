@@ -3,14 +3,11 @@ package org.groovymc.modsdotgroovy.gradle
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.services.BuildServiceSpec
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JavaLauncher
-import org.gradle.jvm.toolchain.JavaToolchainService
 import org.groovymc.modsdotgroovy.gradle.internal.ConvertService
 
 import javax.inject.Inject
@@ -19,9 +16,6 @@ import javax.inject.Inject
 abstract class ModsDotGroovyGradlePlugin implements Plugin<Project> {
     private static final String EXTENSION_NAME = 'modsDotGroovy'
     public static final String VERSION = ModsDotGroovyGradlePlugin.class.package.implementationVersion
-
-    @Inject
-    protected abstract JavaToolchainService getToolchainService()
 
     @Inject
     ModsDotGroovyGradlePlugin() {}
@@ -34,11 +28,11 @@ abstract class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         JavaPluginExtension javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
         SourceSetContainer sourceSets = javaPluginExtension.sourceSets
 
-        Configuration bootstrapClasspath = project.configurations.create('modsDotGroovyBootstrapClasspath')
-        project.dependencies.add('modsDotGroovyBootstrapClasspath', project.dependencies.create('org.groovymc.modsdotgroovy:bootstrap'))
+        project.configurations.register('modsDotGroovyRunnerClasspath')
+        project.dependencies.add('modsDotGroovyRunnerClasspath', project.dependencies.create('org.groovymc.modsdotgroovy:runner'))
         project.getGradle().getSharedServices().registerIfAbsent(ConvertService.name, ConvertService) { BuildServiceSpec<ConvertService.Parameters> it ->
-            it.parameters.classpath.from(bootstrapClasspath)
             it.parameters.threads.set(project.providers.systemProperty(ConvertService.THREAD_COUNT_PROPERTY).orElse("4"))
+            it.parameters.logLevel.set(closestLogLevel(project.gradle.startParameter.logLevel))
         }
 
         // set up the core extension for the 'main' source set
@@ -62,6 +56,23 @@ abstract class ModsDotGroovyGradlePlugin implements Plugin<Project> {
                 MDGExtension extension = sourceSet.extensions.getByType(MDGExtension)
                 extension.apply()
             }
+        }
+    }
+
+    static String closestLogLevel(LogLevel logLevel) {
+        switch (logLevel) {
+            case LogLevel.DEBUG:
+                return 'DEBUG'
+            case LogLevel.INFO:
+                return 'INFO'
+            case LogLevel.LIFECYCLE:
+                return 'WARN'
+            case LogLevel.WARN:
+                return 'WARN'
+            case LogLevel.QUIET:
+                return 'ERROR'
+            case LogLevel.ERROR:
+                return 'ERROR'
         }
     }
 }

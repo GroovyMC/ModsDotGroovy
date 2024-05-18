@@ -1,11 +1,9 @@
 package org.groovymc.modsdotgroovy.core
 
-
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.TupleConstructor
 import groovy.util.logging.Log4j2
-import org.apache.logging.log4j.Level
 import org.codehaus.groovy.runtime.StringGroovyMethods
 import org.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import org.groovymc.modsdotgroovy.plugin.NestKey
@@ -27,7 +25,6 @@ final class ModsDotGroovyCore {
     final LayeredMap.Listener listener
 
     ModsDotGroovyCore(final Map<String, ?> environment) {
-        log.level = Level.DEBUG
         plugins*.init(environment.asImmutable())
         platform = environment.containsKey('platform')
                 ? Platform.of(environment['platform'].invokeMethod('name', null) as String)
