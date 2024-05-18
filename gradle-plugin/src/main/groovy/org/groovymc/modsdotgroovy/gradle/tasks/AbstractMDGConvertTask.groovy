@@ -15,6 +15,7 @@ import org.gradle.work.NormalizeLineEndings
 import org.groovymc.modsdotgroovy.types.core.Platform
 import org.groovymc.modsdotgroovy.gradle.internal.MapUtils
 import org.groovymc.modsdotgroovy.gradle.internal.ConvertService
+import org.groovymc.modsdotgroovy.types.runner.FilteredStream
 import org.jetbrains.annotations.ApiStatus
 
 import javax.inject.Inject
@@ -99,7 +100,7 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
             return
         }
 
-        final Map data = MapUtils.recursivelyConvertToPrimitives(from(input))
+        final Map data = FilteredStream.convertToSerializable(from(input))
 
         final outPath = output.get().asFile.toPath()
         if (outPath.parent !== null && !Files.exists(outPath.parent))
@@ -119,6 +120,6 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
         final json = new JsonSlurper()
         bindingValues = MapUtils.recursivelyMergeOnlyMaps(bindingValues, json.parse(platformDetailsFile.get().asFile) as Map)
 
-        return convertService.get().run(getRunnerClasspath().getAsPath(), mdgRuntimeFiles.files.collect { it.toURI().toURL() }.toArray(URL[]::new), script, platform.get(), isMultiplatform.get(), MapUtils.recursivelyConvertToPrimitives(bindingValues) as Map<String, Object>)
+        return convertService.get().run(getRunnerClasspath().getAsPath(), mdgRuntimeFiles.files.collect { it.toURI().toURL() }.toArray(URL[]::new), script, platform.get(), isMultiplatform.get(), FilteredStream.convertToSerializable(bindingValues) as Map<String, Object>)
     }
 }

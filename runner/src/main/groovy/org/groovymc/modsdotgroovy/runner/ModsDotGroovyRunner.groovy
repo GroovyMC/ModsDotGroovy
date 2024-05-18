@@ -96,7 +96,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
                     final bindings = new Binding(bindingValues)
                     final shell = new GroovyShell(mdgClassLoader, bindings, compilerConfig)
 
-                    var result = fromScriptResult(shell.evaluate(run.input()))
+                    var result = FilteredStream.convertToSerializable(fromScriptResult(shell.evaluate(run.input())))
                     os.writeObject(new Result(run.id(), result))
                 } catch (IOException e) {
                     throw new UncheckedIOException(e)
@@ -110,7 +110,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
     }
 
     @CompileDynamic
-    private static Map<String, Object> fromScriptResult(Object scriptResult) {
+    private static Map<?, ?> fromScriptResult(Object scriptResult) {
         return scriptResult.core.build()
     }
 }

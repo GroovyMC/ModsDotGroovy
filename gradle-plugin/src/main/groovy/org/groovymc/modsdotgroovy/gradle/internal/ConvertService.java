@@ -267,7 +267,7 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
 
     private final AtomicInteger id = new AtomicInteger();
 
-    public Map<String, Object> run(String runnerClasspath, URL[] classpath, File input, Platform platform, boolean multiplatform, Map<String, Object> bindings) {
+    public Map<?, ?> run(String runnerClasspath, URL[] classpath, File input, Platform platform, boolean multiplatform, Map<String, Object> bindings) {
         var listener = start(runnerClasspath);
         var nextId = id.getAndIncrement();
         var run = new Run(nextId, classpath, input, platform.name(), multiplatform, bindings);

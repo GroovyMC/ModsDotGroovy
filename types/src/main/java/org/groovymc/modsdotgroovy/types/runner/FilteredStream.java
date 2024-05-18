@@ -8,8 +8,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class FilteredStream extends ObjectInputStream {
@@ -37,6 +40,7 @@ public final class FilteredStream extends ObjectInputStream {
 
     private static final Set<Class<?>> ALLOWED_CLASSES = Set.of(
             String.class,
+            Date.class,
 
             // Collections
             LinkedHashMap.class,
@@ -67,4 +71,32 @@ public final class FilteredStream extends ObjectInputStream {
             // Error reporting
             StackTraceElement.class
     );
+
+    public static Map<Object, Object> convertToSerializable(final Map<?, ?> map) {
+        var result = new LinkedHashMap<>();
+        for (var entry : map.entrySet()) {
+            result.put(convertToSerializable(entry.getValue()), convertToSerializable(entry.getValue()));
+        }
+        return result;
+    }
+
+    public static Object convertToSerializable(final Object value) {
+        if (value instanceof Map<?,?> map) {
+            return convertToSerializable(map);
+        } else if (value instanceof List<?> list) {
+            return convertToSerializable(list);
+        } else if (value instanceof Number || value instanceof Boolean || value instanceof Character || value instanceof String || value instanceof Date) {
+            return value;
+        } else {
+            return value.toString();
+        }
+    }
+
+    public static List<Object> convertToSerializable(final List<?> list) {
+        var result = new ArrayList<>();
+        for (var listItem : list) {
+            result.add(convertToSerializable(listItem));
+        }
+        return result;
+    }
 }
