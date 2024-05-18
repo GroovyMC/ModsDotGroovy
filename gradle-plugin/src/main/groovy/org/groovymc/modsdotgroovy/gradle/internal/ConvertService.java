@@ -166,7 +166,7 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
             });
         }
 
-        public CompletableFuture<Result> listen(Run run) throws IOException {
+        public synchronized CompletableFuture<Result> listen(Run run) throws IOException {
             if (closed) {
                 throw new IOException("Listener is closed");
             }

@@ -2,6 +2,7 @@ package org.groovymc.modsdotgroovy.runner
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.TupleConstructor
 import groovy.util.logging.Log4j2
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
@@ -50,14 +51,15 @@ class ModsDotGroovyRunner implements AutoCloseable {
         var socket = this.socket.accept()
         log.info "Connected to MDG runner..."
         var input = FilteredStream.filtered(socket.getInputStream())
-        var out = new ObjectOutputStream(socket.getOutputStream())
+        var os = new ObjectOutputStream(socket.getOutputStream())
+        var output = new Output(os)
         while (true) {
             try {
                 var obj = input.readObject()
                 if (obj instanceof Stop) {
                     break
                 } else if (obj instanceof Run) {
-                    execute(obj, out)
+                    execute(obj, output)
                 } else {
                     throw new IOException("Unexpected object: " + obj)
                 }
@@ -72,7 +74,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
         optimizationOptions['indy'] = true
     }
 
-    private void execute(Run run, ObjectOutputStream os) {
+    private void execute(Run run, Output output) {
         var future = executor.submit(() -> {
             try {
                 try (var mdgClassLoader = new URLClassLoader(run.classpath())) {
@@ -97,14 +99,23 @@ class ModsDotGroovyRunner implements AutoCloseable {
                     final shell = new GroovyShell(mdgClassLoader, bindings, compilerConfig)
 
                     var result = FilteredStream.convertToSerializable(fromScriptResult(shell.evaluate(run.input())))
-                    os.writeObject(new Result(run.id(), result))
+                    output.writeObject(new Result(run.id(), result))
                 }
             } catch (Throwable t) {
                 t.printStackTrace()
-                os.writeObject(new Failure(run.id(), t.message, t.stackTrace))
+                output.writeObject(new Failure(run.id(), t.message, t.stackTrace))
                 throw new RuntimeException(t)
             }
         })
+    }
+
+    @TupleConstructor(includeFields = true)
+    private static class Output {
+        private final ObjectOutputStream stream
+
+        synchronized void writeObject(Object obj) {
+            stream.writeObject(obj)
+        }
     }
 
     @CompileDynamic
