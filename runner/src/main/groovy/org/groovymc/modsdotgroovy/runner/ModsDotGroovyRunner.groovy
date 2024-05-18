@@ -98,6 +98,9 @@ class ModsDotGroovyRunner implements AutoCloseable {
                     final bindings = new Binding(bindingValues)
                     final shell = new GroovyShell(mdgClassLoader, bindings, compilerConfig)
 
+                    // set context classloader to MDG classloader -- needed for proper service discovery
+                    shell.evaluate('Thread.currentThread().contextClassLoader = this.class.classLoader')
+
                     var result = FilteredStream.convertToSerializable(fromScriptResult(shell.evaluate(run.input())))
                     output.writeObject(new Result(run.id(), result))
                 }
