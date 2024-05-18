@@ -76,7 +76,7 @@ public final class FilteredStream extends ObjectInputStream {
     public static Map<Object, Object> convertToSerializable(final Map<?, ?> map) {
         var result = new LinkedHashMap<>();
         for (var entry : map.entrySet()) {
-            result.put(convertToSerializable(entry.getValue()), convertToSerializable(entry.getValue()));
+            result.put(convertToSerializable(entry.getKey()), convertToSerializable(entry.getValue()));
         }
         return result;
     }
