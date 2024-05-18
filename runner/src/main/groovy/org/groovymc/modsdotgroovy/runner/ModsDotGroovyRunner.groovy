@@ -18,6 +18,11 @@ import java.util.concurrent.TimeUnit
 @Log4j2(category = 'MDG - Bootstrap Runner')
 class ModsDotGroovyRunner implements AutoCloseable {
 
+    private static final CompilerConfiguration MDG_COMPILER_CONFIG = new CompilerConfiguration().tap {
+        targetBytecode = JDK17
+        optimizationOptions['indy'] = true
+    }
+
     private ModsDotGroovyRunner() throws IOException {
         this.socket = new ServerSocket(0)
     }
@@ -69,11 +74,6 @@ class ModsDotGroovyRunner implements AutoCloseable {
         }
     }
 
-    private static final CompilerConfiguration MDG_COMPILER_CONFIG = new CompilerConfiguration().tap {
-        targetBytecode = JDK17
-        optimizationOptions['indy'] = true
-    }
-
     private void execute(Run run, Output output) {
         var future = executor.submit(() -> {
             try {
@@ -113,7 +113,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
     }
 
     @TupleConstructor(includeFields = true)
-    private static class Output {
+    private static final class Output {
         private final ObjectOutputStream stream
 
         synchronized void writeObject(Object obj) {
