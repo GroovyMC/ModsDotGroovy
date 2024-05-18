@@ -98,8 +98,6 @@ class ModsDotGroovyRunner implements AutoCloseable {
 
                     var result = FilteredStream.convertToSerializable(fromScriptResult(shell.evaluate(run.input())))
                     os.writeObject(new Result(run.id(), result))
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e)
                 }
             } catch (Throwable t) {
                 t.printStackTrace()
