@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -83,8 +84,8 @@ public final class FilteredStream extends ObjectInputStream {
     public static Object convertToSerializable(final Object value) {
         if (value instanceof Map<?,?> map) {
             return convertToSerializable(map);
-        } else if (value instanceof List<?> list) {
-            return convertToSerializable(list);
+        } else if (value instanceof Collection<?> collection) {
+            return convertToSerializable(collection);
         } else if (value instanceof Number || value instanceof Boolean || value instanceof Character || value instanceof String || value instanceof Date) {
             return value;
         } else {
@@ -92,9 +93,9 @@ public final class FilteredStream extends ObjectInputStream {
         }
     }
 
-    public static List<Object> convertToSerializable(final List<?> list) {
+    public static List<Object> convertToSerializable(final Collection<?> collection) {
         var result = new ArrayList<>();
-        for (var listItem : list) {
+        for (var listItem : collection) {
             result.add(convertToSerializable(listItem));
         }
         return result;
