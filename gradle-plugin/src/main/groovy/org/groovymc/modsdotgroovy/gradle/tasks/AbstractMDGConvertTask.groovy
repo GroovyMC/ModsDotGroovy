@@ -15,6 +15,7 @@ import org.gradle.work.NormalizeLineEndings
 import org.groovymc.modsdotgroovy.types.core.Platform
 import org.groovymc.modsdotgroovy.gradle.internal.MapUtils
 import org.groovymc.modsdotgroovy.gradle.internal.ConvertService
+import org.jetbrains.annotations.ApiStatus
 
 import javax.inject.Inject
 import java.nio.file.Files
@@ -68,9 +69,12 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     protected abstract ProjectLayout getProjectLayout()
 
     @ServiceReference('org.groovymc.modsdotgroovy.gradle.internal.ConvertService')
+    @ApiStatus.Internal
     protected abstract Property<ConvertService> getConvertService()
+
     @InputFiles
     @Classpath
+    @ApiStatus.Internal
     protected abstract ConfigurableFileCollection getRunnerClasspath()
 
     AbstractMDGConvertTask() {
