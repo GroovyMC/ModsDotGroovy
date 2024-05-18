@@ -3,7 +3,7 @@
  * The original source code can be found at https://github.com/unascribed/FlexVer
  */
 
-package org.groovymc.modsdotgroovy.types.core.versioning;
+package org.groovymc.modsdotgroovy.types.internal;
 
 /*
  * To the extent possible under law, the author has dedicated all copyright

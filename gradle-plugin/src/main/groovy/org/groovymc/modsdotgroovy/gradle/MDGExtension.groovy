@@ -24,7 +24,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.groovymc.modsdotgroovy.types.core.Platform
-import org.groovymc.modsdotgroovy.types.core.versioning.FlexVerComparator
+import org.groovymc.modsdotgroovy.types.internal.FlexVerComparator
 import org.groovymc.modsdotgroovy.gradle.tasks.*
 
 import javax.inject.Inject
