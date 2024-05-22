@@ -34,8 +34,8 @@ abstract class ModsDotGroovyPlugin {
     /**
      * The version of the plugin, used for logging and debugging purposes.
      */
-    float getVersion() {
-        return 1.00f
+    String getVersion() {
+        return this.class.package.implementationVersion ?: ''
     }
 
     /**

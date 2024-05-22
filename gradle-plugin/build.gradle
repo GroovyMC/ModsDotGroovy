@@ -36,12 +36,6 @@ gradlePlugin {
     }
 }
 
-tasks.named('jar', Jar) {
-    manifest {
-        attributes(['Implementation-Version': project.version])
-    }
-}
-
 afterEvaluate {
     publishing {
         publications.named('pluginMaven', MavenPublication) {
