@@ -1,18 +1,11 @@
 package org.groovymc.modsdotgroovy.gradle.tasks
 
 import groovy.transform.CompileStatic
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.DependencySet
-import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
-import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier
 import org.jetbrains.annotations.Nullable
 
 @CacheableTask
@@ -23,8 +16,9 @@ abstract class GatherForgePlatformDetails extends AbstractGatherPlatformDetailsT
 
     String calculateCombinedVersion() {
         return artifactIds.get().findResult {
-            if (it instanceof ModuleComponentArtifactIdentifier) {
-                return it.componentIdentifier.version
+            def component = it.componentIdentifier
+            if (component instanceof ModuleComponentIdentifier) {
+                return (component as ModuleComponentIdentifier).version
             }
             return null
         }

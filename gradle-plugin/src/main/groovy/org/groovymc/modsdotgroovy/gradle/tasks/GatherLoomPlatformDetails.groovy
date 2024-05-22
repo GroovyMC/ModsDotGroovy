@@ -3,12 +3,12 @@ package org.groovymc.modsdotgroovy.gradle.tasks
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
-import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier
 import org.jetbrains.annotations.Nullable
 
 @CacheableTask
@@ -25,9 +25,11 @@ abstract class GatherLoomPlatformDetails extends AbstractGatherPlatformDetailsTa
 
     private String calculatePlatformVersion() {
         return artifactIds.get().findResult {
-            if (it instanceof ModuleComponentArtifactIdentifier) {
-                if (it.componentIdentifier.group == targetGroup.get() && it.componentIdentifier.module == targetModule.get()) {
-                    return it.componentIdentifier.version
+            def component = it.componentIdentifier
+            if (component instanceof ModuleComponentIdentifier) {
+                def module = component as ModuleComponentIdentifier
+                if (module.group == targetGroup.get() && module.module == targetModule.get()) {
+                    return module.version
                 }
             }
             return null
