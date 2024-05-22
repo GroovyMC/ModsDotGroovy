@@ -116,14 +116,10 @@ abstract class MDGExtension {
 
     private static Provider<List<Platform>> inferPlatforms(Project project) {
         return project.<List<Platform>>provider {
-            if (project.plugins.findPlugin('net.minecraftforge.gradle')) return List.of(Platform.FORGE)
-            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return List.of(Platform.NEOFORGE)
-            else if (project.plugins.findPlugin('fabric-loom')) return List.of(Platform.FABRIC)
-            else if (project.plugins.findPlugin('org.quiltmc.loom')) return List.of(Platform.QUILT)
 
             boolean loomPresent = isLoomProbablyPresent(project)
-            var archLoomPlatform = project.providers.gradleProperty('loom.platform').getOrElse('fabric')
-            if (loomPresent) {
+            String archLoomPlatform = project.findProperty('loom.platform')
+            if (loomPresent && archLoomPlatform !== null) {
                 switch (archLoomPlatform) {
                     case 'forge':
                         return List.of(Platform.FORGE)
@@ -135,6 +131,12 @@ abstract class MDGExtension {
                         return List.of(Platform.QUILT)
                 }
             }
+
+            if (project.plugins.findPlugin('net.minecraftforge.gradle')) return List.of(Platform.FORGE)
+            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return List.of(Platform.NEOFORGE)
+            else if (project.plugins.findPlugin('fabric-loom')) return List.of(Platform.FABRIC)
+            else if (project.plugins.findPlugin('org.quiltmc.loom')) return List.of(Platform.QUILT)
+            else if (loomPresent) return List.of(Platform.FABRIC)
 
             return List.of()
         }
@@ -510,8 +512,8 @@ abstract class MDGExtension {
                     if (loomPresent) {
                         gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
                         gatherTask.configure { task ->
-                            Configuration modImplementation = project.configurations.getByName('forge')
-                            Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.incoming.artifacts.resolvedArtifacts
+                            Configuration forgeConfig = project.configurations.getByName('forgeUserdev')
+                            Provider<Set<ResolvedArtifactResult>> artifacts = forgeConfig.incoming.artifacts.resolvedArtifacts
                             task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                             task.targetModule.set('minecraftforge')
                             task.targetGroup.set('net.minecraftforge')
@@ -519,8 +521,8 @@ abstract class MDGExtension {
                     } else {
                         gatherTask = makeGatherTask(platform, GatherForgePlatformDetails)
                         gatherTask.configure { task ->
-                            Configuration modImplementation = project.configurations.getByName('minecraft')
-                            Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.incoming.artifacts.resolvedArtifacts
+                            Configuration minecraftConfig = project.configurations.getByName('minecraft')
+                            Provider<Set<ResolvedArtifactResult>> artifacts = minecraftConfig.incoming.artifacts.resolvedArtifacts
                             task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                         }
                     }
@@ -529,8 +531,8 @@ abstract class MDGExtension {
                     if (loomPresent) {
                         gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
                         gatherTask.configure { task ->
-                            Configuration modImplementation = project.configurations.getByName('neoForge')
-                            Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.incoming.artifacts.resolvedArtifacts
+                            Configuration neoForgeConfig = project.configurations.getByName('forgeUserdev')
+                            Provider<Set<ResolvedArtifactResult>> artifacts = neoForgeConfig.incoming.artifacts.resolvedArtifacts
                             task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                             task.targetModule.set('neoforge')
                             task.targetGroup.set('net.neoforged')
@@ -542,8 +544,8 @@ abstract class MDGExtension {
                 case Platform.FABRIC:
                     gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
                     gatherTask.configure { task ->
-                        Configuration modImplementation = project.configurations.getByName('modCompileClasspath')
-                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.incoming.artifacts.resolvedArtifacts
+                        Configuration modCompileClasspath = project.configurations.getByName('modCompileClasspath')
+                        Provider<Set<ResolvedArtifactResult>> artifacts = modCompileClasspath.incoming.artifacts.resolvedArtifacts
                         task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                         task.targetModule.set('fabric-loader')
                         task.targetGroup.set('net.fabricmc')
@@ -552,8 +554,8 @@ abstract class MDGExtension {
                 case Platform.QUILT:
                     gatherTask = makeGatherTask(platform, GatherLoomPlatformDetails)
                     gatherTask.configure { task ->
-                        Configuration modImplementation = project.configurations.getByName('modCompileClasspath')
-                        Provider<Set<ResolvedArtifactResult>> artifacts = modImplementation.incoming.artifacts.resolvedArtifacts
+                        Configuration modCompileClasspath = project.configurations.getByName('modCompileClasspath')
+                        Provider<Set<ResolvedArtifactResult>> artifacts = modCompileClasspath.incoming.artifacts.resolvedArtifacts
                         task.artifactIds.set(artifacts.map(artifact -> artifact*.id))
                         task.targetModule.set('quilt-loader')
                         task.targetGroup.set('org.quiltmc')
