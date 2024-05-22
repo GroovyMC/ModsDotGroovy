@@ -49,7 +49,7 @@ final mdg = FabricModsDotGroovy.make {
     }
 
     depends {
-        fabricloader = ">=0.14.21"
+        fabricloader = ">=${environmentInfo.platformVersion}"
         minecraft = "~1.20.1"
         java = ">=17"
         it.'fabric-api' = "*"
