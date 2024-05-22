@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
+import org.gradle.api.logging.configuration.ShowStacktrace
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildServiceSpec
@@ -38,6 +39,7 @@ abstract class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         project.getGradle().getSharedServices().registerIfAbsent(ConvertService.name, ConvertService) { BuildServiceSpec<ConvertService.Parameters> it ->
             it.parameters.threads.set(propertyOf(project, ConvertService.THREAD_COUNT_PROPERTY).orElse("4"))
             it.parameters.logLevel.set(propertyOf(project, ConvertService.LOG_LEVEL_PROPERTY).orElse(closestLogLevel(project.gradle.startParameter.logLevel)))
+            it.parameters.stacktrace.set(propertyOf(project, ConvertService.STACKTRACE_PROPERTY).map { it.toBoolean() }.orElse(project.gradle.startParameter.showStacktrace !== ShowStacktrace.INTERNAL_EXCEPTIONS))
         }
 
         // set up the core extension for the 'main' source set

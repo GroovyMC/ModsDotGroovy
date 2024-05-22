@@ -1,5 +1,6 @@
 package org.groovymc.modsdotgroovy.gradle.internal;
 
+import org.gradle.api.logging.configuration.ShowStacktrace;
 import org.gradle.api.provider.Property;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
@@ -37,12 +38,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class ConvertService implements BuildService<ConvertService.Parameters>, AutoCloseable {
     public static final String THREAD_COUNT_PROPERTY = "org.groovymc.modsdotgroovy.conversion.threads";
     public static final String LOG_LEVEL_PROPERTY = "org.groovymc.modsdotgroovy.conversion.logging";
+    public static final String STACKTRACE_PROPERTY = "org.groovymc.modsdotgroovy.conversion.stacktrace";
 
     public abstract static class Parameters implements BuildServiceParameters {
         @Input
         public abstract Property<String> getThreads();
         @Input
         public abstract Property<String> getLogLevel();
+        @Input
+        public abstract Property<Boolean> getStacktrace();
     }
 
     private Process process;
@@ -67,6 +71,7 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
                         runnerClasspath,
                         "-D"+THREAD_COUNT_PROPERTY+"="+getParameters().getThreads().get(),
                         "-D"+LOG_LEVEL_PROPERTY+"="+getParameters().getLogLevel().get(),
+                        "-D"+STACKTRACE_PROPERTY+"="+getParameters().getStacktrace().get(),
                         "org.groovymc.modsdotgroovy.runner.ModsDotGroovyRunner"
                 ));
                 try {

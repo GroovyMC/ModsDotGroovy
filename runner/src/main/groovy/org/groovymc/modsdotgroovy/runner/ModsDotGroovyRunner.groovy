@@ -23,6 +23,8 @@ class ModsDotGroovyRunner implements AutoCloseable {
         optimizationOptions['indy'] = true
     }
 
+    private static boolean STACKTRACE = Boolean.getBoolean("org.groovymc.modsdotgroovy.conversion.stacktrace")
+
     private ModsDotGroovyRunner() throws IOException {
         this.socket = new ServerSocket(0)
     }
@@ -30,6 +32,17 @@ class ModsDotGroovyRunner implements AutoCloseable {
     static void main(String[] args) throws IOException {
         try (ModsDotGroovyRunner runner = new ModsDotGroovyRunner()) {
             runner.run()
+        } catch (Throwable t) {
+            logException(t)
+            throw t
+        }
+    }
+
+    private static void logException(Throwable t) {
+        if (STACKTRACE) {
+            log.error(t, t)
+        } else {
+            log.error t
         }
     }
 
@@ -44,6 +57,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
         try {
             executor.awaitTermination(4000, TimeUnit.MILLISECONDS)
         } catch (InterruptedException e) {
+            logException(e)
             throw new RuntimeException(e)
         }
     }
@@ -105,7 +119,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
                     output.writeObject(new Result(run.id(), result))
                 }
             } catch (Throwable t) {
-                t.printStackTrace()
+                logException(t)
                 output.writeObject(new Failure(run.id(), t.message, t.stackTrace))
                 throw new RuntimeException(t)
             }
