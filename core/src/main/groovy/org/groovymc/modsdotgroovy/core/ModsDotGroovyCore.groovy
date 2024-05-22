@@ -24,8 +24,12 @@ final class ModsDotGroovyCore {
 
     final LayeredMap.Listener listener
 
+    final ConversionSettings conversionSettings
+
     ModsDotGroovyCore(final Map<String, ?> environment) {
-        plugins*.init(environment.asImmutable())
+        this.conversionSettings = ConversionSettings.load(environment.conversionSettings as Map ?: [:])
+
+        plugins*.init(environment.asImmutable(), conversionSettings)
         platform = environment.containsKey('platform')
                 ? Platform.of(environment['platform'].invokeMethod('name', null) as String)
                 : Platform.UNKNOWN

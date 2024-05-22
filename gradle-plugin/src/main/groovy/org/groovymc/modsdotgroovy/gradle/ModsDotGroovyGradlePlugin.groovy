@@ -5,6 +5,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildServiceSpec
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
@@ -35,8 +36,8 @@ abstract class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         }
         project.dependencies.add('modsDotGroovyRunnerClasspath', project.dependencies.create('org.groovymc.modsdotgroovy:runner'))
         project.getGradle().getSharedServices().registerIfAbsent(ConvertService.name, ConvertService) { BuildServiceSpec<ConvertService.Parameters> it ->
-            it.parameters.threads.set(project.providers.systemProperty(ConvertService.THREAD_COUNT_PROPERTY).orElse("4"))
-            it.parameters.logLevel.set(closestLogLevel(project.gradle.startParameter.logLevel))
+            it.parameters.threads.set(propertyOf(project, ConvertService.THREAD_COUNT_PROPERTY).orElse("4"))
+            it.parameters.logLevel.set(propertyOf(project, ConvertService.LOG_LEVEL_PROPERTY).orElse(closestLogLevel(project.gradle.startParameter.logLevel)))
         }
 
         // set up the core extension for the 'main' source set
@@ -63,7 +64,11 @@ abstract class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         }
     }
 
-    static String closestLogLevel(LogLevel logLevel) {
+    private static Provider<String> propertyOf(Project project, String name) {
+        return project.providers.gradleProperty(name).orElse(project.providers.systemProperty(name))
+    }
+
+    private static String closestLogLevel(LogLevel logLevel) {
         switch (logLevel) {
             case LogLevel.DEBUG:
                 return 'DEBUG'

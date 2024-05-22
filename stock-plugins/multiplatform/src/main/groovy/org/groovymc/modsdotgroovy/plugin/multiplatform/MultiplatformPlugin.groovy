@@ -3,6 +3,7 @@ package org.groovymc.modsdotgroovy.plugin.multiplatform
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.ConversionSettings
 import org.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import org.groovymc.modsdotgroovy.plugin.PluginResult
 import org.groovymc.modsdotgroovy.types.core.Platform
@@ -15,7 +16,7 @@ final class MultiplatformPlugin extends ModsDotGroovyPlugin {
     private Platform currentPlatform = Platform.UNKNOWN
 
     @Override
-    void init(final Map<String, ?> environment) {
+    void init(final Map<String, ?> environment, ConversionSettings conversionSettings) {
         this.currentPlatform = Platform.of(environment['platform'].invokeMethod('name', null) as String)
         if (currentPlatform !in [Platform.FORGE, Platform.FABRIC, Platform.NEOFORGE, Platform.QUILT])
             throw new PluginResult.MDGPluginException('Unknown platform: ' + currentPlatform)

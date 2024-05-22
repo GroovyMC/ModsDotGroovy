@@ -3,6 +3,7 @@ package org.groovymc.modsdotgroovy.plugin
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.ConversionSettings
 import org.groovymc.modsdotgroovy.core.MapTransform
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.jetbrains.annotations.ApiStatus
@@ -42,7 +43,7 @@ abstract class ModsDotGroovyPlugin {
      * Called when the plugin is initialized. Use this to setup any resources you need and get information about the
      * environment you're running in.
      */
-    void init(final Map<String, ?> environment) {}
+    void init(final Map<String, ?> environment, ConversionSettings conversionSettings) {}
 
     List<MapTransform> mapTransforms() {
         return []

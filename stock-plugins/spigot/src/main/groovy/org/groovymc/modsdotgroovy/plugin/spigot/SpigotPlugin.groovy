@@ -3,6 +3,7 @@ package org.groovymc.modsdotgroovy.plugin.spigot
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.ConversionSettings
 import org.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
 import org.groovymc.modsdotgroovy.plugin.PluginResult
 import org.groovymc.modsdotgroovy.plugin.PluginUtils
@@ -13,7 +14,7 @@ import org.groovymc.modsdotgroovy.plugin.PluginUtils
 final class SpigotPlugin extends ModsDotGroovyPlugin {
 
     @Override
-    void init(final Map<String, ?> environment) {}
+    void init(final Map<String, ?> environment, ConversionSettings conversionSettings) {}
 
     @Override
     Logger getLog() {

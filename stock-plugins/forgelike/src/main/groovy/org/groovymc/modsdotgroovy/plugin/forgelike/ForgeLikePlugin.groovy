@@ -6,6 +6,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
+import org.groovymc.modsdotgroovy.core.ConversionSettings
 import org.groovymc.modsdotgroovy.core.MapTransform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
 import org.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
@@ -24,9 +25,12 @@ import java.util.regex.Matcher
 final class ForgeLikePlugin extends ModsDotGroovyPlugin {
     @Nullable String issueTrackerUrl
 
+    private ConversionSettings.OnlineBehavior onlineBehavior
+
     @Override
-    void init(final Map<String, ?> environment) {
+    void init(final Map<String, ?> environment, ConversionSettings conversionSettings) {
         log.info "Environment: ${environment}"
+        this.onlineBehavior = conversionSettings.onlineBehavior
     }
 
     // note: void methods are executed and treated as PluginResult.VALIDATE
@@ -230,10 +234,16 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
     }
 
     @Nullable
-    private static String inferUpdateJsonUrl(final String modId, @Nullable final String displayUrl, @Nullable final String issueTrackerUrl) {
+    private String inferUpdateJsonUrl(final String modId, @Nullable final String displayUrl, @Nullable final String issueTrackerUrl) {
         final String displayOrIssueTrackerUrl = displayUrl ?: issueTrackerUrl ?: ''
-        if (displayOrIssueTrackerUrl.isBlank())
+        if (displayOrIssueTrackerUrl.isBlank() || this.onlineBehavior === ConversionSettings.OnlineBehavior.SKIP) {
             return null
+        }
+
+        if (this.onlineBehavior === ConversionSettings.OnlineBehavior.ERROR) {
+            throw new PluginResult.MDGPluginException('Attempted to infer updateJSONURL for modId "${modId}", but running with onlineBehavior=ERROR.')
+        }
+
 
         @Nullable
         HttpClient httpClient = null

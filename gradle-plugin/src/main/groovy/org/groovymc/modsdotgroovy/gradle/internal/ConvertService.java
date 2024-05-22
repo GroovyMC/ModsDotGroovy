@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class ConvertService implements BuildService<ConvertService.Parameters>, AutoCloseable {
     public static final String THREAD_COUNT_PROPERTY = "org.groovymc.modsdotgroovy.conversion.threads";
-    private static final String LOG_LEVEL_PROPERTY = "org.groovymc.modsdotgroovy.conversion.logging";
+    public static final String LOG_LEVEL_PROPERTY = "org.groovymc.modsdotgroovy.conversion.logging";
 
     public abstract static class Parameters implements BuildServiceParameters {
         @Input
