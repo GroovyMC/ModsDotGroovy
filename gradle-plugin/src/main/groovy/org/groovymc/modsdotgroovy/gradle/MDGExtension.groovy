@@ -116,9 +116,7 @@ abstract class MDGExtension {
 
     private static Provider<List<Platform>> inferPlatforms(Project project) {
         return project.<List<Platform>>provider {
-            var loom = project.extensions.findByName('loom')
-            // The loom extension is present and is new enough to have a minecraftVersion property
-            boolean loomPresent = loom !== null && loom.hasProperty('minecraftVersion')
+            boolean loomPresent = isLoomProbablyPresent(project)
             var archLoomPlatform = project.providers.gradleProperty('loom.platform').getOrNull()
             if (loomPresent && archLoomPlatform != null) {
                 switch (archLoomPlatform) {
@@ -139,6 +137,12 @@ abstract class MDGExtension {
             else if (project.plugins.findPlugin('org.quiltmc.loom')) return List.of(Platform.QUILT)
             else return List.of()
         }
+    }
+
+    private static boolean isLoomProbablyPresent(Project project) {
+        var loom = project.extensions.findByName('loom')
+        // The loom extension is present and looks sort of like what we expect
+        return loom !== null && loom.hasProperty('minecraftVersion')
     }
 
     void multiplatform(Action<Multiplatform> action) {
@@ -497,9 +501,7 @@ abstract class MDGExtension {
     private TaskProvider<? extends AbstractGatherPlatformDetailsTask> setupGatherTask(Platform platform, SourceSet sourceSet) {
         TaskProvider<? extends AbstractGatherPlatformDetailsTask> gatherTask
 
-        var loom = project.extensions.findByName('loom')
-        // The loom extension is present and looks sort of like what we expect
-        boolean loomPresent = loom !== null && loom.hasProperty('minecraftVersion')
+        boolean loomPresent = isLoomProbablyPresent(project)
 
         if (inferGather.get()) {
             switch (platform) {
