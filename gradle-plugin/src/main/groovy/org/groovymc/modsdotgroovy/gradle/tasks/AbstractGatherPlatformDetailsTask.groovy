@@ -75,6 +75,7 @@ abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
         buildProperties.putAll(project.providers.gradleProperty(name).<Map<String, Object>>map { it -> [(name): it] })
     }
 
+    @Inject
     AbstractGatherPlatformDetailsTask() {
         outputFile.convention(projectLayout.buildDirectory.dir("generated/modsDotGroovy/${name.uncapitalize()}").map((Directory dir) -> dir.file('mdgPlatform.json')))
         extraProperties.convention([:])
