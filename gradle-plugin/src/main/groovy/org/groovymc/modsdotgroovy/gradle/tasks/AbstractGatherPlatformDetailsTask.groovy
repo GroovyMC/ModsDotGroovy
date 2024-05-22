@@ -68,11 +68,15 @@ abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
     protected abstract ObjectFactory getObjectFactory()
 
     void projectProperty(String name) {
-        buildProperties.put(name, project.providers.gradleProperty(name))
+        projectProperty(project.provider { name })
     }
 
     void projectProperty(Provider<String> name) {
-        buildProperties.putAll(project.providers.gradleProperty(name).<Map<String, Object>>map { it -> [(name): it] })
+        buildProperties.putAll(
+                project.provider {
+                    [(name.get()): project.property(name.get())]
+                }
+        )
     }
 
     AbstractGatherPlatformDetailsTask() {
