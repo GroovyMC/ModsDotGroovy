@@ -116,9 +116,14 @@ abstract class MDGExtension {
 
     private static Provider<List<Platform>> inferPlatforms(Project project) {
         return project.<List<Platform>>provider {
+            if (project.plugins.findPlugin('net.minecraftforge.gradle')) return List.of(Platform.FORGE)
+            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return List.of(Platform.NEOFORGE)
+            else if (project.plugins.findPlugin('fabric-loom')) return List.of(Platform.FABRIC)
+            else if (project.plugins.findPlugin('org.quiltmc.loom')) return List.of(Platform.QUILT)
+
             boolean loomPresent = isLoomProbablyPresent(project)
-            var archLoomPlatform = project.providers.gradleProperty('loom.platform').getOrNull()
-            if (loomPresent && archLoomPlatform != null) {
+            var archLoomPlatform = project.providers.gradleProperty('loom.platform').getOrElse('fabric')
+            if (loomPresent) {
                 switch (archLoomPlatform) {
                     case 'forge':
                         return List.of(Platform.FORGE)
@@ -131,11 +136,7 @@ abstract class MDGExtension {
                 }
             }
 
-            if (project.plugins.findPlugin('net.minecraftforge.gradle')) return List.of(Platform.FORGE)
-            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return List.of(Platform.NEOFORGE)
-            else if (project.plugins.findPlugin('fabric-loom')) return List.of(Platform.FABRIC)
-            else if (project.plugins.findPlugin('org.quiltmc.loom')) return List.of(Platform.QUILT)
-            else return List.of()
+            return List.of()
         }
     }
 
