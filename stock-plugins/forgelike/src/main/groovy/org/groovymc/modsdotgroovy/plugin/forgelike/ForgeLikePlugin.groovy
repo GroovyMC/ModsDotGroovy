@@ -1,4 +1,4 @@
-package org.groovymc.modsdotgroovy.plugin
+package org.groovymc.modsdotgroovy.plugin.forgelike
 
 import groovy.json.JsonParserType
 import groovy.json.JsonSlurper
@@ -8,6 +8,9 @@ import groovy.util.logging.Log4j2
 import org.apache.logging.log4j.core.Logger
 import org.groovymc.modsdotgroovy.core.MapTransform
 import org.groovymc.modsdotgroovy.core.versioning.VersionRange
+import org.groovymc.modsdotgroovy.plugin.ModsDotGroovyPlugin
+import org.groovymc.modsdotgroovy.plugin.PluginResult
+import org.groovymc.modsdotgroovy.plugin.PluginUtils
 import org.jetbrains.annotations.Nullable
 
 import java.net.http.HttpClient
