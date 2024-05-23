@@ -85,7 +85,7 @@ abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
 
     void projectProperties(Provider<? extends Collection<String>> names) {
         buildProperties.putAll(names.<Map<String, Object>>map { Collection<String> it ->
-            it.collectEntries { [(it):project.property(it)] }
+            it.collectEntries { [(it): project.property(it)] }
         })
     }
 
