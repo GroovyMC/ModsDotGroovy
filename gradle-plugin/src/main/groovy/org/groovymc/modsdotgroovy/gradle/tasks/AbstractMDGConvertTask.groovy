@@ -86,8 +86,9 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
     @ApiStatus.Internal
     protected abstract ConfigurableFileCollection getRunnerClasspath()
 
+    // Should not be used for caching -- if ran offline, the task will either fail or produce the same output
     @ApiStatus.Internal
-    @Input
+    @Internal
     protected abstract Property<Boolean> getGradleOffline()
 
     AbstractMDGConvertTask() {
