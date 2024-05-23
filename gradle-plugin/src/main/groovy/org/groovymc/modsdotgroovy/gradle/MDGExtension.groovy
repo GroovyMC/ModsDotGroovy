@@ -120,16 +120,7 @@ abstract class MDGExtension {
             boolean loomPresent = isLoomProbablyPresent(project)
             String archLoomPlatform = project.findProperty('loom.platform')
             if (loomPresent && archLoomPlatform !== null) {
-                switch (archLoomPlatform) {
-                    case 'forge':
-                        return List.of(Platform.FORGE)
-                    case 'neoforge':
-                        return List.of(Platform.NEOFORGE)
-                    case 'fabric':
-                        return List.of(Platform.FABRIC)
-                    case 'quilt':
-                        return List.of(Platform.QUILT)
-                }
+                return List.of(Platform.fromRegistry(archLoomPlatform))
             }
 
             if (project.plugins.findPlugin('net.minecraftforge.gradle')) return List.of(Platform.FORGE)
