@@ -104,7 +104,7 @@ abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
     void gradleProperties(Provider<? extends Collection<String>> names) {
         buildProperties.putAll(names.flatMap { Collection<String> it ->
             it.collect { String s -> project.providers.gradleProperty(s).<Map<String, Object>>map { v -> [(s): v] } }.inject { Provider<Map<String, Object>> full, Provider<Map<String, Object>> provider ->
-                full.zip(provider, { list, i -> list + i })
+                full.zip(provider, { i, j -> i + j })
             }
         })
     }
