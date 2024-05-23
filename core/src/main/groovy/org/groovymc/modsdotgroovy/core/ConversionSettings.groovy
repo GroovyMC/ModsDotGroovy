@@ -4,10 +4,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 
 @CompileStatic
-@TupleConstructor
-class ConversionSettings {
-    final OnlineBehavior onlineBehavior
-
+record ConversionSettings(OnlineBehavior onlineBehavior) {
     enum OnlineBehavior {
         ALLOW,
         SKIP,
