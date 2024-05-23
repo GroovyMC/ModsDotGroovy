@@ -1,7 +1,6 @@
 package org.groovymc.modsdotgroovy.core
 
 import groovy.transform.CompileStatic
-import groovy.transform.TupleConstructor
 
 @CompileStatic
 record ConversionSettings(OnlineBehavior onlineBehavior) {
@@ -11,7 +10,7 @@ record ConversionSettings(OnlineBehavior onlineBehavior) {
         ERROR
     }
 
-    static ConversionSettings load(Map map) {
+    static ConversionSettings load(Map<String, ?> map) {
         String behavior = map.onlineBehavior ?: "ALLOW"
         return new ConversionSettings(
                 OnlineBehavior.valueOf(behavior.toUpperCase(Locale.ROOT))
