@@ -241,7 +241,7 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
         }
 
         if (this.onlineBehavior === ConversionSettings.OnlineBehavior.ERROR) {
-            throw new PluginResult.MDGPluginException("Attempted to infer updateJSONURL for mod ${modId}, but running with onlineBehavior=ERROR.")
+            throw new PluginResult.MDGPluginException("Attempted to infer updateJSONURL for mod \"${modId}\", but running with onlineBehavior=ERROR.")
         }
 
 
