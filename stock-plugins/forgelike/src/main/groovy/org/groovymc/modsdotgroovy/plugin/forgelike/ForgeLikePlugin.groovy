@@ -30,7 +30,7 @@ final class ForgeLikePlugin extends ModsDotGroovyPlugin {
     @Override
     void init(final Map<String, ?> environment, ConversionSettings conversionSettings) {
         log.info "Environment: ${environment}"
-        this.onlineBehavior = conversionSettings.onlineBehavior
+        this.onlineBehavior = conversionSettings.onlineBehavior()
     }
 
     // note: void methods are executed and treated as PluginResult.VALIDATE
