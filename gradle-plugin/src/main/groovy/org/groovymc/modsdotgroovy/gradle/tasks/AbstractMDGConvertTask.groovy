@@ -2,6 +2,7 @@ package org.groovymc.modsdotgroovy.gradle.tasks
 
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
+import org.codehaus.groovy.runtime.StringGroovyMethods
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
@@ -102,7 +103,7 @@ abstract class AbstractMDGConvertTask extends DefaultTask {
 
         runnerClasspath.from(project.configurations.maybeCreate('modsDotGroovyRunnerClasspath'))
 
-        offline.convention(project.providers.gradleProperty('org.groovymc.modsdotgroovy.offline').map { it.toBoolean() }.orElse(false))
+        offline.convention(project.providers.gradleProperty('org.groovymc.modsdotgroovy.offline').map(StringGroovyMethods::toBoolean).orElse(false))
         gradleOffline.convention(project.gradle.startParameter.offline)
     }
 
