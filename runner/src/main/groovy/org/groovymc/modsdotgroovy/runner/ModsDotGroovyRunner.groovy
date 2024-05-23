@@ -23,7 +23,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
         optimizationOptions['indy'] = true
     }
 
-    private static boolean STACKTRACE = !Boolean.getBoolean("org.groovymc.modsdotgroovy.conversion.hidestacktrace")
+    private static final boolean STACKTRACE = !Boolean.getBoolean("org.groovymc.modsdotgroovy.conversion.hidestacktrace")
 
     private ModsDotGroovyRunner() throws IOException {
         this.socket = new ServerSocket(0)
