@@ -6,7 +6,8 @@ plugins {
 }
 
 modsDotGroovy.gather {
-    projectProperty 'credits'
+    // No need for a provider here technically but it's the iffier one so lets test it
+    projectProperties project.provider {['credits', 'description']}
 }
 
 version = '1.0.0'

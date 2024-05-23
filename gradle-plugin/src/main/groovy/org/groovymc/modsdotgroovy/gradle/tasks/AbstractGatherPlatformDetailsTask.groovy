@@ -79,12 +79,34 @@ abstract class AbstractGatherPlatformDetailsTask extends DefaultTask {
         )
     }
 
+    void projectProperties(Collection<String> names) {
+        names.each { projectProperty(it) }
+    }
+
+    void projectProperties(Provider<? extends Collection<String>> names) {
+        buildProperties.putAll(names.<Map<String, Object>>map { Collection<String> it ->
+            it.collectEntries { [(it):project.property(it)] }
+        })
+    }
+
     void gradleProperty(String name) {
         gradleProperty(project.provider { name })
     }
 
     void gradleProperty(Provider<String> name) {
         buildProperties.putAll(project.providers.gradleProperty(name).<Map<String, Object>>map { it -> [(name): it] })
+    }
+
+    void gradleProperties(Collection<String> names) {
+        names.each { gradleProperty(it) }
+    }
+
+    void gradleProperties(Provider<? extends Collection<String>> names) {
+        buildProperties.putAll(names.flatMap { Collection<String> it ->
+            it.collect { String s -> project.providers.gradleProperty(s).<Map<String, Object>>map { v -> [(s): v] } }.inject { Provider<Map<String, Object>> full, Provider<Map<String, Object>> provider ->
+                full.zip(provider, { list, i -> list + i })
+            }
+        })
     }
 
     @Inject
