@@ -13,7 +13,7 @@ class MinecraftBuilder extends DslBuilder implements PropertyInterceptor {
     /**@
      * Defines where mod runs.
      */
-    @Nullable def environment = null
+    @Nullable Environment environment = null
 
     MinecraftBuilder(final ModsDotGroovyCore core) {
         super(core)

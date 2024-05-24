@@ -18,7 +18,7 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapCl
     /**@
      * Does this dependency have to exist? If not, ordering must also be specified.
      */
-    def type = 'required'
+    DependencyType type = DependencyType.REQUIRED
 
     /**@
      * A version range of the versions of the mod you're compatible with.
@@ -28,12 +28,12 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapCl
     /**@
      * An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
      */
-    String ordering = 'NONE'
+    DependencyOrdering ordering = DependencyOrdering.NONE
 
     /**@
      * Side this dependency is applied on - BOTH, CLIENT or SERVER
      */
-    String side = 'BOTH'
+    DependencySide side = DependencySide.BOTH
 
     DependencyBuilder(final ModsDotGroovyCore core) {
         super(core)

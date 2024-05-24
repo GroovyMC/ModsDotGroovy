@@ -56,7 +56,7 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
      * Defines where mod runs: only on the client side (client mod), only on the server side (plugin) or on both sides (regular mod). Contains the environment identifier.
      * Ignored on Forge.
      */
-    @Nullable def environment = null
+    @Nullable Environment environment = null
 
     /**@
      * Defines the mod's icon. Icons are square PNG files.

@@ -26,16 +26,14 @@ class DependencyBuilder extends DslBuilder implements PropertyInterceptor, MapCl
     def versionRange
 
     /**@
-     * An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
-     * <p>Tip: Use the {@code DependencyOrdering} enum when setting this.</p>
+     * An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory.
      */
-    def ordering = 'NONE'
+    DependencyOrdering ordering = 'NONE'
 
     /**@
-     * Side this dependency is applied on - BOTH, CLIENT or SERVER
-     * <p>Tip: Use the {@code DependencySide} enum when setting this.</p>
+     * Side this dependency is applied on - BOTH, CLIENT or SERVER.
      */
-    def side = 'BOTH'
+    DependencySide side = 'BOTH'
 
     DependencyBuilder(final ModsDotGroovyCore core) {
         super(core)

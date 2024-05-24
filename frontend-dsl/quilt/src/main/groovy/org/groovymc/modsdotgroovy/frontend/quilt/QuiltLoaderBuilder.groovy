@@ -37,7 +37,7 @@ class QuiltLoaderBuilder extends DslBuilder implements PropertyInterceptor {
     /**@
      * Influences whether or not a mod candidate should be loaded or not.
      */
-    @Nullable def loadType = null
+    @Nullable LoadType loadType = null
 
     /**@
      * A list of Maven repository URL strings where dependencies can be looked for in addition to Quilt's central repository.

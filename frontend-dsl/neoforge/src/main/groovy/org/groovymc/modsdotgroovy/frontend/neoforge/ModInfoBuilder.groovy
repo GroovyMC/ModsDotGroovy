@@ -56,9 +56,8 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
 
     /**
      * Display Test controls the display for your mod in the server connection screen.
-     * <p>Tip: Use the {@code DisplayTest} enum when setting this.</p>
      */
-    def displayTest = 'MATCH_VERSION'
+    DisplayTest displayTest = DisplayTest.MATCH_VERSION
 
     /**
      * A multi-line description text for the mod, displayed in the in-game Mods screen.

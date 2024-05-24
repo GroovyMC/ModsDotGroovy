@@ -22,9 +22,8 @@ class PermissionBuilder extends DslBuilder implements PropertyInterceptor {
 
     /**@
      * Sets the default value of the permission.
-     * <p>Tip: Use the {@code PermissionDefault} enum when setting this.</p>
      */
-    @Nullable def permissionDefault = 'op'
+    @Nullable PermissionDefault permissionDefault = PermissionDefault.OP
 
     /**@
      * Sets the children of this permission. Child node keys are permission names.

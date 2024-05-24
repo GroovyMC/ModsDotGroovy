@@ -37,7 +37,7 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
     /**@
      * Influences whether or not a mod candidate should be loaded or not.
      */
-    @Nullable def loadType = null
+    @Nullable LoadType loadType = null
 
     /**@
      * The intermediate mappings used for this mod. The intermediate mappings string must be a valid maven coordinate
@@ -78,7 +78,7 @@ class ModInfoBuilder extends DslBuilder implements PropertyInterceptor, MapClosu
     /**
      * Display Test controls the display for your mod in the server connection screen.
      */
-    def displayTest = null //DisplayTest.MATCH_VERSION // todo: fix type issue
+    DisplayTest displayTest = DisplayTest.MATCH_VERSION
 
     /**
      * A multi-line description text for the mod, displayed in the in-game Mods screen.
