@@ -3,7 +3,7 @@ subprojects {
 
     group = 'org.groovymc.modsdotgroovy.frontend-dsl'
 
-    rootPackageTransformer.forSourceSet(sourceSets.main, "${group}:${name}-rootpackage:${version}") {
+    rootPackageTransformer.forSourceSet(sourceSets.main, "${group}:${name}-jpms:${version}") {
         transformSources.set true
     }
 
