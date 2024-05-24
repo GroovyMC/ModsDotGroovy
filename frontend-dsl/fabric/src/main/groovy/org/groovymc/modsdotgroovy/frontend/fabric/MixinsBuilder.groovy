@@ -1,12 +1,16 @@
+package org.groovymc.modsdotgroovy.frontend.fabric
+
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
 import org.groovymc.modsdotgroovy.core.ModsDotGroovyCore
 import org.groovymc.modsdotgroovy.frontend.DslBuilder
+import org.groovymc.rootpackagetransformer.RootPackage
 
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
+@RootPackage
 class MixinsBuilder extends DslBuilder {
     void mixin(final String config, final Environment environment = null) {
         log.debug "mixin(config: $config)"
@@ -19,7 +23,7 @@ class MixinsBuilder extends DslBuilder {
     }
 
     void mixin(@DelegatesTo(value = MixinBuilder, strategy = Closure.DELEGATE_FIRST)
-               @ClosureParams(value = SimpleType, options = 'MixinBuilder')
+               @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.MixinBuilder')
                final Closure closure) {
         log.debug 'mixin(closure)'
         core.push('mixin')

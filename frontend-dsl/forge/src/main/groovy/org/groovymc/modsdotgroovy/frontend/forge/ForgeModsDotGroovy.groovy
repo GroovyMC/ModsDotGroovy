@@ -1,3 +1,5 @@
+package org.groovymc.modsdotgroovy.frontend.forge
+
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
@@ -8,11 +10,13 @@ import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.groovymc.modsdotgroovy.frontend.forge.ModInfoBuilder
 import org.groovymc.modsdotgroovy.frontend.forge.ModsBuilder
+import org.groovymc.rootpackagetransformer.RootPackage
 import org.jetbrains.annotations.Nullable
 
 @PackageScope
 @CompileStatic
 @Log4j2(category = 'MDG - Forge Frontend')
+@RootPackage
 class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
@@ -73,7 +77,7 @@ class ForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterc
     }
 
     static ForgeModsDotGroovy make(@DelegatesTo(value = ForgeModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                   @ClosureParams(value = SimpleType, options = 'ForgeModsDotGroovy') final Closure closure,
+                                   @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.forge.ForgeModsDotGroovy') final Closure closure,
                                    final Map<String, ?> environment = [:]) {
         final ForgeModsDotGroovy val = new ForgeModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST

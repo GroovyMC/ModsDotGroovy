@@ -1,3 +1,5 @@
+package org.groovymc.modsdotgroovy.frontend.neoforge
+
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
@@ -10,6 +12,7 @@ import org.groovymc.modsdotgroovy.frontend.neoforge.AccessTransformersBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.MixinsBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.ModInfoBuilder
 import org.groovymc.modsdotgroovy.frontend.neoforge.ModsBuilder
+import org.groovymc.rootpackagetransformer.RootPackage
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.Nullable
 
@@ -19,6 +22,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @CompileStatic
 @ApiStatus.Experimental // NeoForged hasn't yet finalised their mods.toml spec at the time of writing
 @Log4j2(category = 'MDG - NeoForge Frontend')
+@RootPackage
 class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
@@ -101,7 +105,7 @@ class NeoForgeModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInt
     }
 
     static NeoForgeModsDotGroovy make(@DelegatesTo(value = NeoForgeModsDotGroovy, strategy = DELEGATE_FIRST)
-                                      @ClosureParams(value = SimpleType, options = 'NeoForgeModsDotGroovy') final Closure closure,
+                                      @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.neoforge.NeoForgeModsDotGroovy') final Closure closure,
                                       final Map<String, ?> environment = [:]) {
         final NeoForgeModsDotGroovy val = new NeoForgeModsDotGroovy(environment)
         closure.resolveStrategy = DELEGATE_FIRST

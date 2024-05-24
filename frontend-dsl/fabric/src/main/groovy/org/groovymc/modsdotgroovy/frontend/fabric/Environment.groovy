@@ -1,6 +1,10 @@
+package org.groovymc.modsdotgroovy.frontend.fabric
+
 import groovy.transform.CompileStatic
+import org.groovymc.rootpackagetransformer.RootPackage
 
 @CompileStatic
+@RootPackage
 enum Environment {
     /**@
      * Runs everywhere. Default.

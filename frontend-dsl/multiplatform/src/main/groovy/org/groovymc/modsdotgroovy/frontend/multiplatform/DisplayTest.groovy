@@ -1,6 +1,10 @@
+package org.groovymc.modsdotgroovy.frontend.multiplatform
+
 import groovy.transform.CompileStatic
+import org.groovymc.rootpackagetransformer.RootPackage
 
 @CompileStatic
+@RootPackage
 enum DisplayTest {
     /**
      * (default) A red "X" will be displayed on the server connection screen if the version of this mod differs between the

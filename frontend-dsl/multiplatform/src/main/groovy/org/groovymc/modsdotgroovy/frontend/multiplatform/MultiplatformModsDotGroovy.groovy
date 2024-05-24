@@ -1,3 +1,5 @@
+package org.groovymc.modsdotgroovy.frontend.multiplatform
+
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
@@ -12,6 +14,7 @@ import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.multiplatform.OnPlatform
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.groovymc.modsdotgroovy.frontend.multiplatform.fabric.IconBuilder
+import org.groovymc.rootpackagetransformer.RootPackage
 import org.jetbrains.annotations.Nullable
 
 import static groovy.lang.Closure.DELEGATE_FIRST
@@ -19,6 +22,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @PackageScope
 @CompileStatic
 @Log4j2(category = 'MDG - Multiplatform Frontend')
+@RootPackage
 class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor, OnPlatform {
     /**@
      * The name of the mod loader type to load - for regular Java FML @Mod mods it should be {@code javafml}.
@@ -147,7 +151,7 @@ class MultiplatformModsDotGroovy extends ModsDotGroovyFrontend implements Proper
     }
 
     static MultiplatformModsDotGroovy make(@DelegatesTo(value = MultiplatformModsDotGroovy, strategy = DELEGATE_FIRST)
-                              @ClosureParams(value = SimpleType, options = 'MultiplatformModsDotGroovy') final Closure closure,
+                              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.multiplatform.MultiplatformModsDotGroovy') final Closure closure,
                               final Map<String, ?> environment = [:]) {
         final MultiplatformModsDotGroovy val = new MultiplatformModsDotGroovy(environment)
         closure.resolveStrategy = DELEGATE_FIRST

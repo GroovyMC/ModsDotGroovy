@@ -1,6 +1,10 @@
+package org.groovymc.modsdotgroovy.frontend.multiplatform
+
 import groovy.transform.CompileStatic
+import org.groovymc.rootpackagetransformer.RootPackage
 
 @CompileStatic
+@RootPackage
 enum LoadType {
     /**@
      * If any versions of this mod are present, then one of them will be loaded.

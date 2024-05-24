@@ -7,6 +7,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ConfigurablePublishArtifact
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
@@ -322,7 +323,12 @@ abstract class MDGExtension {
 
         // mdgFrontend "org.groovymc.modsdotgroovy.frontend-dsl:<platform>"
         final String platformName = multiplatformFlag.get() ? 'multiplatform' : platform.name.toLowerCase(Locale.ROOT)
-        frontendConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platformName)))
+        var dep = project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platformName, { ModuleDependency d ->
+            d.attributes {
+                it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, "java-dsl"))
+            }
+        })
+        frontendConfiguration.configure(conf -> conf.dependencies.add(dep))
     }
 
     private void setupPlugins(NamedDomainObjectProvider<Configuration> pluginConfiguration, Platform platform) {

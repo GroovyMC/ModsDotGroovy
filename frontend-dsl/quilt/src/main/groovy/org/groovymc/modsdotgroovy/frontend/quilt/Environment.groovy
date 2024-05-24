@@ -1,6 +1,10 @@
+package org.groovymc.modsdotgroovy.frontend.quilt
+
 import groovy.transform.CompileStatic
+import org.groovymc.rootpackagetransformer.RootPackage
 
 @CompileStatic
+@RootPackage
 enum Environment {
     /**@
      * Runs everywhere. Default.

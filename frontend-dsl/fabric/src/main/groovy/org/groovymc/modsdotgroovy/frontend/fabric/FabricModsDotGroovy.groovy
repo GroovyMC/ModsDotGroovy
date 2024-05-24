@@ -1,14 +1,14 @@
+package org.groovymc.modsdotgroovy.frontend.fabric
+
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import groovy.util.logging.Log4j2
-import org.groovymc.modsdotgroovy.types.core.Platform
 import org.groovymc.modsdotgroovy.frontend.MapClosureInterceptor
 import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
-
-import org.groovymc.modsdotgroovy.frontend.fabric.*
+import org.groovymc.rootpackagetransformer.RootPackage
 import org.jetbrains.annotations.Nullable
 
 /**
@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable
 @PackageScope
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
+@RootPackage
 class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
      * Needed for internal mechanisms. Must always be 1.
@@ -149,7 +150,7 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
      * A list of mixin configuration files.
      */
     void mixins(@DelegatesTo(value = MixinsBuilder, strategy = Closure.DELEGATE_FIRST)
-                @ClosureParams(value = SimpleType, options = 'MixinsBuilder')
+                @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.MixinsBuilder')
                 final Closure closure) {
         log.debug "mixins(closure)"
         core.push('mixins')
@@ -286,7 +287,7 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
     }
 
     static FabricModsDotGroovy make(@DelegatesTo(value = FabricModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                    @ClosureParams(value = SimpleType, options = 'FabricModsDotGroovy') final Closure closure,
+                                    @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.FabricModsDotGroovy') final Closure closure,
                                     final Map<String, ?> environment = [:]) {
         final FabricModsDotGroovy val = new FabricModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST

@@ -1,3 +1,5 @@
+package org.groovymc.modsdotgroovy.frontend.spigot
+
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
@@ -8,12 +10,14 @@ import org.groovymc.modsdotgroovy.frontend.ModsDotGroovyFrontend
 import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 import org.groovymc.modsdotgroovy.frontend.spigot.CommandsBuilder
 import org.groovymc.modsdotgroovy.frontend.spigot.PermissionsBuilder
+import org.groovymc.rootpackagetransformer.RootPackage
 import org.jetbrains.annotations.Nullable
 
 // https://www.spigotmc.org/wiki/plugin-yml/
 
 @PackageScope
 @CompileStatic
+@RootPackage
 @Log4j2(category = 'MDG - Spigot Frontend')
 class SpigotModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInterceptor, MapClosureInterceptor {
     /**@
@@ -167,7 +171,7 @@ class SpigotModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
     }
 
     static SpigotModsDotGroovy make(@DelegatesTo(value = SpigotModsDotGroovy, strategy = Closure.DELEGATE_FIRST)
-                                    @ClosureParams(value = SimpleType, options = 'SpigotModsDotGroovy') final Closure closure,
+                                    @ClosureParams(value = SimpleType, options = 'package org.groovymc.modsdotgroovy.frontend.spigot.SpigotModsDotGroovy') final Closure closure,
                                     final Map<String, ?> environment = [:]) {
         final SpigotModsDotGroovy val = new SpigotModsDotGroovy(environment)
         closure.resolveStrategy = Closure.DELEGATE_FIRST

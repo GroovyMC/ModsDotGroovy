@@ -1,6 +1,10 @@
+package org.groovymc.modsdotgroovy.frontend.spigot
+
 import groovy.transform.CompileStatic
+import org.groovymc.rootpackagetransformer.RootPackage
 
 @CompileStatic
+@RootPackage
 enum PermissionDefault {
     /**@
      * Default to always granting the player the permission.

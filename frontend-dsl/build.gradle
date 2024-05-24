@@ -1,9 +1,14 @@
 subprojects {
+    apply plugin: libs.plugins.rootpackagetransformer.get().pluginId
+
+    rootPackageTransformer.forSourceSet(sourceSets.main)
+
     group = 'org.groovymc.modsdotgroovy.frontend-dsl'
 
     dependencies {
-        api libs.groovy4.core.get()
+        api libs.groovy4.core
         api projects.core
-        compileOnly libs.jetbrains.annotations.get()
+        compileOnly libs.jetbrains.annotations
+        compileOnly libs.rootpackagetransformer
     }
 }

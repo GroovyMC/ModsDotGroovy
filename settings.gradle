@@ -46,6 +46,10 @@ dependencyResolutionManagement {
             version('jetbrains-annotations', '24.1.0')
             library('jetbrains-annotations', 'org.jetbrains', 'annotations').versionRef('jetbrains-annotations')
             library('log4j-core', 'org.apache.logging.log4j', 'log4j-core').version('2.22.1')
+
+            version('rootpackagetransformer', '1.0.0')
+            library('rootpackagetransformer', 'org.groovymc', 'rootpackagetransformer').versionRef('rootpackagetransformer')
+            plugin('rootpackagetransformer', 'org.groovymc.rootpackagetransformer').versionRef('rootpackagetransformer')
         }
     }
 }
