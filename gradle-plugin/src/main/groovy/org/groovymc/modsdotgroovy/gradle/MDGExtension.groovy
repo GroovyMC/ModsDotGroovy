@@ -324,8 +324,8 @@ abstract class MDGExtension {
         // mdgFrontend "org.groovymc.modsdotgroovy.frontend-dsl:<platform>"
         final String platformName = multiplatformFlag.get() ? 'multiplatform' : platform.name.toLowerCase(Locale.ROOT)
         var dep = project.dependencies.create(MDG_FRONTEND_GROUP + ':' + platformName, { ModuleDependency d ->
-            d.attributes {
-                it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, "java-dsl"))
+            d.capabilities {
+                it.requireCapability("${MDG_FRONTEND_GROUP}:${platformName}-rootpackage")
             }
         })
         frontendConfiguration.configure(conf -> conf.dependencies.add(dep))
