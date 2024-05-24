@@ -3,7 +3,9 @@ subprojects {
 
     group = 'org.groovymc.modsdotgroovy.frontend-dsl'
 
-    rootPackageTransformer.forSourceSet(sourceSets.main, "${group}:${name}-rootpackage:${version}")
+    rootPackageTransformer.forSourceSet(sourceSets.main, "${group}:${name}-rootpackage:${version}") {
+        transformSources.set true
+    }
 
     dependencies {
         api libs.groovy4.core
