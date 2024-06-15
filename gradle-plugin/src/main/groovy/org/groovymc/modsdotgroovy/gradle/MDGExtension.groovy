@@ -124,7 +124,7 @@ abstract class MDGExtension {
             }
 
             if (project.plugins.findPlugin('net.minecraftforge.gradle')) return List.of(Platform.FORGE)
-            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev')) return List.of(Platform.NEOFORGE)
+            else if (project.plugins.findPlugin('net.neoforged.gradle.userdev') || project.plugins.findPlugin('net.neoforged.moddev')) return List.of(Platform.NEOFORGE)
             else if (project.plugins.findPlugin('fabric-loom')) return List.of(Platform.FABRIC)
             else if (project.plugins.findPlugin('org.quiltmc.loom')) return List.of(Platform.QUILT)
             else if (loomPresent) return List.of(Platform.FABRIC)

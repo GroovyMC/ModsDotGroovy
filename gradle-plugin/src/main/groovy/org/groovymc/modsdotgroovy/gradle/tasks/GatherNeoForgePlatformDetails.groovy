@@ -2,6 +2,7 @@ package org.groovymc.modsdotgroovy.gradle.tasks
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.jetbrains.annotations.Nullable
@@ -27,6 +28,7 @@ abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetai
             @Nullable String mcVersion = null
             @Nullable String neoForgeVersion = null
 
+            // First try NG
             try {
                 final neoFormRuntime = project.extensions.getByName('userDevRuntime')
                 final conf = project.configurations.getByName(configurationName)
@@ -36,6 +38,16 @@ abstract class GatherNeoForgePlatformDetails extends AbstractGatherPlatformDetai
 
                     mcVersion ?= spec.minecraftVersion
                     neoForgeVersion ?= spec.forgeVersion
+                }
+            } catch (ignored) {}
+
+            // Then try moddevgradle as a fallback
+            try {
+                final neoForge = project.extensions.getByName('neoForge')
+                neoForgeVersion ?= (neoForge.version as Property<String>).getOrNull()
+                if (neoForgeVersion) {
+                    final split = neoForgeVersion.split('\\.', 3)
+                    mcVersion = "1.${split[0]}.${split[1]}"
                 }
             } catch (ignored) {}
 
