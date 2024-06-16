@@ -207,8 +207,7 @@ abstract class MDGExtension {
                 conf.extendsFrom rootConfiguration.get()
             }
 
-            // setup required MDG repositories and dependencies for better IDE support
-            project.repositories.mavenCentral()
+            // setup required MDG dependencies for better IDE support
             rootConfiguration.configure(conf -> conf.dependencies.add(project.dependencies.create('org.apache.groovy:groovy:4.0.19')))
 
             // if asked, setup the mods.groovy DSL
