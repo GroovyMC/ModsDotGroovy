@@ -40,13 +40,14 @@ enableFeaturePreview 'STABLE_CONFIGURATION_CACHE'
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            version('groovy4', '4.0.21')
+            version('groovy4', '4.0.22')
             library('groovy4-core', 'org.apache.groovy', 'groovy').versionRef('groovy4')
             library('groovy4-json', 'org.apache.groovy', 'groovy-json').versionRef('groovy4')
 
             version('jetbrains-annotations', '24.1.0')
             library('jetbrains-annotations', 'org.jetbrains', 'annotations').versionRef('jetbrains-annotations')
-            library('log4j-core', 'org.apache.logging.log4j', 'log4j-core').version('2.22.1')
+
+            library('log4j-core', 'org.apache.logging.log4j', 'log4j-core').version('2.23.1')
 
             version('rootpackagetransformer', '1.0.0')
             library('rootpackagetransformer', 'org.groovymc', 'rootpackagetransformer').versionRef('rootpackagetransformer')
