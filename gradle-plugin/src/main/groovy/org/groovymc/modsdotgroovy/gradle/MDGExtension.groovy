@@ -26,6 +26,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import org.groovymc.modsdotgroovy.types.core.Platform
 import org.groovymc.modsdotgroovy.types.internal.FlexVerComparator
 import org.groovymc.modsdotgroovy.gradle.tasks.*
+import org.jetbrains.annotations.Nullable
 
 import javax.inject.Inject
 
@@ -134,9 +135,9 @@ abstract class MDGExtension {
     }
 
     private static boolean isLoomProbablyPresent(Project project) {
-        var loom = project.extensions.findByName('loom')
+        final @Nullable def loomExtension = project.extensions.findByName('loom')
         // The loom extension is present and looks sort of like what we expect
-        return loom !== null && loom.hasProperty('minecraftVersion')
+        return loomExtension?.hasProperty('minecraftVersion')
     }
 
     void multiplatform(Action<Multiplatform> action) {

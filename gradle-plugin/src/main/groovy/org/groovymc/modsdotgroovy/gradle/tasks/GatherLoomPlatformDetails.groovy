@@ -44,11 +44,7 @@ abstract class GatherLoomPlatformDetails extends AbstractGatherPlatformDetailsTa
     @Override
     void run() throws IllegalStateException {
         @Nullable String minecraftVersion = this.minecraftVersion.getOrNull()
-        @Nullable String platformVersion = this.platformVersion.getOrNull()
-
-        if (platformVersion == null) {
-            platformVersion = calculatePlatformVersion()
-        }
+        @Nullable String platformVersion = this.platformVersion.getOrNull() ?: calculatePlatformVersion()
 
         this.writePlatformDetails(minecraftVersion, platformVersion)
     }
@@ -57,14 +53,8 @@ abstract class GatherLoomPlatformDetails extends AbstractGatherPlatformDetailsTa
     private Provider<String> getMCVersionFromLoom() {
         return project.provider {
             final @Nullable def loomExtension = project.extensions.findByName('loom')
-            if (loomExtension !== null && loomExtension.hasProperty('minecraftVersion')) {
+            if (loomExtension?.hasProperty('minecraftVersion')) {
                 return (String) loomExtension.minecraftVersion.get()
-            } else if (loomExtension !== null && loomExtension.hasProperty('minecraftProvider')) {
-                // The old legacy way, using an internal API if it works
-                def provider = loomExtension.minecraftProvider
-                if (provider !== null && provider.respondsTo('minecraftVersion')) {
-                    return (String) provider.minecraftVersion()
-                }
             }
             return null
         }
