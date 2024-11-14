@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -145,13 +146,16 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
                     System.out.println(line);
                 }
             } catch (IOException exception) {
+                if (!socketPort.isDone()) {
+                    socketPort.completeExceptionally(exception);
+                }
                 throw new UncheckedIOException(exception);
             }
         }
     }
 
     private static final class ResultListener extends Thread {
-        private final Map<Integer, CompletableFuture<Result>> results = new HashMap<>();
+        private final Map<Integer, CompletableFuture<Result>> results = new ConcurrentHashMap<>();
         private final Socket socket;
         private final ObjectOutputStream output;
 
@@ -224,11 +228,22 @@ public abstract class ConvertService implements BuildService<ConvertService.Para
                                 future.complete(result);
                             }
                         } else if (obj instanceof Failure failure) {
-                            var future = results.remove(failure.id());
-                            if (future != null) {
+                            if (failure.id() == -1) {
                                 var exception = new RuntimeException(failure.message());
                                 exception.setStackTrace(failure.stackTrace());
-                                future.completeExceptionally(exception);
+                                this.beginClose(new RuntimeException(failure.message()));
+                                this.finishClose();
+                                for (var future : results.values()) {
+                                    future.completeExceptionally(exception);
+                                }
+                                return;
+                            } else {
+                                var future = results.remove(failure.id());
+                                if (future != null) {
+                                    var exception = new RuntimeException(failure.message());
+                                    exception.setStackTrace(failure.stackTrace());
+                                    future.completeExceptionally(exception);
+                                }
                             }
                         } else {
                             throw new IOException("Unexpected object: " + obj);

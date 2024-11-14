@@ -80,6 +80,8 @@ class ModsDotGroovyRunner implements AutoCloseable {
                 } else if (obj instanceof Run) {
                     execute(obj, output)
                 } else {
+                    var exception = new IOException("Unexpected object: " + obj);
+                    os.writeObject(new Failure(-1, exception.message, exception.stackTrace))
                     throw new IOException("Unexpected object: " + obj)
                 }
             } catch (ClassNotFoundException e) {
@@ -114,7 +116,7 @@ class ModsDotGroovyRunner implements AutoCloseable {
 
                     // set context classloader to MDG classloader -- needed for proper service discovery
                     shell.evaluate('Thread.currentThread().contextClassLoader = this.class.classLoader')
-
+                    
                     var result = FilteredStream.convertToSerializable(fromScriptResult(shell.evaluate(run.input())))
                     output.writeObject(new Result(run.id(), result))
                 }
