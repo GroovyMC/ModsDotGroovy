@@ -33,7 +33,8 @@ managedVersioning {
             gradleJob {
                 name.set 'publish'
                 needs.add('build')
-                gradlew 'Publish', 'publish', 'closeAndReleaseSonatypeStagingRepository'
+                // Conf cache disabled because the nexus-publish plugin doesn't seem to like it
+                gradlew 'Publish', 'publish', 'closeAndReleaseSonatypeStagingRepository', '--no-configuration-cache'
                 tag.set('${{needs.build.outputs.version}}')
                 secrets 'GPG_SIGNING_KEY', 'GPG_KEY_PASSWORD', 'CENTRAL_MAVEN_USER', 'CENTRAL_MAVEN_PASSWORD'
             }

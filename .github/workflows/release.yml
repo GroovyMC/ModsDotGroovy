@@ -110,7 +110,7 @@
                 },
                 {
                     "name": "Publish",
-                    "run": "./gradlew publish closeAndReleaseSonatypeStagingRepository",
+                    "run": "./gradlew publish closeAndReleaseSonatypeStagingRepository --no-configuration-cache",
                     "id": "publish",
                     "env": {
                         "GPG_SIGNING_KEY": "${{ secrets.GPG_SIGNING_KEY }}",
