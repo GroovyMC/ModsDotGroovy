@@ -4,7 +4,7 @@ dependencies {
     implementation projects.types
     implementation(libs.forkedtaskexecutor) {
         capabilities {
-            requireCapability('dev.lukebemish:forkedtaskexecutor-runner')
+            requireFeature('runner')
         }
     }
 }
