@@ -21,6 +21,10 @@ pluginManagement {
     includeBuild '../'
 }
 
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
+}
+
 rootProject.name = 'modsdotgroovy-test'
 
 buildCache {
@@ -35,6 +39,10 @@ enableFeaturePreview 'STABLE_CONFIGURATION_CACHE'
 
 includeBuild '../'
 
-//include 'neogradle'
-include 'forge', 'fabric', 'quilt', 'spigot', 'neoforge'
-include 'multiplatform:forge', 'multiplatform:fabric', 'multiplatform:neoforge', 'multiplatform:quilt', 'multiplatform:common'
+include 'multiplatform:common'
+if (forge_enabled == 'true') include 'forge', 'multiplatform:forge'
+if (fabric_enabled == 'true') include 'fabric', 'multiplatform:fabric'
+if (neoforge_enabled == 'true') include 'neoforge', 'multiplatform:neoforge'
+if (neogradle_enabled == 'true') include 'neogradle'
+if (quilt_enabled == 'true') include 'quilt', 'multiplatform:quilt'
+if (spigot_enabled == 'true') include 'spigot'
