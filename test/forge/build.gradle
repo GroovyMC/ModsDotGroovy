@@ -1,7 +1,7 @@
 plugins {
     id 'eclipse'
     id 'idea'
-    id 'net.minecraftforge.gradle' version '6.0.21'
+    id 'net.minecraftforge.gradle' version "$forgegradle_version"
     id 'org.groovymc.modsdotgroovy'
 }
 

@@ -64,13 +64,8 @@ public final class FilteredStream extends ObjectInputStream {
             File.class,
 
             // Lifecycle
-            Stop.class,
             Run.class,
-            Result.class,
-            Failure.class,
-
-            // Error reporting
-            StackTraceElement.class
+            Result.class
     );
 
     public static Map<Object, Object> convertToSerializable(final Map<?, ?> map) {

@@ -13,6 +13,10 @@ pluginManagement {
     }
 }
 
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
+}
+
 rootProject.name = 'modsdotgroovy'
 
 buildCache {
@@ -40,7 +44,7 @@ enableFeaturePreview 'STABLE_CONFIGURATION_CACHE'
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            version('groovy4', '4.0.22')
+            version('groovy4', '4.0.24')
             library('groovy4-core', 'org.apache.groovy', 'groovy').versionRef('groovy4')
             library('groovy4-json', 'org.apache.groovy', 'groovy-json').versionRef('groovy4')
 
@@ -52,6 +56,9 @@ dependencyResolutionManagement {
             version('rootpackagetransformer', '1.0.0')
             library('rootpackagetransformer', 'org.groovymc', 'rootpackagetransformer').versionRef('rootpackagetransformer')
             plugin('rootpackagetransformer', 'org.groovymc.rootpackagetransformer').versionRef('rootpackagetransformer')
+            
+            version('forkedtaskexecutor', '0.1.0')
+            library('forkedtaskexecutor', 'dev.lukebemish', 'forkedtaskexecutor').versionRef('forkedtaskexecutor')
         }
     }
 }

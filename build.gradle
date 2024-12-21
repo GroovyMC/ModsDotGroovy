@@ -107,8 +107,8 @@ publishing {
 
     repositories {
         maven {
-            name 'repo'
-            url rootProject.file('repo')
+            name = 'repo'
+            url = rootProject.file('repo')
         }
     }
 }
@@ -181,37 +181,41 @@ subprojects {
         }
     }
 
-    tasks.named('groovydoc', Groovydoc) {
-        use = true
-    }
+    if (project.name != 'gradle-plugin') {
+        // The gradle-plugin project already has javadoc set up by the relevant gradle plugins
+        
+        tasks.named('groovydoc', Groovydoc) {
+            use = true
+        }
 
-    tasks.register('groovydocJar', Jar) {
-        archiveClassifier = 'javadoc'
-        from groovydoc.destinationDir
-        dependsOn 'groovydoc'
-    }
-
-    // Publish groovydoc as javadoc
-    configurations {
-        javadocElements {
-            canBeConsumed = true
-            canBeResolved = false
-            attributes {
-                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.JAVA_RUNTIME))
-                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.class, Category.DOCUMENTATION))
-                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.class, Bundling.EXTERNAL))
-                attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, DocsType.JAVADOC))
+        tasks.register('groovydocJar', Jar) {
+            archiveClassifier = 'javadoc'
+            from groovydoc.destinationDir
+            dependsOn 'groovydoc'
+        }
+        
+        // Publish groovydoc as javadoc
+        configurations {
+            groovydocElements {
+                canBeConsumed = true
+                canBeResolved = false
+                attributes {
+                    attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.JAVA_RUNTIME))
+                    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.class, Category.DOCUMENTATION))
+                    attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.class, Bundling.EXTERNAL))
+                    attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, DocsType.JAVADOC))
+                }
             }
         }
-    }
 
-    project.components.named("java").configure {
-        AdhocComponentWithVariants javaComponent = (AdhocComponentWithVariants) it
-        javaComponent.addVariantsFromConfiguration(configurations.javadocElements) {}
-    }
+        project.components.named("java").configure {
+            AdhocComponentWithVariants javaComponent = (AdhocComponentWithVariants) it
+            javaComponent.addVariantsFromConfiguration(configurations.groovydocElements) {}
+        }
 
-    artifacts {
-        javadocElements groovydocJar
+        artifacts {
+            groovydocElements groovydocJar
+        }
     }
 
     jar {
@@ -225,8 +229,8 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name 'repo'
-                url rootProject.file('repo')
+                name = 'repo'
+                url = rootProject.file('repo')
             }
         }
     }
