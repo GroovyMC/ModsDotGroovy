@@ -1,8 +1,12 @@
 dependencies {
     implementation libs.groovy4.core
-    implementation libs.log4j.core
     compileOnly libs.jetbrains.annotations
     implementation projects.types
+    implementation(libs.forkedtaskexecutor) {
+        capabilities {
+            requireCapability('dev.lukebemish:forkedtaskexecutor-runner')
+        }
+    }
 }
 
 publishing {

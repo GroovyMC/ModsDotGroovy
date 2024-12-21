@@ -38,7 +38,6 @@ abstract class ModsDotGroovyGradlePlugin implements Plugin<Project> {
         }
         project.dependencies.add('modsDotGroovyRunnerClasspath', project.dependencies.create('org.groovymc.modsdotgroovy:runner'))
         project.getGradle().getSharedServices().registerIfAbsent(ConvertService.name, ConvertService) { BuildServiceSpec<ConvertService.Parameters> it ->
-            it.parameters.threads.set(propertyOf(project, ConvertService.THREAD_COUNT_PROPERTY).orElse("4"))
             it.parameters.logLevel.set(propertyOf(project, ConvertService.LOG_LEVEL_PROPERTY).orElse(closestLogLevel(project.gradle.startParameter.logLevel)))
             it.parameters.hideStacktrace.set(propertyOf(project, ConvertService.STACKTRACE_PROPERTY).map(StringGroovyMethods::toBoolean).orElse(project.gradle.startParameter.showStacktrace === ShowStacktrace.INTERNAL_EXCEPTIONS))
         }

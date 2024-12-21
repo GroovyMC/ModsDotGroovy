@@ -1,98 +1,31 @@
 package org.groovymc.modsdotgroovy.runner
 
+import dev.lukebemish.forkedtaskexecutor.runner.Task
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.transform.TupleConstructor
-import groovy.util.logging.Log4j2
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.groovymc.modsdotgroovy.types.core.Platform
-import org.groovymc.modsdotgroovy.types.runner.*
+import org.groovymc.modsdotgroovy.types.runner.FilteredStream
+import org.groovymc.modsdotgroovy.types.runner.Result
+import org.groovymc.modsdotgroovy.types.runner.Run
 
 import java.lang.annotation.Annotation
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 @CompileStatic
-@Log4j2(category = 'MDG - Bootstrap Runner')
-class ModsDotGroovyRunner implements AutoCloseable {
-
+class ModsDotGroovyRunner implements Task {
     private static final CompilerConfiguration MDG_COMPILER_CONFIG = new CompilerConfiguration().tap {
         targetBytecode = JDK17
         optimizationOptions['indy'] = true
     }
 
-    private static final boolean STACKTRACE = !Boolean.getBoolean("org.groovymc.modsdotgroovy.conversion.hidestacktrace")
-
-    private ModsDotGroovyRunner() throws IOException {
-        this.socket = new ServerSocket(0)
-    }
-
-    static void main(String[] args) throws IOException {
-        try (ModsDotGroovyRunner runner = new ModsDotGroovyRunner()) {
-            runner.run()
-        } catch (Throwable t) {
-            logException(t)
-            throw t
-        }
-    }
-
-    private static void logException(Throwable t) {
-        if (STACKTRACE) {
-            log.error(t, t)
-        } else {
-            log.error t
-        }
-    }
-
-    private final ServerSocket socket
-    private final ExecutorService executor = Executors.newFixedThreadPool(Integer.getInteger("org.groovymc.modsdotgroovy.conversion.threads"))
+    ModsDotGroovyRunner(String[] args) {}
 
     @Override
-    void close() throws IOException {
-        log.info "Shutting down MDG runner..."
-        socket.close()
-        executor.shutdownNow()
-        try {
-            executor.awaitTermination(4000, TimeUnit.MILLISECONDS)
-        } catch (InterruptedException e) {
-            logException(e)
-            throw new RuntimeException(e)
-        }
-    }
-
-    private void run() throws IOException {
-        // This tells the parent process what port we're listening on
-        println(socket.getLocalPort())
-        log.info "Starting up MDG runner..."
-
-        var socket = this.socket.accept()
-        log.info "Connected to MDG runner..."
-        var input = FilteredStream.filtered(socket.getInputStream())
-        var os = new ObjectOutputStream(socket.getOutputStream())
-        var output = new Output(os)
-        while (true) {
-            try {
-                var obj = input.readObject()
-                if (obj instanceof Stop) {
-                    break
-                } else if (obj instanceof Run) {
-                    execute(obj, output)
-                } else {
-                    var exception = new IOException("Unexpected object: " + obj);
-                    os.writeObject(new Failure(-1, exception.message, exception.stackTrace))
-                    throw new IOException("Unexpected object: " + obj)
-                }
-            } catch (ClassNotFoundException e) {
-                throw new IOException(e)
-            }
-        }
-    }
-
-    private void execute(Run run, Output output) {
-        var future = executor.submit(() -> {
-            try {
+    byte[] run(byte[] bytes) throws Exception {
+        try (var input = FilteredStream.filtered(new ByteArrayInputStream(bytes))) {
+            var run = input.readObject()
+            if (run instanceof Run) {
                 try (var mdgClassLoader = new URLClassLoader(run.classpath())) {
 
                     final compilerConfig = new CompilerConfiguration(MDG_COMPILER_CONFIG)
@@ -116,24 +49,17 @@ class ModsDotGroovyRunner implements AutoCloseable {
 
                     // set context classloader to MDG classloader -- needed for proper service discovery
                     shell.evaluate('Thread.currentThread().contextClassLoader = this.class.classLoader')
-                    
+
                     var result = FilteredStream.convertToSerializable(fromScriptResult(shell.evaluate(run.input())))
-                    output.writeObject(new Result(run.id(), result))
+                    var output = new ByteArrayOutputStream()
+                    try (var oos = new ObjectOutputStream(output)) {
+                        oos.writeObject(new Result(result))
+                    }
+                    return output.toByteArray()
                 }
-            } catch (Throwable t) {
-                logException(t)
-                output.writeObject(new Failure(run.id(), t.message, t.stackTrace))
-                throw new RuntimeException(t)
+            } else {
+                throw new IllegalArgumentException("Expected Run object, got ${run.getClass().name}")
             }
-        })
-    }
-
-    @TupleConstructor(includeFields = true)
-    private static final class Output {
-        private final ObjectOutputStream stream
-
-        synchronized void writeObject(Object obj) {
-            stream.writeObject(obj)
         }
     }
 

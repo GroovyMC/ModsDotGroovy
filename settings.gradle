@@ -52,6 +52,9 @@ dependencyResolutionManagement {
             version('rootpackagetransformer', '1.0.0')
             library('rootpackagetransformer', 'org.groovymc', 'rootpackagetransformer').versionRef('rootpackagetransformer')
             plugin('rootpackagetransformer', 'org.groovymc.rootpackagetransformer').versionRef('rootpackagetransformer')
+            
+            version('forkedtaskexecutor', '0.1.0')
+            library('forkedtaskexecutor', 'dev.lukebemish', 'forkedtaskexecutor').versionRef('forkedtaskexecutor')
         }
     }
 }
