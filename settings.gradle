@@ -19,7 +19,8 @@ plugins {
 
 rootProject.name = 'modsdotgroovy'
 
-buildCache {
+// Build cache does not appear to be up -- no need to waste time querying it
+/*buildCache {
     remote(HttpBuildCache) {
         url = 'https://gradlecache.groovymc.org/cache/'
 
@@ -35,7 +36,7 @@ buildCache {
             }
         }
     }
-}
+}*/
 
 enableFeaturePreview 'GROOVY_COMPILATION_AVOIDANCE'
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'

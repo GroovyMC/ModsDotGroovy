@@ -10,6 +10,12 @@ subprojects {
     dependencies {
         api libs.groovy4.core
         api projects.core
+        implementation(project(':core')) {
+            // Can't use typesafe accessor here -- those don't let you configure capabilities apparently?
+            capabilities {
+                requireFeature('dsl-api')
+            }
+        }
         compileOnly libs.jetbrains.annotations
         compileOnly libs.rootpackagetransformer
     }

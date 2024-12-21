@@ -1,9 +1,65 @@
+configurations {
+    dependencyScope('pluginApi')
+    consumable('pluginApiApiElements') {
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_API))
+        }
+        outgoing {
+            capability("$group:${project.name}-plugin-api:$version")
+        }
+        extendsFrom pluginApi
+    }
+    consumable('pluginApiRuntimeElements') {
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+        }
+        outgoing {
+            capability("$group:${project.name}-plugin-api:$version")
+        }
+        extendsFrom pluginApi
+    }
+    dependencyScope('dslApi')
+    consumable('dslApiApiElements') {
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_API))
+        }
+        outgoing {
+            capability("$group:${project.name}-dsl-api:$version")
+        }
+        extendsFrom dslApi
+    }
+    consumable('dslApiRuntimeElements') {
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+        }
+        outgoing {
+            capability("$group:${project.name}-dsl-api:$version")
+        }
+        extendsFrom dslApi
+    }
+}
+
 dependencies {
     implementation libs.groovy4.core
     compileOnly libs.jetbrains.annotations
-    api libs.log4j.core
+    implementation libs.log4j.core
     api projects.types
+
+    pluginApi libs.log4j.core
+    pluginApi projects.core
+    
+    dslApi libs.log4j.core
+    dslApi projects.core
 }
+
+components.java.addVariantsFromConfiguration(configurations.pluginApiRuntimeElements) {}
+components.java.addVariantsFromConfiguration(configurations.pluginApiApiElements) {}
+components.java.addVariantsFromConfiguration(configurations.dslApiRuntimeElements) {}
+components.java.addVariantsFromConfiguration(configurations.dslApiApiElements) {}
 
 publishing {
     publications.register('core', MavenPublication) {

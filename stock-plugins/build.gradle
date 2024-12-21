@@ -3,7 +3,12 @@ subprojects {
 
     dependencies {
         implementation libs.groovy4.core.get()
-        implementation projects.core
+        implementation(project(':core')) {
+            // Can't use typesafe accessor here -- those don't let you configure capabilities apparently?
+            capabilities {
+                requireFeature('plugin-api')
+            }
+        }
         compileOnly libs.jetbrains.annotations.get()
     }
 }
