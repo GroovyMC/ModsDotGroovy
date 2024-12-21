@@ -222,7 +222,7 @@ subprojects {
         manifest.attributes([
                 // Automatic module name from the project path, with dashes being dropped (so `stock-plugins` becomes `stockplugins`)
                 'Automatic-Module-Name': project.group + project.path.split(':').join('.').replace('-', ''),
-                'Implementation-Version': project.version
+                'Implementation-Version': project.version as String
         ])
     }
 
