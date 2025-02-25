@@ -12,13 +12,10 @@ import org.groovymc.rootpackagetransformer.RootPackage
 @Log4j2(category = 'MDG - Fabric Frontend')
 @RootPackage
 class MixinsBuilder extends DslBuilder {
-    void mixin(final String config, final Environment environment = null) {
+    void mixin(final String config) {
         log.debug "mixin(config: $config)"
         core.push('mixin')
         core.put('config', config)
-        if (environment !== null) {
-            core.put('environment', environment)
-        }
         core.pop()
     }
 

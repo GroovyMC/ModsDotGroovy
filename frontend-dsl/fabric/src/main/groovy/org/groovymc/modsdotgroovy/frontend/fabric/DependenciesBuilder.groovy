@@ -11,10 +11,6 @@ import org.groovymc.modsdotgroovy.frontend.PropertyInterceptor
 @CompileStatic
 @Log4j2(category = 'MDG - Fabric Frontend')
 class DependenciesBuilder extends DslBuilder implements PropertyInterceptor {
-    void mod(final String modId, def versionRange) {
-        core.put(modId, versionRange)
-    }
-
     void mod(@DelegatesTo(value = DependencyBuilder, strategy = Closure.DELEGATE_FIRST)
              @ClosureParams(value = SimpleType, options = 'org.groovymc.modsdotgroovy.frontend.fabric.DependencyBuilder')
              final Closure closure) {

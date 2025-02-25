@@ -81,6 +81,9 @@ class FabricModsDotGroovy extends ModsDotGroovyFrontend implements PropertyInter
 
     @Nullable String accessWidener = null
 
+    /**@
+     * A shorthand for a single icon file of a given size. Prefer using {@link #icon(Closure)} if you need multiple sizes.
+     */
     void icon(final int size, final String path) {
         log.debug "icon(int, string)"
         core.push('icon')
