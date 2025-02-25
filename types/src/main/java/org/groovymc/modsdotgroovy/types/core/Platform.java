@@ -1,5 +1,7 @@
 package org.groovymc.modsdotgroovy.types.core;
 
+import groovy.transform.KnownImmutable;
+
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.Map;
@@ -7,6 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@KnownImmutable
 public final class Platform implements Serializable {
     private final String name;
 
