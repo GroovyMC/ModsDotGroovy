@@ -1,0 +1,23 @@
+{
+    "id": "examplemod",
+    "version": "1.0.0",
+    "entrypoints": {
+        "main": [
+            "net.fabricmc.example.ExampleMod",
+            {
+                "adapter": "kotlin",
+                "value": "hello.kotlin.World"
+            }
+        ],
+        "client": [
+            "net.fabricmc.example.ExampleModClient"
+        ],
+        "rei": [
+            "net.fabricmc.example.ReiPlugin"
+        ],
+        "fabric:datagen": [
+            "net.fabricmc.example.ExampleModData"
+        ]
+    },
+    "schemaVersion": 1
+}

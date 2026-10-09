@@ -1,0 +1,10 @@
+{
+    "id": "examplemod",
+    "version": "1.0.0",
+    "icon": {
+        "16": "small.png",
+        "32": "medium.png",
+        "64": "large.png"
+    },
+    "schemaVersion": 1
+}

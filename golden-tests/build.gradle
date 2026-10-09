@@ -1,0 +1,18 @@
+dependencies {
+    testImplementation libs.groovy4.core
+    testImplementation libs.groovy4.json
+    testImplementation projects.core
+    testImplementation projects.types
+    testImplementation projects.frontendDsl.fabric
+    testImplementation projects.stockPlugins.fabric
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    // Pass -PupdateGolden to re write the expected files from the current output instead of asserting against them
+    systemProperty 'mdg.golden.update', providers.gradleProperty('updateGolden').isPresent()
+    systemProperty 'mdg.golden.sourceDir', layout.projectDirectory.dir('src/test/resources/golden').asFile.absolutePath
+}
