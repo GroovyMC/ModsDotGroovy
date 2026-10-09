@@ -340,3 +340,14 @@ Make sure you also declare your plugin to the service loader:
 com.example.modsdotgroovy.plugin.BarebonesExamplePlugin
 ```
 
+
+## Golden-file tests
+The ```golden-tests``` project runs small ```mods.groovy``` scripts through the real frontend and stock plugin for a platform
+and compares the built output against a checked-in ```expected.json```. Each case lives in
+```golden-tests/src/test/resources/golden/<platform>/<case>/```:
+
+To add a case, create the folder and ```mods.groovy``` (keep it focused on one feature), then run
+```./gradlew :golden-tests:test -PupdateGolden``` to generate `expected.json```
+
+When a plugin change intentionally alters the output, run the same command to regenerate the affected files and review
+the diff without ```-PupdateGolden``` a mismatch fails the test.

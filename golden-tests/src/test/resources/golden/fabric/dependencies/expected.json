@@ -1,0 +1,29 @@
+{
+    "id": "examplemod",
+    "version": "1.0.0",
+    "depends": {
+        "fabricloader": ">=0.15.0",
+        "minecraft": ">=1.20.1 <1.21.0",
+        "java": ">=17",
+        "fabric-api": "*",
+        "another-mod": ">=1.5.0",
+        "something-else": ">0.5 <1.0",
+        "rats": "*"
+    },
+    "recommends": {
+        "example_foss_mod": "*"
+    },
+    "suggests": {
+        "another_nice_mod": [
+            ">=0.5.0",
+            "<0.7.8"
+        ]
+    },
+    "breaks": {
+        "example_arr_mod": "*"
+    },
+    "conflicts": {
+        "naughty_mod": "*"
+    },
+    "schemaVersion": 1
+}

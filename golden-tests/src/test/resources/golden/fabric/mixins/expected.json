@@ -1,0 +1,16 @@
+{
+    "id": "examplemod",
+    "version": "1.0.0",
+    "mixins": [
+        "modid.mixins.json",
+        {
+            "config": "modid-client.mixins.json",
+            "environment": "client"
+        },
+        {
+            "config": "modid-server.mixins.json",
+            "environment": "server"
+        }
+    ],
+    "schemaVersion": 1
+}
